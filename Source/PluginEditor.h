@@ -28,6 +28,7 @@ namespace webview_plugin
         void resized() override;
 
     private:
+        std::optional<juce::WebBrowserComponent::Resource> getResource(const juce::String& url);
         // This reference is provided as a quick way for your editor to
         // access the processor object that created it.
         ReverbulizerAudioProcessor& audioProcessor;
