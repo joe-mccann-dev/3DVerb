@@ -16,6 +16,8 @@ namespace webview_plugin
         : AudioProcessorEditor(&p), 
         audioProcessor(p), 
         webView{ juce::WebBrowserComponent::Options{}.withBackend(juce::WebBrowserComponent::Options::Backend::webview2)
+        .withWinWebView2Options(juce::WebBrowserComponent::Options::WinWebView2{}
+        .withUserDataFolder(juce::File::getSpecialLocation(juce::File::tempDirectory)))
         }
     {
 
