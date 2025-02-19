@@ -14,20 +14,24 @@
 //==============================================================================
 /**
 */
-class ReverbulizerAudioProcessorEditor  : public juce::AudioProcessorEditor
+
+namespace webview_plugin
 {
-public:
-    ReverbulizerAudioProcessorEditor (ReverbulizerAudioProcessor&);
-    ~ReverbulizerAudioProcessorEditor() override;
+    class ReverbulizerAudioProcessorEditor : public juce::AudioProcessorEditor
+    {
+    public:
+        ReverbulizerAudioProcessorEditor(ReverbulizerAudioProcessor&);
+        ~ReverbulizerAudioProcessorEditor() override;
 
-    //==============================================================================
-    void paint (juce::Graphics&) override;
-    void resized() override;
+        //==============================================================================
+        void paint(juce::Graphics&) override;
+        void resized() override;
 
-private:
-    // This reference is provided as a quick way for your editor to
-    // access the processor object that created it.
-    ReverbulizerAudioProcessor& audioProcessor;
+    private:
+        // This reference is provided as a quick way for your editor to
+        // access the processor object that created it.
+        ReverbulizerAudioProcessor& audioProcessor;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ReverbulizerAudioProcessorEditor)
-};
+        JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ReverbulizerAudioProcessorEditor)
+    };
+}
