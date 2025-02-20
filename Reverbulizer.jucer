@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <JUCERPROJECT id="zGG8QG" name="Reverbulizer" projectType="audioplug" useAppConfig="0"
-              addUsingNamespaceToJuceHeader="0" jucerFormatVersion="1">
+              addUsingNamespaceToJuceHeader="0" jucerFormatVersion="1" companyName="SphericSound">
   <MAINGROUP id="f8Aloy" name="Reverbulizer">
     <GROUP id="{B9FA39C5-56FC-B014-B84C-E3712DC9644B}" name="Source">
       <FILE id="UHdaho" name="PluginProcessor.cpp" compile="1" resource="0"
@@ -26,7 +26,7 @@
     <MODULE id="juce_events" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
     <MODULE id="juce_graphics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
     <MODULE id="juce_gui_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
-    <MODULE id="juce_gui_extra" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_gui_extra" showAllCode="1" useLocalCopy="1" useGlobalPath="1"/>
   </MODULES>
   <JUCEOPTIONS JUCE_STRICT_REFCOUNTEDPOINTER="1" JUCE_VST3_CAN_REPLACE_VST2="0"
                JUCE_USE_WIN_WEBVIEW2_WITH_STATIC_LINKING="1" JUCE_WEB_BROWSER="1"/>

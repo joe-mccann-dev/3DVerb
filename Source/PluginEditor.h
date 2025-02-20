@@ -33,6 +33,8 @@ namespace webview_plugin
         // access the processor object that created it.
         ReverbulizerAudioProcessor& audioProcessor;
 
+        juce::TextButton runJavaScriptButton{ "Run some JavaScript" };
+        juce::TextButton emitJavaScriptButton{ "Emit JavaScript event" };
         juce::WebBrowserComponent webView;
 
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ReverbulizerAudioProcessorEditor)

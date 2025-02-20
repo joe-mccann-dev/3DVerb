@@ -57,16 +57,42 @@ namespace webview_plugin
         webView{ juce::WebBrowserComponent::Options{}.withBackend(juce::WebBrowserComponent::Options::Backend::webview2)
         .withWinWebView2Options(juce::WebBrowserComponent::Options::WinWebView2{}
         .withUserDataFolder(juce::File::getSpecialLocation(juce::File::tempDirectory)))
-        .withResourceProvider([this](const auto& url) {
-                return getResource(url);
-})
-        }
+        .withResourceProvider([this](const auto& url) {return getResource(url); })
+        .withNativeIntegrationEnabled()
+        .withUserScript(R"(console.log("C++ backend here: This is run before any other loading happens.");)")
+        .withInitialisationData("pluginVendor", ProjectInfo::companyName)
+        .withInitialisationData("pluginName", ProjectInfo::projectName)
+        .withInitialisationData("pluginVersion", ProjectInfo::versionString)}
     {
 
         addAndMakeVisible(webView);
 
         //webView.goToURL("https://google.com");
         webView.goToURL(webView.getResourceProviderRoot());
+
+        runJavaScriptButton.onClick = [this] {
+            constexpr auto JAVASCRIPT_TO_RUN{ "console.log(\"Hello from C++!\")" };
+            webView.evaluateJavascript(
+                JAVASCRIPT_TO_RUN,
+                [](juce::WebBrowserComponent::EvaluationResult result) {
+                    if (const auto* resultPtr = result.getResult()) {
+                        std::cout << "JavaScript evaluation result: " << resultPtr->toString() << std::endl;
+                    }
+                    else {
+                        std::cout << "JavaScript evaluation failed: " << result.getError()->message << std::endl;
+                    }
+                }
+            );
+        };
+        addAndMakeVisible(runJavaScriptButton);
+        
+
+        emitJavaScriptButton.onClick = [this] {
+            static const juce::Identifier EVENT_ID{ "exampleEvent" };
+            webView.emitEventIfBrowserIsVisible(EVENT_ID, 42.0);
+        };
+        addAndMakeVisible(emitJavaScriptButton);
+
         setResizable(true, true);
         setSize(800, 600);
     }
@@ -78,9 +104,10 @@ namespace webview_plugin
     //==============================================================================
     void ReverbulizerAudioProcessorEditor::resized()
     {
-        // This is generally where you'll want to lay out the positions of any
-        // subcomponents in your editor..
-        webView.setBounds(getLocalBounds());
+        auto bounds = getLocalBounds();
+        webView.setBounds(bounds.removeFromRight(getWidth() / 2));
+        runJavaScriptButton.setBounds(bounds.removeFromTop(50).reduced(5));
+        emitJavaScriptButton.setBounds(bounds.removeFromTop(50).reduced(5));
     }
 
     std::optional<juce::WebBrowserComponent::Resource> ReverbulizerAudioProcessorEditor::getResource(const juce::String& url)
