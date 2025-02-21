@@ -39,4 +39,6 @@ namespace webview_plugin
 
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ReverbulizerAudioProcessorEditor)
     };
+
+    juce::File getResourceDirectory();
 }

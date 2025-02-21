@@ -54,7 +54,8 @@ namespace webview_plugin
     ReverbulizerAudioProcessorEditor::ReverbulizerAudioProcessorEditor(ReverbulizerAudioProcessor& p)
         : AudioProcessorEditor(&p), 
         audioProcessor(p), 
-        webView{ juce::WebBrowserComponent::Options{}.withBackend(juce::WebBrowserComponent::Options::Backend::webview2)
+        webView{ juce::WebBrowserComponent::Options{}
+        .withBackend(juce::WebBrowserComponent::Options::Backend::webview2)
         .withWinWebView2Options(juce::WebBrowserComponent::Options::WinWebView2{}
         .withUserDataFolder(juce::File::getSpecialLocation(juce::File::tempDirectory)))
         .withResourceProvider([this](const auto& url) {return getResource(url); })
@@ -112,12 +113,11 @@ namespace webview_plugin
 
     std::optional<juce::WebBrowserComponent::Resource> ReverbulizerAudioProcessorEditor::getResource(const juce::String& url)
     {
-        static const auto resourceFileRoot = juce::File{ R"(C:\Users\Joe\source\repos\Reverbulizer\Source\ui\public)"};
-
+        //static const auto resourceFileRoot = juce::File{ R"(C:\Users\Joe\source\repos\Reverbulizer\Source\ui\public)"};
+        static const auto resourceDirectory = getResourceDirectory();
         const auto resourceToRetrieve = url == "/" ? "index.html" : url.fromFirstOccurrenceOf("/", false, false);
+        const auto resource = resourceDirectory.getChildFile(resourceToRetrieve).createInputStream();
 
-        const auto resource = resourceFileRoot.getChildFile(resourceToRetrieve).createInputStream();
-        
         if (resource)
         {
             const auto extension = resourceToRetrieve.fromLastOccurrenceOf(".", false, false);
@@ -125,5 +125,18 @@ namespace webview_plugin
         }
 
         return std::nullopt;
+    }
+
+    juce::File getResourceDirectory()
+    {
+        auto current = juce::File::getCurrentWorkingDirectory();
+
+        while (current.getFileName() != juce::String(ProjectInfo::projectName))
+        {
+            current = current.getParentDirectory();
+            jassert(current.exists());
+        }
+
+        return current.getChildFile("Source/ui/public");
     }
 }
