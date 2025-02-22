@@ -1,4 +1,5 @@
 **/Builds
+**/Source/ui/public/app/node_modules
 **/JuceLibraryCode
 !**/JuceLibraryCode/modules
 **/.vs

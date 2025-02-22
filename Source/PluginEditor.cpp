@@ -40,7 +40,9 @@ namespace webview_plugin
                 { { "css"   },  "text/css"                 },
                 { { "map"   },  "application/json"         },
                 { { "js"    },  "text/javascript"          },
-                { { "woff2" },  "font/woff2"               }
+                { { "woff2" },  "font/woff2"               },
+                { { "glb"   },  "model/gltf-binary"        },
+                { { "gltf"  },  "model/gltf+json"          }
             };
 
             if (const auto it = mimeMap.find(extension.toLowerCase()); it != mimeMap.end())
@@ -137,6 +139,6 @@ namespace webview_plugin
             jassert(current.exists());
         }
 
-        return current.getChildFile("Source/ui/public");
+        return current.getChildFile("Source/ui/public/app");
     }
 }
