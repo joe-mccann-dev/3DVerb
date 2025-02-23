@@ -15,13 +15,22 @@ document.getElementById("pluginVendor").textContent = data.pluginVendor;
 document.getElementById("pluginName").textContent = data.pluginName;
 document.getElementById("pluginVersion").textContent = data.pluginVersion;
 
-import * as THREE from 'three';
+import {
+    Scene,
+    PerspectiveCamera,
+    WebGLRenderer,
+    DirectionalLight,
+    AmbientLight,
+    
+} from 'three';
+
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 
-const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 
-const renderer = new THREE.WebGLRenderer();
+const scene = new Scene();
+const camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+
+const renderer = new WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
@@ -38,11 +47,11 @@ loader.load('assets/cube.glb', function (glb) {
 
 camera.position.z = 5;
 
-const light = new THREE.DirectionalLight(0xffffed, 1);
+const light = new DirectionalLight(0xffffed, 1);
 light.position.set(10, 10, 3);
 scene.add(light);
 
-const ambientLight = new THREE.AmbientLight(0x404040); // Soft ambient light
+const ambientLight = new AmbientLight(0x404040); // Soft ambient light
 scene.add(ambientLight);
 
 
