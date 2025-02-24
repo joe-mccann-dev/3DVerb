@@ -65,7 +65,19 @@ namespace webview_plugin
         .withUserScript(R"(console.log("C++ backend here: This is run before any other loading happens.");)")
         .withInitialisationData("pluginVendor", ProjectInfo::companyName)
         .withInitialisationData("pluginName", ProjectInfo::projectName)
-        .withInitialisationData("pluginVersion", ProjectInfo::versionString)}
+        .withInitialisationData("pluginVersion", ProjectInfo::versionString)
+        .withNativeFunction(
+            juce::Identifier{"nativeFunction"},
+            [this](const juce::Array<juce::var>& args,
+                juce::WebBrowserComponent::NativeFunctionCompletion completion) {
+                    nativeFunction(args, std::move(completion));
+            }
+        )
+        .withEventListener("exampleJavaScriptEvent",
+            [this](juce::var objectFromFrontend) {
+                labelUpdatedFromJavaScript.setText("example JavaScript event occurred with value " + objectFromFrontend.getProperty("emittedCount", 0).toString(),
+                    juce::dontSendNotification);
+            })}
     {
 
         addAndMakeVisible(webView);
@@ -96,6 +108,8 @@ namespace webview_plugin
         };
         addAndMakeVisible(emitJavaScriptButton);
 
+        addAndMakeVisible(labelUpdatedFromJavaScript);
+
         setResizable(true, true);
         setSize(800, 600);
     }
@@ -111,6 +125,7 @@ namespace webview_plugin
         webView.setBounds(bounds.removeFromRight(getWidth() / 2));
         runJavaScriptButton.setBounds(bounds.removeFromTop(50).reduced(5));
         emitJavaScriptButton.setBounds(bounds.removeFromTop(50).reduced(5));
+        labelUpdatedFromJavaScript.setBounds(bounds.removeFromTop(50).reduced(5));
     }
 
     std::optional<juce::WebBrowserComponent::Resource> ReverbulizerAudioProcessorEditor::getResource(const juce::String& url)
@@ -127,6 +142,20 @@ namespace webview_plugin
         }
 
         return std::nullopt;
+    }
+
+    void ReverbulizerAudioProcessorEditor::nativeFunction(const juce::Array<juce::var>& args,
+        juce::WebBrowserComponent::NativeFunctionCompletion completion)
+    {
+        juce::String concatenatedArgs;
+        
+        for (const auto& arg : args)
+        {
+            concatenatedArgs += arg.toString();
+        }
+
+        labelUpdatedFromJavaScript.setText("Native function called with args: " + concatenatedArgs, juce::dontSendNotification);
+        completion("nativeFunction callback:: All ok!");
     }
 
     juce::File getResourceDirectory()

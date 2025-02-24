@@ -15,6 +15,26 @@ document.getElementById("pluginVendor").textContent = data.pluginVendor;
 document.getElementById("pluginName").textContent = data.pluginName;
 document.getElementById("pluginVersion").textContent = data.pluginVersion;
 
+const nativeFunction = Juce.getNativeFunction("nativeFunction");
+
+document.addEventListener("DOMContentLoaded", () => {
+    const button = document.getElementById("nativeFunctionButton");
+    button.addEventListener("click", () => {
+        nativeFunction("one", 2, null).then((result) => {
+            console.log(result);
+        });
+    });
+});
+
+const emitEventButton = document.getElementById("emitEventButton");
+let emittedCount = 0;
+emitEventButton.addEventListener("click", () => {
+    emittedCount++;
+    window.__JUCE__.backend.emitEvent("exampleJavaScriptEvent", {
+        emittedCount: emittedCount
+    });
+});
+
 import {
     Scene,
     PerspectiveCamera,
