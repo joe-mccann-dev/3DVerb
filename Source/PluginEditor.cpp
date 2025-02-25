@@ -51,6 +51,9 @@ namespace webview_plugin
             jassertfalse;
             return "";
         }
+
+        constexpr auto LOCAL_VITE_SERVER = "http://localhost:3000";
+
     }
 
     ReverbulizerAudioProcessorEditor::ReverbulizerAudioProcessorEditor(ReverbulizerAudioProcessor& p)
@@ -60,7 +63,8 @@ namespace webview_plugin
         .withBackend(juce::WebBrowserComponent::Options::Backend::webview2)
         .withWinWebView2Options(juce::WebBrowserComponent::Options::WinWebView2{}
         .withUserDataFolder(juce::File::getSpecialLocation(juce::File::tempDirectory)))
-        .withResourceProvider([this](const auto& url) {return getResource(url); })
+        .withResourceProvider([this](const auto& url) {return getResource(url); },
+                              juce::URL{LOCAL_VITE_SERVER}.getOrigin())
         .withNativeIntegrationEnabled()
         .withUserScript(R"(console.log("C++ backend here: This is run before any other loading happens.");)")
         .withInitialisationData("pluginVendor", ProjectInfo::companyName)
@@ -83,7 +87,8 @@ namespace webview_plugin
         addAndMakeVisible(webView);
 
         //webView.goToURL("https://google.com");
-        webView.goToURL(webView.getResourceProviderRoot());
+        //webView.goToURL(webView.getResourceProviderRoot());
+        webView.goToURL(LOCAL_VITE_SERVER);
 
         runJavaScriptButton.onClick = [this] {
             constexpr auto JAVASCRIPT_TO_RUN{ "console.log(\"Hello from C++!\")" };
@@ -133,6 +138,17 @@ namespace webview_plugin
         //static const auto resourceFileRoot = juce::File{ R"(C:\Users\Joe\source\repos\Reverbulizer\Source\ui\public)"};
         static const auto resourceDirectory = getResourceDirectory();
         const auto resourceToRetrieve = url == "/" ? "index.html" : url.fromFirstOccurrenceOf("/", false, false);
+
+        if (resourceToRetrieve == "data.json")
+        {
+            juce::DynamicObject::Ptr data{ new juce::DynamicObject };
+            data->setProperty("sampleProperty", 300.0);
+            const auto string = juce::JSON::toString(data.get());
+            juce::MemoryInputStream stream{ string.getCharPointer(),
+                string.getNumBytesAsUTF8(), false };
+            return juce::WebBrowserComponent::Resource{ streamToVector(stream), juce::String{"application/json"} };
+        }
+
         const auto resource = resourceDirectory.getChildFile(resourceToRetrieve).createInputStream();
 
         if (resource)
