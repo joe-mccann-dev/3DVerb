@@ -97,6 +97,19 @@ namespace webview_plugin
     {
         // Use this method as the place to do any pre-playback
         // initialisation that you need..
+        envelopeFollower.prepare(juce::dsp::ProcessSpec
+            {
+                .sampleRate = sampleRate,
+                .maximumBlockSize = static_cast<juce::uint32>(samplesPerBlock),
+                .numChannels = static_cast<juce::uint32>(getTotalNumOutputChannels())
+            });
+        envelopeFollower.setAttackTime(200.f);
+        envelopeFollower.setReleaseTime(200.f);
+        envelopeFollower.setLevelCalculationType(
+            juce::dsp::BallisticsFilter<float>::LevelCalculationType::peak
+        );
+
+        envelopeFollowerOutputBuffer.setSize(getTotalNumOutputChannels(), samplesPerBlock);
     }
 
     void ReverbulizerAudioProcessor::releaseResources()
@@ -158,6 +171,19 @@ namespace webview_plugin
 
             // ..do something to the data...
         }
+
+        const auto inBlock = juce::dsp::AudioBlock<float>(buffer).getSubsetChannelBlock
+        (
+            0u, static_cast<size_t>(getTotalNumOutputChannels())
+        );
+
+        auto outBlock = juce::dsp::AudioBlock<float>(envelopeFollowerOutputBuffer);
+
+        envelopeFollower.process(juce::dsp::ProcessContextNonReplacing<float>(inBlock, outBlock));
+        outputLevelLeft = juce::Decibels::gainToDecibels
+        (
+            outBlock.getSample(0u, static_cast<int>(outBlock.getNumSamples() - 1))
+        );
     }
 
     //==============================================================================

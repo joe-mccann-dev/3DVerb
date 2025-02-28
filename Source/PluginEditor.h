@@ -17,7 +17,8 @@
 
 namespace webview_plugin
 {
-    class ReverbulizerAudioProcessorEditor : public juce::AudioProcessorEditor
+    class ReverbulizerAudioProcessorEditor : public juce::AudioProcessorEditor,
+        private juce::Timer
     {
     public:
         ReverbulizerAudioProcessorEditor(ReverbulizerAudioProcessor&);
@@ -26,6 +27,8 @@ namespace webview_plugin
         //==============================================================================
         //void paint(juce::Graphics&) override;
         void resized() override;
+
+        void timerCallback() override;
 
     private:
         std::optional<juce::WebBrowserComponent::Resource> getResource(const juce::String& url);

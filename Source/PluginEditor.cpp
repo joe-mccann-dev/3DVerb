@@ -117,6 +117,7 @@ namespace webview_plugin
 
         setResizable(true, true);
         setSize(800, 600);
+        startTimer(60);
     }
 
     ReverbulizerAudioProcessorEditor::~ReverbulizerAudioProcessorEditor()
@@ -133,11 +134,26 @@ namespace webview_plugin
         labelUpdatedFromJavaScript.setBounds(bounds.removeFromTop(50).reduced(5));
     }
 
+    void ReverbulizerAudioProcessorEditor::timerCallback()
+    {
+        webView.emitEventIfBrowserIsVisible("outputLevel", juce::var{});
+    }
+
     std::optional<juce::WebBrowserComponent::Resource> ReverbulizerAudioProcessorEditor::getResource(const juce::String& url)
     {
         //static const auto resourceFileRoot = juce::File{ R"(C:\Users\Joe\source\repos\Reverbulizer\Source\ui\public)"};
         static const auto resourceDirectory = getResourceDirectory();
         const auto resourceToRetrieve = url == "/" ? "index.html" : url.fromFirstOccurrenceOf("/", false, false);
+
+        if (resourceToRetrieve == "outputLevel.json")
+        {
+            juce::DynamicObject::Ptr data{ new juce::DynamicObject };
+            data->setProperty("left", audioProcessor.outputLevelLeft.load());
+            const auto string = juce::JSON::toString(data.get());
+            juce::MemoryInputStream stream{ string.getCharPointer(),
+                string.getNumBytesAsUTF8(), false };
+            return juce::WebBrowserComponent::Resource{ streamToVector(stream), juce::String{"application/json"} };
+        }
 
         if (resourceToRetrieve == "data.json")
         {
@@ -184,6 +200,6 @@ namespace webview_plugin
             jassert(current.exists());
         }
 
-        return current.getChildFile("Source/ui/public/app");
+        return current.getChildFile("Source/ui/public/");
     }
 }
