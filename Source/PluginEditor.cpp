@@ -116,7 +116,7 @@ namespace webview_plugin
         addAndMakeVisible(labelUpdatedFromJavaScript);
 
         setResizable(true, true);
-        setSize(800, 600);
+        setSize(1280, 800);
         startTimer(60);
     }
 
@@ -128,7 +128,8 @@ namespace webview_plugin
     void ReverbulizerAudioProcessorEditor::resized()
     {
         auto bounds = getLocalBounds();
-        webView.setBounds(bounds.removeFromRight(getWidth() / 2));
+        //const int amountToRemove = getWidth() / 2;
+        webView.setBounds(bounds.removeFromRight(960));
         runJavaScriptButton.setBounds(bounds.removeFromTop(50).reduced(5));
         emitJavaScriptButton.setBounds(bounds.removeFromTop(50).reduced(5));
         labelUpdatedFromJavaScript.setBounds(bounds.removeFromTop(50).reduced(5));
