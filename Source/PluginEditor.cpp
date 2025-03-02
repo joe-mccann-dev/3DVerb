@@ -116,7 +116,7 @@ namespace webview_plugin
         addAndMakeVisible(labelUpdatedFromJavaScript);
 
         setResizable(true, true);
-        setSize(1280, 800);
+        setSize(1024, 768);
         startTimer(60);
     }
 
@@ -129,7 +129,7 @@ namespace webview_plugin
     {
         auto bounds = getLocalBounds();
         //const int amountToRemove = getWidth() / 2;
-        webView.setBounds(bounds.removeFromRight(960));
+        webView.setBounds(bounds.removeFromRight(720));
         runJavaScriptButton.setBounds(bounds.removeFromTop(50).reduced(5));
         emitJavaScriptButton.setBounds(bounds.removeFromTop(50).reduced(5));
         labelUpdatedFromJavaScript.setBounds(bounds.removeFromTop(50).reduced(5));
