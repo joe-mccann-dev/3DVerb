@@ -8,6 +8,7 @@
 
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
+#include "ParameterIDs.h"
 
 //==============================================================================
 namespace webview_plugin
@@ -58,7 +59,9 @@ namespace webview_plugin
 
     ReverbulizerAudioProcessorEditor::ReverbulizerAudioProcessorEditor(ReverbulizerAudioProcessor& p)
         : AudioProcessorEditor(&p), 
-        audioProcessor(p), 
+        audioProcessor(p),
+        // passing nullptr as undo_manager for now
+        gainSliderAttachment{*audioProcessor.apvts.getParameter(id::GAIN.getParamID()), gainSlider, nullptr},
         webView{ juce::WebBrowserComponent::Options{}
         .withBackend(juce::WebBrowserComponent::Options::Backend::webview2)
         .withWinWebView2Options(juce::WebBrowserComponent::Options::WinWebView2{}

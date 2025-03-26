@@ -40,6 +40,7 @@ namespace webview_plugin
         ReverbulizerAudioProcessor& audioProcessor;
 
         juce::Slider gainSlider{ "gain slider" };
+        juce::SliderParameterAttachment gainSliderAttachment;
 
         juce::TextButton runJavaScriptButton{ "Run some JavaScript" };
         juce::TextButton emitJavaScriptButton{ "Emit JavaScript event" };
