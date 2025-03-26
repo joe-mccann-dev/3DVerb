@@ -39,6 +39,8 @@ namespace webview_plugin
         // access the processor object that created it.
         ReverbulizerAudioProcessor& audioProcessor;
 
+        juce::Slider gainSlider{ "gain slider" };
+
         juce::TextButton runJavaScriptButton{ "Run some JavaScript" };
         juce::TextButton emitJavaScriptButton{ "Emit JavaScript event" };
 

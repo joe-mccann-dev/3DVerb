@@ -55,10 +55,13 @@ namespace webview_plugin
         void getStateInformation(juce::MemoryBlock& destData) override;
         void setStateInformation(const void* data, int sizeInBytes) override;
 
+        juce::AudioProcessorValueTreeState apvts;
+
         std::atomic<float> outputLevelLeft;
 
     private:
         //==============================================================================
+        std::atomic<float>* gain{ nullptr };
         juce::dsp::BallisticsFilter<float> envelopeFollower;
         juce::AudioBuffer<float> envelopeFollowerOutputBuffer;
 

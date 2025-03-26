@@ -8,10 +8,22 @@
 
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
+#include "ParameterIDs.h"
 
 //==============================================================================
 namespace webview_plugin
 {
+    namespace
+    {
+        auto createParameterLayout()
+        {
+            juce::AudioProcessorValueTreeState::ParameterLayout layout;
+            layout.add(std::make_unique<juce::AudioParameterFloat>(
+                id::GAIN, "gain", juce::NormalisableRange<float>{0.f, 1.f, 0.01f, 0.9f}, 1.f
+            ));
+            return layout;
+        }
+    }
     ReverbulizerAudioProcessor::ReverbulizerAudioProcessor()
         #ifndef JucePlugin_PreferredChannelConfigurations
                 : AudioProcessor(BusesProperties()
@@ -21,8 +33,10 @@ namespace webview_plugin
         #endif
                     .withOutput("Output", juce::AudioChannelSet::stereo(), true)
         #endif
-                )
+                ),
         #endif
+        apvts{*this, nullptr, "APVTS", createParameterLayout()},
+        gain{apvts.getRawParameterValue(id::GAIN.getParamID())}
     {
     }
 
@@ -160,7 +174,13 @@ namespace webview_plugin
         // when they first compile a plugin, but obviously you don't need to keep
         // this code if your algorithm always overwrites all the output channels.
         for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
+        {
             buffer.clear(i, 0, buffer.getNumSamples());
+        }
+
+        // in real plugin gain must be smoothed to prevent rapid changes in gain
+        buffer.applyGain(*gain);
+           
 
         // This is the place where you'd normally do the guts of your plugin's
         // audio processing...
