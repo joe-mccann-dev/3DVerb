@@ -38,29 +38,29 @@ namespace webview_plugin
 
     bool ReverbulizerAudioProcessor::acceptsMidi() const
     {
-#if JucePlugin_WantsMidiInput
-        return true;
-#else
-        return false;
-#endif
+        #if JucePlugin_WantsMidiInput
+            return true;
+        #else
+            return false;
+        #endif
     }
 
     bool ReverbulizerAudioProcessor::producesMidi() const
     {
-#if JucePlugin_ProducesMidiOutput
-        return true;
-#else
-        return false;
-#endif
+        #if JucePlugin_ProducesMidiOutput
+            return true;
+        #else
+            return false;
+        #endif
     }
 
     bool ReverbulizerAudioProcessor::isMidiEffect() const
     {
-#if JucePlugin_IsMidiEffect
-        return true;
-#else
-        return false;
-#endif
+        #if JucePlugin_IsMidiEffect
+            return true;
+        #else
+            return false;
+        #endif
     }
 
     double ReverbulizerAudioProcessor::getTailLengthSeconds() const
@@ -97,12 +97,13 @@ namespace webview_plugin
     {
         // Use this method as the place to do any pre-playback
         // initialisation that you need..
-        envelopeFollower.prepare(juce::dsp::ProcessSpec
-            {
-                .sampleRate = sampleRate,
-                .maximumBlockSize = static_cast<juce::uint32>(samplesPerBlock),
-                .numChannels = static_cast<juce::uint32>(getTotalNumOutputChannels())
-            });
+        juce::dsp::ProcessSpec spec{};
+
+        spec.sampleRate = sampleRate;
+        spec.maximumBlockSize = static_cast<juce::uint32>(samplesPerBlock);
+        spec.numChannels = static_cast<juce::uint32>(getTotalNumOutputChannels());
+
+        envelopeFollower.prepare(spec);
         envelopeFollower.setAttackTime(200.f);
         envelopeFollower.setReleaseTime(200.f);
         envelopeFollower.setLevelCalculationType(
@@ -110,6 +111,8 @@ namespace webview_plugin
         );
 
         envelopeFollowerOutputBuffer.setSize(getTotalNumOutputChannels(), samplesPerBlock);
+
+        reverb.prepare(spec);
     }
 
     void ReverbulizerAudioProcessor::releaseResources()
@@ -118,13 +121,13 @@ namespace webview_plugin
         // spare memory, etc.
     }
 
-#ifndef JucePlugin_PreferredChannelConfigurations
-    bool ReverbulizerAudioProcessor::isBusesLayoutSupported(const BusesLayout& layouts) const
+    #ifndef JucePlugin_PreferredChannelConfigurations
+        bool ReverbulizerAudioProcessor::isBusesLayoutSupported(const BusesLayout& layouts) const
     {
-#if JucePlugin_IsMidiEffect
+    #if JucePlugin_IsMidiEffect
         juce::ignoreUnused(layouts);
         return true;
-#else
+    #else
         // This is the place where you check if the layout is supported.
         // In this template code we only support mono or stereo.
         // Some plugin hosts, such as certain GarageBand versions, will only
@@ -134,15 +137,15 @@ namespace webview_plugin
             return false;
 
         // This checks if the input layout matches the output layout
-#if ! JucePlugin_IsSynth
+    #if ! JucePlugin_IsSynth
         if (layouts.getMainOutputChannelSet() != layouts.getMainInputChannelSet())
             return false;
-#endif
+    #endif
 
         return true;
-#endif
+    #endif
     }
-#endif
+    #endif
 
     void ReverbulizerAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
     {
@@ -177,9 +180,10 @@ namespace webview_plugin
             0u, static_cast<size_t>(getTotalNumOutputChannels())
         );
 
-        auto outBlock = juce::dsp::AudioBlock<float>(envelopeFollowerOutputBuffer);
+        juce::dsp::AudioBlock<float> outBlock{ envelopeFollowerOutputBuffer };
+        juce::dsp::ProcessContextNonReplacing<float> ctx{ inBlock, outBlock };
 
-        envelopeFollower.process(juce::dsp::ProcessContextNonReplacing<float>(inBlock, outBlock));
+        envelopeFollower.process(ctx);
         outputLevelLeft = juce::Decibels::gainToDecibels
         (
             outBlock.getSample(0u, static_cast<int>(outBlock.getNumSamples() - 1))

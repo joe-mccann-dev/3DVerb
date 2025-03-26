@@ -26,9 +26,9 @@ namespace webview_plugin
         void prepareToPlay(double sampleRate, int samplesPerBlock) override;
         void releaseResources() override;
 
-#ifndef JucePlugin_PreferredChannelConfigurations
-        bool isBusesLayoutSupported(const BusesLayout& layouts) const override;
-#endif
+        #ifndef JucePlugin_PreferredChannelConfigurations
+            bool isBusesLayoutSupported(const BusesLayout& layouts) const override;
+        #endif
 
         void processBlock(juce::AudioBuffer<float>&, juce::MidiBuffer&) override;
 
@@ -61,6 +61,9 @@ namespace webview_plugin
         //==============================================================================
         juce::dsp::BallisticsFilter<float> envelopeFollower;
         juce::AudioBuffer<float> envelopeFollowerOutputBuffer;
+
+        juce::dsp::Reverb::Parameters params;
+        juce::dsp::Reverb reverb;
 
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ReverbulizerAudioProcessor)
     };
