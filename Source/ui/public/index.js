@@ -100,6 +100,21 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
+    const slider = document.getElementById("gainSlider");
+    const sliderState = Juce.getSliderState("GAIN");
+
+    slider.min = sliderState.properties.start;
+    slider.max = sliderState.properties.end;
+    slider.step = 1 / sliderState.properties.numSteps;
+
+    slider.oninput = function () {
+        sliderState.setNormalisedValue(this.value);
+    }
+
+    sliderState.valueChangedEvent.addListener(() => {
+        slider.value = sliderState.getScaledValue();
+    });
+
     window.__JUCE__.backend.addEventListener("outputLevel", () => {
         fetch(Juce.getBackendResourceAddress("outputLevel.json"))
             .then((response) => response.text())

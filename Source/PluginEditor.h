@@ -47,7 +47,11 @@ namespace webview_plugin
 
         juce::Label labelUpdatedFromJavaScript{ "label", "To be updated from JavaScript" };
 
+        juce::WebSliderRelay webGainRelay;
+
         juce::WebBrowserComponent webView;
+
+        juce::WebSliderParameterAttachment webGainSliderAttachment;
 
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ReverbulizerAudioProcessorEditor)
     };

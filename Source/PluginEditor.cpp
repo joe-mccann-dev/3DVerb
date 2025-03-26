@@ -62,7 +62,10 @@ namespace webview_plugin
         audioProcessor(p),
         // passing nullptr as undo_manager for now
         gainSliderAttachment{*audioProcessor.apvts.getParameter(id::GAIN.getParamID()), gainSlider, nullptr},
-        webView{ juce::WebBrowserComponent::Options{}
+        webGainRelay{id::GAIN.getParamID()},
+        webView
+        { 
+        juce::WebBrowserComponent::Options{}
         .withBackend(juce::WebBrowserComponent::Options::Backend::webview2)
         .withWinWebView2Options(juce::WebBrowserComponent::Options::WinWebView2{}
         .withUserDataFolder(juce::File::getSpecialLocation(juce::File::tempDirectory)))
@@ -84,7 +87,12 @@ namespace webview_plugin
             [this](juce::var objectFromFrontend) {
                 labelUpdatedFromJavaScript.setText("example JavaScript event occurred with value " + objectFromFrontend.getProperty("emittedCount", 0).toString(),
                     juce::dontSendNotification);
-            })}
+            })
+        .withOptionsFrom(webGainRelay)},
+        // passing nullptry as undo_manager for now
+        webGainSliderAttachment(*audioProcessor.apvts.getParameter(id::GAIN.getParamID()),
+                                webGainRelay, 
+                                nullptr)
     {
 
         addAndMakeVisible(webView);
