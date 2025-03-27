@@ -69,6 +69,8 @@ namespace webview_plugin
         juce::dsp::Reverb::Parameters params;
         juce::dsp::Reverb reverb;
 
+        juce::UndoManager undoManager;
+
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ReverbulizerAudioProcessor)
     };
 }

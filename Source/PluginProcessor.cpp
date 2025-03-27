@@ -39,7 +39,7 @@ namespace webview_plugin
         #endif
                 ),
         #endif
-        apvts{*this, nullptr, "APVTS", createParameterLayout()},
+        apvts{*this, &undoManager, "APVTS", createParameterLayout()},
         gain{apvts.getRawParameterValue(id::GAIN.getParamID())},
         // note: can review WebViewPluginDemo to find cleaner way to cast this
         bypass{ *dynamic_cast<juce::AudioParameterBool*>(apvts.getParameter(id::BYPASS.getParamID())) }
@@ -226,7 +226,7 @@ namespace webview_plugin
 
     juce::AudioProcessorEditor* ReverbulizerAudioProcessor::createEditor()
     {
-        return new ReverbulizerAudioProcessorEditor(*this);
+        return new ReverbulizerAudioProcessorEditor(*this, undoManager);
     }
 
     //==============================================================================

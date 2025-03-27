@@ -57,13 +57,14 @@ namespace webview_plugin
 
     }
 
-    ReverbulizerAudioProcessorEditor::ReverbulizerAudioProcessorEditor(ReverbulizerAudioProcessor& p)
+    ReverbulizerAudioProcessorEditor::ReverbulizerAudioProcessorEditor(ReverbulizerAudioProcessor& p, juce::UndoManager& um)
         : AudioProcessorEditor(&p), 
+        undoManager(um),
         audioProcessor(p),
         // passing nullptr as undo_manager for now
-        gainSliderAttachment{*audioProcessor.apvts.getParameter(id::GAIN.getParamID()), gainSlider, nullptr},
+        gainSliderAttachment{*audioProcessor.apvts.getParameter(id::GAIN.getParamID()), gainSlider, &undoManager},
         // pass nullptr as undo manager for now
-        bypassButtonAttachment { *audioProcessor.apvts.getParameter(id::BYPASS.getParamID()), bypassButton, nullptr},
+        bypassButtonAttachment { *audioProcessor.apvts.getParameter(id::BYPASS.getParamID()), bypassButton, &undoManager},
         webGainRelay{id::GAIN.getParamID()},
         webBypassRelay{ id::BYPASS.getParamID() },
         webView
@@ -163,6 +164,20 @@ namespace webview_plugin
     void ReverbulizerAudioProcessorEditor::timerCallback()
     {
         webView.emitEventIfBrowserIsVisible("outputLevel", juce::var{});
+    }
+
+    bool ReverbulizerAudioProcessorEditor::keyPressed(const juce::KeyPress& k)
+    {
+        if (k.isKeyCode('Z') && k.getModifiers().isCommandDown())
+        {
+            if (k.getModifiers().isShiftDown())
+                undoManager.redo();
+            else
+                undoManager.undo();
+
+            return true;
+        }
+        return false;
     }
 
     std::optional<juce::WebBrowserComponent::Resource> ReverbulizerAudioProcessorEditor::getResource(const juce::String& url)
