@@ -51,12 +51,12 @@ namespace webview_plugin
         juce::Label labelUpdatedFromJavaScript{ "label", "To be updated from JavaScript" };
 
         juce::WebSliderRelay webGainRelay;
-
-        //juce::WebToggleButtonRelay webToggleRelay;
+        juce::WebToggleButtonRelay webBypassRelay;
 
         juce::WebBrowserComponent webView;
 
         juce::WebSliderParameterAttachment webGainSliderAttachment;
+        juce::WebToggleButtonParameterAttachment webBypassToggleAttachment;
 
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ReverbulizerAudioProcessorEditor)
     };

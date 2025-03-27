@@ -65,6 +65,7 @@ namespace webview_plugin
         // pass nullptr as undo manager for now
         bypassButtonAttachment { *audioProcessor.apvts.getParameter(id::BYPASS.getParamID()), bypassButton, nullptr},
         webGainRelay{id::GAIN.getParamID()},
+        webBypassRelay{ id::BYPASS.getParamID() },
         webView
         { 
         juce::WebBrowserComponent::Options{}
@@ -90,11 +91,15 @@ namespace webview_plugin
                 labelUpdatedFromJavaScript.setText("example JavaScript event occurred with value " + objectFromFrontend.getProperty("emittedCount", 0).toString(),
                     juce::dontSendNotification);
             })
-        .withOptionsFrom(webGainRelay)},
+        .withOptionsFrom(webGainRelay)
+        .withOptionsFrom(webBypassRelay)},
         // passing nullptry as undo_manager for now
-        webGainSliderAttachment(*audioProcessor.apvts.getParameter(id::GAIN.getParamID()),
-                                webGainRelay, 
-                                nullptr)
+        webGainSliderAttachment{ *audioProcessor.apvts.getParameter(id::GAIN.getParamID()),
+                                webGainRelay,
+                                nullptr },
+        webBypassToggleAttachment{ *audioProcessor.apvts.getParameter(id::BYPASS.getParamID()),
+                                   webBypassRelay,
+                                   nullptr}
     {
 
         addAndMakeVisible(webView);

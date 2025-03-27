@@ -115,6 +115,17 @@ document.addEventListener("DOMContentLoaded", () => {
         slider.value = sliderState.getScaledValue();
     });
 
+    const bypassCheckbox = document.getElementById("bypassCheckbox");
+    const bypassToggleState = Juce.getToggleState("BYPASS");
+
+    bypassCheckbox.oninput = function () {
+        bypassToggleState.setValue(this.checked);
+    }
+
+    bypassToggleState.valueChangedEvent.addListener(() => {
+        bypassCheckbox.checked = bypassToggleState.getValue();
+    });
+
     window.__JUCE__.backend.addEventListener("outputLevel", () => {
         fetch(Juce.getBackendResourceAddress("outputLevel.json"))
             .then((response) => response.text())
