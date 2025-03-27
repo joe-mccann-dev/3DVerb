@@ -62,6 +62,8 @@ namespace webview_plugin
         audioProcessor(p),
         // passing nullptr as undo_manager for now
         gainSliderAttachment{*audioProcessor.apvts.getParameter(id::GAIN.getParamID()), gainSlider, nullptr},
+        // pass nullptr as undo manager for now
+        bypassButtonAttachment { *audioProcessor.apvts.getParameter(id::BYPASS.getParamID()), bypassButton, nullptr},
         webGainRelay{id::GAIN.getParamID()},
         webView
         { 
@@ -129,6 +131,8 @@ namespace webview_plugin
         addAndMakeVisible(gainSlider);
         gainSlider.setSliderStyle(juce::Slider::SliderStyle::LinearBar);
 
+        addAndMakeVisible(bypassButton);
+
         setResizable(true, true);
         setSize(1024, 768);
         startTimer(60);
@@ -148,6 +152,7 @@ namespace webview_plugin
         emitJavaScriptButton.setBounds(bounds.removeFromTop(50).reduced(5));
         labelUpdatedFromJavaScript.setBounds(bounds.removeFromTop(50).reduced(5));
         gainSlider.setBounds(bounds.removeFromTop(50).reduced(5));
+        bypassButton.setBounds(bounds.removeFromTop(50).reduced(10));
     }
 
     void ReverbulizerAudioProcessorEditor::timerCallback()

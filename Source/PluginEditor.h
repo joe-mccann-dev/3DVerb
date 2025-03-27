@@ -42,12 +42,17 @@ namespace webview_plugin
         juce::Slider gainSlider{ "gain slider" };
         juce::SliderParameterAttachment gainSliderAttachment;
 
+        juce::ToggleButton bypassButton{ "Bypass" };
+        juce::ButtonParameterAttachment bypassButtonAttachment;
+
         juce::TextButton runJavaScriptButton{ "Run some JavaScript" };
         juce::TextButton emitJavaScriptButton{ "Emit JavaScript event" };
 
         juce::Label labelUpdatedFromJavaScript{ "label", "To be updated from JavaScript" };
 
         juce::WebSliderRelay webGainRelay;
+
+        //juce::WebToggleButtonRelay webToggleRelay;
 
         juce::WebBrowserComponent webView;
 

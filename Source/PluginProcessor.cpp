@@ -18,9 +18,13 @@ namespace webview_plugin
         auto createParameterLayout()
         {
             juce::AudioProcessorValueTreeState::ParameterLayout layout;
+
             layout.add(std::make_unique<juce::AudioParameterFloat>(
-                id::GAIN, "gain", juce::NormalisableRange<float>{0.f, 1.f, 0.01f, 0.9f}, 1.f
-            ));
+                id::GAIN, "gain", juce::NormalisableRange<float>{0.f, 1.f, 0.01f, 0.9f}, 1.f));
+
+            layout.add(std::make_unique<juce::AudioParameterBool>(
+                id::BYPASS, "bypass", false, juce::AudioParameterBoolAttributes{}.withLabel("Bypass")));
+
             return layout;
         }
     }
@@ -36,7 +40,9 @@ namespace webview_plugin
                 ),
         #endif
         apvts{*this, nullptr, "APVTS", createParameterLayout()},
-        gain{apvts.getRawParameterValue(id::GAIN.getParamID())}
+        gain{apvts.getRawParameterValue(id::GAIN.getParamID())},
+        // note: can review WebViewPluginDemo to find cleaner way to cast this
+        bypass{ *dynamic_cast<juce::AudioParameterBool*>(apvts.getParameter(id::BYPASS.getParamID())) }
     {
     }
 
@@ -178,7 +184,9 @@ namespace webview_plugin
             buffer.clear(i, 0, buffer.getNumSamples());
         }
 
-        // in real plugin gain must be smoothed to prevent rapid changes in gain
+        if (bypass.get()) { return; }
+
+        // TODO: smooth gain to prevent rapid changes in gain
         buffer.applyGain(*gain);
            
 
