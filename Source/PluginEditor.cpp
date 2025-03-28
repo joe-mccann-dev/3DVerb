@@ -87,20 +87,16 @@ namespace webview_plugin
                     nativeFunction(args, std::move(completion));
             }
         )
-        .withEventListener("exampleJavaScriptEvent",
-            [this](juce::var objectFromFrontend) {
-                labelUpdatedFromJavaScript.setText("example JavaScript event occurred with value " + objectFromFrontend.getProperty("emittedCount", 0).toString(),
-                    juce::dontSendNotification);
-            })
+        .withEventListener("undoRequest", [this](juce::var undoButton) { undoManager.undo(); })
+        .withEventListener("redoRequest", [this](juce::var redoButton) { undoManager.redo(); })
         .withOptionsFrom(webGainRelay)
         .withOptionsFrom(webBypassRelay)},
-        // passing nullptry as undo_manager for now
         webGainSliderAttachment{ *audioProcessor.apvts.getParameter(id::GAIN.getParamID()),
                                 webGainRelay,
-                                nullptr },
+                                &undoManager },
         webBypassToggleAttachment{ *audioProcessor.apvts.getParameter(id::BYPASS.getParamID()),
                                    webBypassRelay,
-                                   nullptr}
+                                   &undoManager}
     {
 
         addAndMakeVisible(webView);

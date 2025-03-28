@@ -91,14 +91,24 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    const emitEventButton = document.getElementById("emitEventButton");
-    let emittedCount = 0;
-    emitEventButton.addEventListener("click", () => {
-        emittedCount++;
-        window.__JUCE__.backend.emitEvent("exampleJavaScriptEvent", {
-            emittedCount: emittedCount
-        });
+
+    //const emitEventButton = document.getElementById("emitEventButton");
+    //let emittedCount = 0;
+    //emitEventButton.addEventListener("click", () => {
+    //    emittedCount++;
+    //    window.__JUCE__.backend.emitEvent("exampleJavaScriptEvent", {
+    //        emittedCount: emittedCount
+    //    });
+    //});
+    const undoButton = document.getElementById("undoButton");
+    undoButton.addEventListener("click", () => {
+        window.__JUCE__.backend.emitEvent("undoRequest", null);
     });
+
+    const redoButton = document.getElementById("redoButton");
+    redoButton.addEventListener("click", () => {
+        window.__JUCE__.backend.emitEvent("redoRequest", null);
+    })
 
     const slider = document.getElementById("gainSlider");
     const sliderState = Juce.getSliderState("GAIN");
@@ -131,10 +141,10 @@ document.addEventListener("DOMContentLoaded", () => {
             .then((response) => response.text())
             .then((outputLevel) => {
                 const levelData = JSON.parse(outputLevel);
-                console.log(levelData);
+                //console.log(levelData);
                 const signalStrength = levelData["left"];
                 const scaleFactor = signalStrength <= -60 ? 1 : (((signalStrength / 60) + 1) * 2);
-                console.log("Scale Factor is: ", scaleFactor);
+                //console.log("Scale Factor is: ", scaleFactor);
                 circle.scale.set(scaleFactor, scaleFactor, scaleFactor);
             });
     });
