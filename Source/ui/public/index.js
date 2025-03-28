@@ -33,7 +33,7 @@ document.getElementById("pluginVendor").textContent = data.pluginVendor;
 document.getElementById("pluginName").textContent = data.pluginName;
 document.getElementById("pluginVersion").textContent = data.pluginVersion;
 
-const nativeFunction = Juce.getNativeFunction("nativeFunction");
+const undoRedoCtrl = Juce.getNativeFunction("webUndoRedo");
 
 fetch(Juce.getBackendResourceAddress("data.json"))
     .then(response => response.text())
@@ -41,6 +41,7 @@ fetch(Juce.getBackendResourceAddress("data.json"))
         console.log(textFromBackend);
     });
 
+// THREE JS CODE
 const scene = new Scene();
 const camera = new PerspectiveCamera(75, (window.innerWidth / window.innerHeight), 0.1, 1000);
 const renderer = new WebGLRenderer();
@@ -83,12 +84,20 @@ function animate() {
 
 animate();
 
+// END THREE JS CODE
+
 document.addEventListener("DOMContentLoaded", () => {
-    const button = document.getElementById("nativeFunctionButton");
-    button.addEventListener("click", () => {
-        nativeFunction("one", 2, null).then((result) => {
-            console.log(result);
-        });
+    document.addEventListener('keydown', (event) => {
+        if (event.ctrlKey && event.key === 'y') {
+            undoRedoCtrl('Y').then((result) => {
+                console.log(result);
+            });
+        }
+        else if (event.ctrlKey && event.key === 'z') {
+            undoRedoCtrl('Z').then((result) => {
+                console.log(result);
+            });
+        }
     });
 
 

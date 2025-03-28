@@ -81,10 +81,10 @@ namespace webview_plugin
         .withInitialisationData("pluginName", ProjectInfo::projectName)
         .withInitialisationData("pluginVersion", ProjectInfo::versionString)
         .withNativeFunction(
-            juce::Identifier{"nativeFunction"},
+            juce::Identifier{"webUndoRedo"},
             [this](const juce::Array<juce::var>& args,
                 juce::WebBrowserComponent::NativeFunctionCompletion completion) {
-                    nativeFunction(args, std::move(completion));
+                    webUndoRedo(args, std::move(completion));
             }
         )
         .withEventListener("undoRequest", [this](juce::var undoButton) { undoManager.undo(); })
@@ -162,15 +162,16 @@ namespace webview_plugin
         webView.emitEventIfBrowserIsVisible("outputLevel", juce::var{});
     }
 
+    // ctrl + z == undo; ctrl + y == redo
+    // for undo/redo in cpp gui side
     bool ReverbulizerAudioProcessorEditor::keyPressed(const juce::KeyPress& k)
     {
-        if (k.isKeyCode('Z') && k.getModifiers().isCommandDown())
+        if (k.getModifiers().isCommandDown())
         {
-            if (k.getModifiers().isShiftDown())
-                undoManager.redo();
-            else
+            if (k.isKeyCode('Z'))
                 undoManager.undo();
-
+            else if (k.isKeyCode('Y'))
+                undoManager.redo();
             return true;
         }
         return false;
@@ -213,7 +214,7 @@ namespace webview_plugin
         return std::nullopt;
     }
 
-    void ReverbulizerAudioProcessorEditor::nativeFunction(const juce::Array<juce::var>& args,
+    void ReverbulizerAudioProcessorEditor::webUndoRedo(const juce::Array<juce::var>& args,
         juce::WebBrowserComponent::NativeFunctionCompletion completion)
     {
         juce::String concatenatedArgs;
@@ -224,7 +225,11 @@ namespace webview_plugin
         }
 
         labelUpdatedFromJavaScript.setText("Native function called with args: " + concatenatedArgs, juce::dontSendNotification);
-        completion("nativeFunction callback:: All ok!");
+        
+        char keyVal = static_cast<char>(args[0].toString()[0]);
+        keyVal == 'Z' ? completion("Undo key combo pressed") : completion("Redo key combo pressed");
+        juce::KeyPress kp{keyVal, juce::ModifierKeys::ctrlModifier, 0 };
+        keyPressed(kp);
     }
 
     juce::File getResourceDirectory()
