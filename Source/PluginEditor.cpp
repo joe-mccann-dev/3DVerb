@@ -67,6 +67,8 @@ namespace webview_plugin
         bypassButtonAttachment { *audioProcessor.apvts.getParameter(id::BYPASS.getParamID()), bypassButton, &undoManager},
         webGainRelay{id::GAIN.getParamID()},
         webBypassRelay{ id::BYPASS.getParamID() },
+        webReverbSizeRelay{id::SIZE.getParamID()},
+        webMixRelay{id::MIX.getParamID()},
         webView
         { 
         juce::WebBrowserComponent::Options{}
@@ -90,13 +92,21 @@ namespace webview_plugin
         .withEventListener("undoRequest", [this](juce::var undoButton) { undoManager.undo(); })
         .withEventListener("redoRequest", [this](juce::var redoButton) { undoManager.redo(); })
         .withOptionsFrom(webGainRelay)
-        .withOptionsFrom(webBypassRelay)},
+        .withOptionsFrom(webBypassRelay)
+        .withOptionsFrom(webReverbSizeRelay)
+        .withOptionsFrom(webMixRelay)},
         webGainSliderAttachment{ *audioProcessor.apvts.getParameter(id::GAIN.getParamID()),
                                 webGainRelay,
                                 &undoManager },
         webBypassToggleAttachment{ *audioProcessor.apvts.getParameter(id::BYPASS.getParamID()),
                                    webBypassRelay,
-                                   &undoManager}
+                                   &undoManager},
+        webReverbSizeSliderAttachment{ *audioProcessor.apvts.getParameter(id::SIZE.getParamID()),
+                                   webReverbSizeRelay,
+                                   &undoManager},
+        webMixSliderAttachment{ *audioProcessor.apvts.getParameter(id::MIX.getParamID()),
+                                 webMixRelay,
+                                 &undoManager}
     {
 
         addAndMakeVisible(webView);
@@ -129,7 +139,7 @@ namespace webview_plugin
         addAndMakeVisible(emitJavaScriptButton);
 
         addAndMakeVisible(labelUpdatedFromJavaScript);
-
+        
         addAndMakeVisible(gainSlider);
         gainSlider.setSliderStyle(juce::Slider::SliderStyle::LinearBar);
 
@@ -177,6 +187,19 @@ namespace webview_plugin
         return false;
     }
 
+    void ReverbulizerAudioProcessorEditor::webUndoRedo(const juce::Array<juce::var>& args,
+        juce::WebBrowserComponent::NativeFunctionCompletion completion)
+    {
+        char keyVal{ static_cast<char>(args[0].toString()[0]) };
+        bool undoCommand{ keyVal == 'Z' };
+        undoCommand ? completion("Undo key combo pressed") : completion("Redo key combo pressed");
+
+        labelUpdatedFromJavaScript.setText(undoCommand ? "Web action undone" : "Web action redone", juce::dontSendNotification);
+
+        const juce::KeyPress& kp{ keyVal, juce::ModifierKeys::ctrlModifier, 0 };
+        keyPressed(kp);
+    }
+
     std::optional<juce::WebBrowserComponent::Resource> ReverbulizerAudioProcessorEditor::getResource(const juce::String& url)
     {
         //static const auto resourceFileRoot = juce::File{ R"(C:\Users\Joe\source\repos\Reverbulizer\Source\ui\public)"};
@@ -212,24 +235,6 @@ namespace webview_plugin
         }
 
         return std::nullopt;
-    }
-
-    void ReverbulizerAudioProcessorEditor::webUndoRedo(const juce::Array<juce::var>& args,
-        juce::WebBrowserComponent::NativeFunctionCompletion completion)
-    {
-        juce::String concatenatedArgs;
-        
-        for (const auto& arg : args)
-        {
-            concatenatedArgs += arg.toString();
-        }
-
-        labelUpdatedFromJavaScript.setText("Native function called with args: " + concatenatedArgs, juce::dontSendNotification);
-        
-        char keyVal = static_cast<char>(args[0].toString()[0]);
-        keyVal == 'Z' ? completion("Undo key combo pressed") : completion("Redo key combo pressed");
-        juce::KeyPress kp{keyVal, juce::ModifierKeys::ctrlModifier, 0 };
-        keyPressed(kp);
     }
 
     juce::File getResourceDirectory()

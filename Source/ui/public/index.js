@@ -88,6 +88,7 @@ animate();
 
 document.addEventListener("DOMContentLoaded", () => {
     document.addEventListener('keydown', (event) => {
+        // calls PluginEditor::webUndoRedo()
         if (event.ctrlKey && event.key === 'y') {
             undoRedoCtrl('Y').then((result) => {
                 console.log(result);
@@ -119,23 +120,43 @@ document.addEventListener("DOMContentLoaded", () => {
         window.__JUCE__.backend.emitEvent("redoRequest", null);
     })
 
-    const slider = document.getElementById("gainSlider");
-    const sliderState = Juce.getSliderState("GAIN");
+    const gainSlider = document.getElementById("gainSlider");
+    const gainSliderState = Juce.getSliderState("GAIN");
 
-    slider.min = sliderState.properties.start;
-    slider.max = sliderState.properties.end;
-    slider.step = 1 / sliderState.properties.numSteps;
+    gainSlider.min = gainSliderState.properties.start;
+    gainSlider.max = gainSliderState.properties.end;
+    gainSlider.step = 1 / gainSliderState.properties.numSteps;
 
-    slider.oninput = function () {
-        sliderState.setNormalisedValue(this.value);
+    gainSlider.oninput = function () {
+        gainSliderState.setNormalisedValue(this.value);
     }
 
-    sliderState.valueChangedEvent.addListener(() => {
-        slider.value = sliderState.getScaledValue();
+    gainSliderState.valueChangedEvent.addListener(() => {
+        gainSlider.value = gainSliderState.getScaledValue();
     });
+
+    const roomSizeSlider = document.getElementById("roomSizeSlider");
+    const roomSizeSliderState = Juce.getSliderState("SIZE");
+    roomSizeSlider.min = roomSizeSliderState.properties.start;
+    roomSizeSlider.max = roomSizeSliderState.properties.end;
+    roomSizeSlider.step = 1 / roomSizeSliderState.properties.numSteps;
 
     const bypassCheckbox = document.getElementById("bypassCheckbox");
     const bypassToggleState = Juce.getToggleState("BYPASS");
+
+    roomSizeSlider.oninput = function () {
+        roomSizeSliderState.setNormalisedValue(this.value);
+    }
+
+    roomSizeSliderState.valueChangedEvent.addListener(() => {
+        roomSizeSlider.value = roomSizeSliderState.getScaledValue();
+    });
+
+    const mixSlider = document.getElementById("mixSlider");
+    const mixSliderState = Juce.getSliderState("MIX");
+    mixSlider.min = mixSliderState.properties.start;
+    mixSlider.max = mixSliderState.properties.end;
+    mixSlider.step = 1 / mixSliderState.properties.numSteps;
 
     bypassCheckbox.oninput = function () {
         bypassToggleState.setValue(this.checked);

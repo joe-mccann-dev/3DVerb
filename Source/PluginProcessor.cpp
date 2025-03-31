@@ -25,6 +25,12 @@ namespace webview_plugin
             layout.add(std::make_unique<juce::AudioParameterBool>(
                 id::BYPASS, "bypass", false, juce::AudioParameterBoolAttributes{}.withLabel("Bypass")));
 
+            layout.add(std::make_unique<juce::AudioParameterFloat>(
+                id::SIZE, "size", juce::NormalisableRange<float>{0.0f, 100.0f, 0.01f, 1.0f}, 50.0f));
+
+            layout.add(std::make_unique<juce::AudioParameterFloat>(
+                id::MIX, "mix", juce::NormalisableRange<float>{0.0f, 100.0f, 0.01, 1.0f}, 100.f));
+
             return layout;
         }
     }
@@ -42,7 +48,9 @@ namespace webview_plugin
         apvts{*this, &undoManager, "APVTS", createParameterLayout()},
         gain{apvts.getRawParameterValue(id::GAIN.getParamID())},
         // note: can review WebViewPluginDemo to find cleaner way to cast this
-        bypass{ *dynamic_cast<juce::AudioParameterBool*>(apvts.getParameter(id::BYPASS.getParamID())) }
+        bypass{ *dynamic_cast<juce::AudioParameterBool*>(apvts.getParameter(id::BYPASS.getParamID())) },
+        size{ dynamic_cast<juce::AudioParameterFloat*>(apvts.getParameter(id::SIZE.getParamID())) },
+        mix{dynamic_cast<juce::AudioParameterFloat*>(apvts.getParameter(id::MIX.getParamID()))}
     {
     }
 
@@ -142,7 +150,7 @@ namespace webview_plugin
     }
 
     #ifndef JucePlugin_PreferredChannelConfigurations
-        bool ReverbulizerAudioProcessor::isBusesLayoutSupported(const BusesLayout& layouts) const
+    bool ReverbulizerAudioProcessor::isBusesLayoutSupported(const BusesLayout& layouts) const
     {
     #if JucePlugin_IsMidiEffect
         juce::ignoreUnused(layouts);
@@ -203,6 +211,19 @@ namespace webview_plugin
             // ..do something to the data...
         }
 
+        if (buffer.getNumChannels() == 1) {
+            // Mono input detected
+            const float* monoInput = buffer.getReadPointer(0);
+            float* leftOutput = buffer.getWritePointer(0);
+            float* rightOutput = buffer.getWritePointer(1);
+
+            for (int sample = 0; sample < buffer.getNumSamples(); ++sample) {
+                leftOutput[sample] = monoInput[sample];
+                rightOutput[sample] = monoInput[sample];
+            }
+        }
+
+
         const auto inBlock = juce::dsp::AudioBlock<float>(buffer).getSubsetChannelBlock
         (
             0u, static_cast<size_t>(getTotalNumOutputChannels())
@@ -212,6 +233,14 @@ namespace webview_plugin
         juce::dsp::ProcessContextNonReplacing<float> ctx{ inBlock, outBlock };
 
         envelopeFollower.process(ctx);
+
+        params.roomSize = size->get() * 0.01f;
+        params.wetLevel = mix->get() * 0.01f;
+        params.dryLevel = 1.0f - mix->get() * 0.01f;
+
+        reverb.setParameters(params);
+        reverb.process(ctx);
+
         outputLevelLeft = juce::Decibels::gainToDecibels
         (
             outBlock.getSample(0u, static_cast<int>(outBlock.getNumSamples() - 1))

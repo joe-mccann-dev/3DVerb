@@ -42,11 +42,26 @@
         </table>
         <button id="undoButton">undo (ctrl+z)</button>
         <button id="redoButton">redo (ctrl+y)</button>
+        <br />
         <br>
-          <input type="range" id="gainSlider">
+        <label for="gainSlider">GAIN</label>
+        <input type="range" id="gainSlider" style="width: 100%; height: 20px">
+        <br />
+
+        <br />
+        <label for="roomSizeSlider">ROOM SIZE</label>
+        <input type="range" id="roomSizeSlider" min="0" max="100" value="50" style="width: 100%; height: 20px;">
+        <br />
+
+        <br />
+        <label for="roomSizeSlider">MIX</label>
+        <input type="range" id="mixSlider" min="0" max="100" value="50" style="width: 100%; height: 20px;">
+        <br />
+
         <br />
         <label for="bypassCheckbox">Bypass</label>
         <input type="checkbox" id="bypassCheckbox" />
+        <br />
         <br />
     </main>
 </body>

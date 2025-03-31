@@ -56,10 +56,17 @@ namespace webview_plugin
 		juce::WebSliderRelay webGainRelay;
 		juce::WebToggleButtonRelay webBypassRelay;
 
+		juce::WebSliderRelay webReverbSizeRelay;
+		juce::WebSliderRelay webMixRelay;
+
+
 		juce::WebBrowserComponent webView;
 
 		juce::WebSliderParameterAttachment webGainSliderAttachment;
 		juce::WebToggleButtonParameterAttachment webBypassToggleAttachment;
+
+		juce::WebSliderParameterAttachment webReverbSizeSliderAttachment;
+		juce::WebSliderParameterAttachment webMixSliderAttachment;
 
 		JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ReverbulizerAudioProcessorEditor)
 	};
