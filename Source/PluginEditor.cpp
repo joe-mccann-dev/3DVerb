@@ -74,6 +74,7 @@ namespace webview_plugin
         juce::WebBrowserComponent::Options{}
         .withBackend(juce::WebBrowserComponent::Options::Backend::webview2)
         .withWinWebView2Options(juce::WebBrowserComponent::Options::WinWebView2{}
+        .withDLLLocation(getDLLDirectory())
         .withUserDataFolder(juce::File::getSpecialLocation(juce::File::tempDirectory)))
         .withResourceProvider([this](const auto& url) {return getResource(url); },
                               juce::URL{LOCAL_VITE_SERVER}.getOrigin())
@@ -169,7 +170,7 @@ namespace webview_plugin
 
     void ReverbulizerAudioProcessorEditor::timerCallback()
     {
-        webView.emitEventIfBrowserIsVisible("outputLevel", juce::var{});
+       webView.emitEventIfBrowserIsVisible("outputLevel", juce::var{});
     }
 
     // ctrl + z == undo; ctrl + y == redo
@@ -248,5 +249,18 @@ namespace webview_plugin
         }
 
         return current.getChildFile("Source/ui/public/");
+    }
+
+    juce::File getDLLDirectory()
+    {
+        auto current = juce::File::getCurrentWorkingDirectory();
+
+        while (current.getFileName() != juce::String(ProjectInfo::projectName))
+        {
+            current = current.getParentDirectory();
+            jassert(current.exists());
+        }
+        juce::File result = current.getChildFile("Builds/VisualStudio2022/x64/Debug/VST3/WebView2Loader.dll");
+        return result;
     }
 }

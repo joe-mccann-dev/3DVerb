@@ -72,4 +72,5 @@ namespace webview_plugin
 	};
 
 	juce::File getResourceDirectory();
+	juce::File getDLLDirectory();
 }
