@@ -253,14 +253,8 @@ namespace webview_plugin
 
     juce::File getDLLDirectory()
     {
-        auto current = juce::File::getCurrentWorkingDirectory();
-
-        while (current.getFileName() != juce::String(ProjectInfo::projectName))
-        {
-            current = current.getParentDirectory();
-            jassert(current.exists());
-        }
-        juce::File result = current.getChildFile("Builds/VisualStudio2022/x64/Debug/VST3/WebView2Loader.dll");
-        return result;
+        return juce::File::getSpecialLocation(juce::File::currentApplicationFile)
+            .getParentDirectory()
+            .getChildFile("WebView2Loader.dll");
     }
 }
