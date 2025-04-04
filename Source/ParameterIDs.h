@@ -6,4 +6,5 @@ namespace webview_plugin::id
 	const juce::ParameterID BYPASS{ "BYPASS", 1 };
 	const juce::ParameterID SIZE{ "SIZE", 1 };
 	const juce::ParameterID MIX{ "MIX", 1 };
+	const juce::ParameterID WIDTH{ "WIDTH", 1 };
 }

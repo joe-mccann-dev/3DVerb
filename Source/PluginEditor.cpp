@@ -69,6 +69,7 @@ namespace webview_plugin
         webBypassRelay{ id::BYPASS.getParamID() },
         webReverbSizeRelay{id::SIZE.getParamID()},
         webMixRelay{id::MIX.getParamID()},
+        webWidthRelay{id::WIDTH.getParamID()},
         webView
         { 
         juce::WebBrowserComponent::Options{}
@@ -95,7 +96,8 @@ namespace webview_plugin
         .withOptionsFrom(webGainRelay)
         .withOptionsFrom(webBypassRelay)
         .withOptionsFrom(webReverbSizeRelay)
-        .withOptionsFrom(webMixRelay)},
+        .withOptionsFrom(webMixRelay)
+        .withOptionsFrom(webWidthRelay)},
         webGainSliderAttachment{ *audioProcessor.apvts.getParameter(id::GAIN.getParamID()),
                                 webGainRelay,
                                 &undoManager },
@@ -107,7 +109,11 @@ namespace webview_plugin
                                    &undoManager},
         webMixSliderAttachment{ *audioProcessor.apvts.getParameter(id::MIX.getParamID()),
                                  webMixRelay,
+                                 &undoManager},
+        webWidthSliderAttachment{ *audioProcessor.apvts.getParameter(id::WIDTH.getParamID()),
+                                 webWidthRelay,
                                  &undoManager}
+
     {
 
         addAndMakeVisible(webView);

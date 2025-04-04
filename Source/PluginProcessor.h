@@ -68,11 +68,12 @@ namespace webview_plugin
         juce::AudioBuffer<float> envelopeFollowerOutputBuffer;
 
         // BEGIN REVERB PARAMS
-        
-        juce::dsp::Reverb::Parameters params;
         juce::dsp::Reverb reverb;
+        juce::dsp::Reverb::Parameters params;
+        
         juce::AudioParameterFloat* size{ nullptr };
         juce::AudioParameterFloat* mix{ nullptr };
+        juce::AudioParameterFloat* width{ nullptr };
 
         juce::UndoManager undoManager;
 

@@ -110,6 +110,8 @@ document.addEventListener("DOMContentLoaded", () => {
     //        emittedCount: emittedCount
     //    });
     //});
+
+    // UNDO-REDO
     const undoButton = document.getElementById("undoButton");
     undoButton.addEventListener("click", () => {
         window.__JUCE__.backend.emitEvent("undoRequest", null);
@@ -120,6 +122,19 @@ document.addEventListener("DOMContentLoaded", () => {
         window.__JUCE__.backend.emitEvent("redoRequest", null);
     })
 
+    // BYPASS
+    const bypassCheckbox = document.getElementById("bypassCheckbox");
+    const bypassToggleState = Juce.getToggleState("BYPASS");
+
+    bypassCheckbox.oninput = function () {
+        bypassToggleState.setValue(this.checked);
+    }
+
+    bypassToggleState.valueChangedEvent.addListener(() => {
+        bypassCheckbox.checked = bypassToggleState.getValue();
+    });
+
+    // GAIN
     const gainSlider = document.getElementById("gainSlider");
     const gainSliderState = Juce.getSliderState("GAIN");
 
@@ -135,14 +150,12 @@ document.addEventListener("DOMContentLoaded", () => {
         gainSlider.value = gainSliderState.getScaledValue();
     });
 
+    // ROOM SIZE
     const roomSizeSlider = document.getElementById("roomSizeSlider");
     const roomSizeSliderState = Juce.getSliderState("SIZE");
     roomSizeSlider.min = roomSizeSliderState.properties.start;
     roomSizeSlider.max = roomSizeSliderState.properties.end;
     roomSizeSlider.step = 1 / roomSizeSliderState.properties.numSteps;
-
-    const bypassCheckbox = document.getElementById("bypassCheckbox");
-    const bypassToggleState = Juce.getToggleState("BYPASS");
 
     roomSizeSlider.oninput = function () {
         roomSizeSliderState.setNormalisedValue(this.value);
@@ -152,18 +165,35 @@ document.addEventListener("DOMContentLoaded", () => {
         roomSizeSlider.value = roomSizeSliderState.getScaledValue();
     });
 
+    // MIX
     const mixSlider = document.getElementById("mixSlider");
     const mixSliderState = Juce.getSliderState("MIX");
     mixSlider.min = mixSliderState.properties.start;
     mixSlider.max = mixSliderState.properties.end;
     mixSlider.step = 1 / mixSliderState.properties.numSteps;
 
-    bypassCheckbox.oninput = function () {
-        bypassToggleState.setValue(this.checked);
+    mixSlider.oninput = function () {
+        mixSliderState.setNormalisedValue(this.value);
     }
 
-    bypassToggleState.valueChangedEvent.addListener(() => {
-        bypassCheckbox.checked = bypassToggleState.getValue();
+    mixSliderState.valueChangedEvent.addListener(() => {
+        mixSliderState.value = mixSliderState.getScaledValue();
+    });
+
+    // WIDTH
+    const widthSlider = document.getElementById("widthSlider");
+    const widthSliderState = Juce.getSliderState("WIDTH");
+    widthSlider.min = widthSliderState.properties.start;
+    widthSlider.max = widthSliderState.properties.end;
+    widthSlider.step = 1 / widthSliderState.properties.numSteps // Fine-grained steps
+
+
+    widthSlider.oninput = function () {
+        widthSliderState.setNormalisedValue(this.value);
+    }
+
+    widthSliderState.valueChangedEvent.addListender(() => {
+        widthSliderState.value = widthSliderState.getScaledValue();
     });
 
     //window.__JUCE__.backend.addEventListener("outputLevel", () => {

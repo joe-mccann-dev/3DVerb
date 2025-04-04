@@ -20,7 +20,7 @@ namespace webview_plugin
             juce::AudioProcessorValueTreeState::ParameterLayout layout;
 
             layout.add(std::make_unique<juce::AudioParameterFloat>(
-                id::GAIN, "gain", juce::NormalisableRange<float>{0.f, 1.f, 0.01f, 0.9f}, 1.f));
+                id::GAIN, "gain", juce::NormalisableRange<float>{0.f, 1.0f, 0.01f, 0.9f}, 1.f));
 
             layout.add(std::make_unique<juce::AudioParameterBool>(
                 id::BYPASS, "bypass", false, juce::AudioParameterBoolAttributes{}.withLabel("Bypass")));
@@ -29,28 +29,33 @@ namespace webview_plugin
                 id::SIZE, "size", juce::NormalisableRange<float>{0.0f, 100.0f, 0.01f, 1.0f}, 50.0f));
 
             layout.add(std::make_unique<juce::AudioParameterFloat>(
-                id::MIX, "mix", juce::NormalisableRange<float>{0.0f, 100.0f, 0.01, 1.0f}, 100.f));
+                // range params =  (rangeStart, rangeEnd, intervalValue, skewFactor)
+                id::MIX, "mix", juce::NormalisableRange<float>{0.0f, 100.0f, 0.01f, 1.0f}, 100.f));
+
+            layout.add(std::make_unique<juce::AudioParameterFloat>(
+                id::WIDTH, "width", juce::NormalisableRange<float>{0.0f, 100.0f, 0.01f, 10.f}, 100.f));
 
             return layout;
         }
     }
     ReverbulizerAudioProcessor::ReverbulizerAudioProcessor()
-        #ifndef JucePlugin_PreferredChannelConfigurations
-                : AudioProcessor(BusesProperties()
-        #if ! JucePlugin_IsMidiEffect
-        #if ! JucePlugin_IsSynth
-                    .withInput("Input", juce::AudioChannelSet::stereo(), true)
-        #endif
-                    .withOutput("Output", juce::AudioChannelSet::stereo(), true)
-        #endif
-                ),
-        #endif
-        apvts{*this, &undoManager, "APVTS", createParameterLayout()},
-        gain{apvts.getRawParameterValue(id::GAIN.getParamID())},
+#ifndef JucePlugin_PreferredChannelConfigurations
+        : AudioProcessor(BusesProperties()
+#if ! JucePlugin_IsMidiEffect
+#if ! JucePlugin_IsSynth
+            .withInput("Input", juce::AudioChannelSet::stereo(), true)
+#endif
+            .withOutput("Output", juce::AudioChannelSet::stereo(), true)
+#endif
+        ),
+#endif
+        apvts{ *this, &undoManager, "APVTS", createParameterLayout() },
+        gain{ apvts.getRawParameterValue(id::GAIN.getParamID()) },
         // note: can review WebViewPluginDemo to find cleaner way to cast this
         bypass{ *dynamic_cast<juce::AudioParameterBool*>(apvts.getParameter(id::BYPASS.getParamID())) },
         size{ dynamic_cast<juce::AudioParameterFloat*>(apvts.getParameter(id::SIZE.getParamID())) },
-        mix{dynamic_cast<juce::AudioParameterFloat*>(apvts.getParameter(id::MIX.getParamID()))}
+        mix{ dynamic_cast<juce::AudioParameterFloat*>(apvts.getParameter(id::MIX.getParamID())) },
+        width{ dynamic_cast<juce::AudioParameterFloat*>(apvts.getParameter(id::WIDTH.getParamID())) }
     {
     }
 
@@ -211,17 +216,17 @@ namespace webview_plugin
             // ..do something to the data...
         }
 
-        if (buffer.getNumChannels() == 1) {
-            // Mono input detected
-            const float* monoInput = buffer.getReadPointer(0);
-            float* leftOutput = buffer.getWritePointer(0);
-            float* rightOutput = buffer.getWritePointer(1);
+        //if (buffer.getNumChannels() == 1) {
+        //    // Mono input detected
+        //    const float* monoInput = buffer.getReadPointer(0);
+        //    float* leftOutput = buffer.getWritePointer(0);
+        //    float* rightOutput = buffer.getWritePointer(1);
 
-            for (int sample = 0; sample < buffer.getNumSamples(); ++sample) {
-                leftOutput[sample] = monoInput[sample];
-                rightOutput[sample] = monoInput[sample];
-            }
-        }
+        //    for (int sample = 0; sample < buffer.getNumSamples(); ++sample) {
+        //        leftOutput[sample] = monoInput[sample];
+        //        rightOutput[sample] = monoInput[sample];
+        //    }
+        //}
 
 
         const auto inBlock = juce::dsp::AudioBlock<float>(buffer).getSubsetChannelBlock
@@ -237,6 +242,7 @@ namespace webview_plugin
         params.roomSize = size->get() * 0.01f;
         params.wetLevel = mix->get() * 0.01f;
         params.dryLevel = 1.0f - mix->get() * 0.01f;
+        params.width = width->get() * 0.01f;
 
         reverb.setParameters(params);
         reverb.process(ctx);
