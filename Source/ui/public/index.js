@@ -177,7 +177,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     mixSliderState.valueChangedEvent.addListener(() => {
-        mixSliderState.value = mixSliderState.getScaledValue();
+        mixSlider.value = mixSliderState.getScaledValue();
     });
 
     // WIDTH
@@ -185,7 +185,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const widthSliderState = Juce.getSliderState("WIDTH");
     widthSlider.min = widthSliderState.properties.start;
     widthSlider.max = widthSliderState.properties.end;
-    widthSlider.step = 0.01;
+    widthSlider.step = 1 / widthSliderState.properties.numSteps;
 
 
     widthSlider.oninput = function () {
@@ -193,7 +193,7 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     widthSliderState.valueChangedEvent.addListener(() => {
-        widthSliderState.value = widthSliderState.getScaledValue();
+        widthSlider.value = widthSliderState.getScaledValue();
     });
 
     window.__JUCE__.backend.addEventListener("outputLevel", () => {

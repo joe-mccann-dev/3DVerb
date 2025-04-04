@@ -234,10 +234,10 @@ namespace webview_plugin
         juce::dsp::ProcessContextReplacing<float> reverbCtx{block};
         reverb.process(reverbCtx);
 
-        //outputLevelLeft = juce::Decibels::gainToDecibels
-        //(
-        //    outBlock.getSample(0u, static_cast<int>(outBlock.getNumSamples() - 1))
-        //);
+        outputLevelLeft = juce::Decibels::gainToDecibels
+        (
+            outBlock.getSample(0u, static_cast<int>(outBlock.getNumSamples() - 1))
+        );
     }
 
     //==============================================================================
