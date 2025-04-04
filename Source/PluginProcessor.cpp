@@ -136,14 +136,14 @@ namespace webview_plugin
         spec.maximumBlockSize = static_cast<juce::uint32>(samplesPerBlock);
         spec.numChannels = static_cast<juce::uint32>(getTotalNumOutputChannels());
 
-        //envelopeFollower.prepare(spec);
-        //envelopeFollower.setAttackTime(200.f);
-        //envelopeFollower.setReleaseTime(200.f);
-        //envelopeFollower.setLevelCalculationType(
-        //    juce::dsp::BallisticsFilter<float>::LevelCalculationType::peak
-        //);
+        envelopeFollower.prepare(spec);
+        envelopeFollower.setAttackTime(200.f);
+        envelopeFollower.setReleaseTime(200.f);
+        envelopeFollower.setLevelCalculationType(
+            juce::dsp::BallisticsFilter<float>::LevelCalculationType::peak
+        );
 
-        //envelopeFollowerOut/*p*/utBuffer.setSize(getTotalNumOutputChannels(), samplesPerBlock);
+        envelopeFollowerOutputBuffer.setSize(getTotalNumOutputChannels(), samplesPerBlock);
 
         reverb.prepare(spec);
     }
@@ -218,10 +218,10 @@ namespace webview_plugin
 
         const auto inBlock = juce::dsp::AudioBlock<float>{ buffer };
 
-        //juce::dsp::AudioBlock<float> outBlock{ envelopeFollowerOutputBuffer };
-        //juce::dsp::ProcessContextNonReplacing<float> ctx{ inBlock, outBlock };
+        juce::dsp::AudioBlock<float> outBlock{ envelopeFollowerOutputBuffer };
+        juce::dsp::ProcessContextNonReplacing<float> ctx{ inBlock, outBlock };
 
-        //envelopeFollower.process(ctx);
+        envelopeFollower.process(ctx);
 
         params.roomSize = size->get() * 0.01f;
         params.wetLevel = mix->get() * 0.01f;
