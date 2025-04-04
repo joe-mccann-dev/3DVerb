@@ -61,15 +61,16 @@ namespace webview_plugin
         : AudioProcessorEditor(&p), 
         undoManager(um),
         audioProcessor(p),
-        // passing nullptr as undo_manager for now
+
         gainSliderAttachment{*audioProcessor.apvts.getParameter(id::GAIN.getParamID()), gainSlider, &undoManager},
-        // pass nullptr as undo manager for now
         bypassButtonAttachment { *audioProcessor.apvts.getParameter(id::BYPASS.getParamID()), bypassButton, &undoManager},
+
         webGainRelay{id::GAIN.getParamID()},
         webBypassRelay{ id::BYPASS.getParamID() },
         webReverbSizeRelay{id::SIZE.getParamID()},
         webMixRelay{id::MIX.getParamID()},
         webWidthRelay{id::WIDTH.getParamID()},
+
         webView
         { 
         juce::WebBrowserComponent::Options{}

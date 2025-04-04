@@ -50,6 +50,9 @@ namespace webview_plugin
 		juce::ToggleButton bypassButton{ "Bypass" };
 		juce::ButtonParameterAttachment bypassButtonAttachment;
 
+		//juce::Slider widthSlider{ "widthSlider" };
+		//juce::SliderParameterAttachment widthSliderAttachment;
+
 
 		juce::TextButton runJavaScriptButton{ "Run some JavaScript" };
 		juce::TextButton emitJavaScriptButton{ "Emit JavaScript event" };
@@ -62,7 +65,7 @@ namespace webview_plugin
 		juce::WebToggleButtonRelay webBypassRelay;
 
 		juce::WebSliderRelay webReverbSizeRelay;
-		juce::WebSliderRelay webMixRelay;
+		juce::WebSliderRelay webMixRelay; 
 		juce::WebSliderRelay webWidthRelay;
 
 

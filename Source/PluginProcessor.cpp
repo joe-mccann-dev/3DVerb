@@ -136,14 +136,14 @@ namespace webview_plugin
         spec.maximumBlockSize = static_cast<juce::uint32>(samplesPerBlock);
         spec.numChannels = static_cast<juce::uint32>(getTotalNumOutputChannels());
 
-        envelopeFollower.prepare(spec);
-        envelopeFollower.setAttackTime(200.f);
-        envelopeFollower.setReleaseTime(200.f);
-        envelopeFollower.setLevelCalculationType(
-            juce::dsp::BallisticsFilter<float>::LevelCalculationType::peak
-        );
+        //envelopeFollower.prepare(spec);
+        //envelopeFollower.setAttackTime(200.f);
+        //envelopeFollower.setReleaseTime(200.f);
+        //envelopeFollower.setLevelCalculationType(
+        //    juce::dsp::BallisticsFilter<float>::LevelCalculationType::peak
+        //);
 
-        envelopeFollowerOutputBuffer.setSize(getTotalNumOutputChannels(), samplesPerBlock);
+        //envelopeFollowerOut/*p*/utBuffer.setSize(getTotalNumOutputChannels(), samplesPerBlock);
 
         reverb.prepare(spec);
     }
@@ -216,28 +216,12 @@ namespace webview_plugin
             // ..do something to the data...
         }
 
-        //if (buffer.getNumChannels() == 1) {
-        //    // Mono input detected
-        //    const float* monoInput = buffer.getReadPointer(0);
-        //    float* leftOutput = buffer.getWritePointer(0);
-        //    float* rightOutput = buffer.getWritePointer(1);
+        const auto inBlock = juce::dsp::AudioBlock<float>{ buffer };
 
-        //    for (int sample = 0; sample < buffer.getNumSamples(); ++sample) {
-        //        leftOutput[sample] = monoInput[sample];
-        //        rightOutput[sample] = monoInput[sample];
-        //    }
-        //}
+        //juce::dsp::AudioBlock<float> outBlock{ envelopeFollowerOutputBuffer };
+        //juce::dsp::ProcessContextNonReplacing<float> ctx{ inBlock, outBlock };
 
-
-        const auto inBlock = juce::dsp::AudioBlock<float>(buffer).getSubsetChannelBlock
-        (
-            0u, static_cast<size_t>(getTotalNumOutputChannels())
-        );
-
-        juce::dsp::AudioBlock<float> outBlock{ envelopeFollowerOutputBuffer };
-        juce::dsp::ProcessContextNonReplacing<float> ctx{ inBlock, outBlock };
-
-        envelopeFollower.process(ctx);
+        //envelopeFollower.process(ctx);
 
         params.roomSize = size->get() * 0.01f;
         params.wetLevel = mix->get() * 0.01f;
@@ -245,12 +229,15 @@ namespace webview_plugin
         params.width = width->get() * 0.01f;
 
         reverb.setParameters(params);
-        reverb.process(ctx);
 
-        outputLevelLeft = juce::Decibels::gainToDecibels
-        (
-            outBlock.getSample(0u, static_cast<int>(outBlock.getNumSamples() - 1))
-        );
+        juce::dsp::AudioBlock<float> block{buffer};
+        juce::dsp::ProcessContextReplacing<float> reverbCtx{block};
+        reverb.process(reverbCtx);
+
+        //outputLevelLeft = juce::Decibels::gainToDecibels
+        //(
+        //    outBlock.getSample(0u, static_cast<int>(outBlock.getNumSamples() - 1))
+        //);
     }
 
     //==============================================================================
