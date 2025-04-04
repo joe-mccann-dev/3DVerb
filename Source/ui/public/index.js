@@ -49,12 +49,10 @@ const renderer = new WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
-
 camera.position.set(10, -5, 20);
 camera.lookAt(0, -5, 0);
 
 const loader = new GLTFLoader();
-
 loader.load('assets/cube.glb', function (glb) {
     const cube = glb.scene;
     cube.scale.set(1, 1, 1);
@@ -62,7 +60,6 @@ loader.load('assets/cube.glb', function (glb) {
 }, undefined, function (error) {
     console.error(error);
 });
-
 
 const light = new DirectionalLight(0xffffed, 1);
 light.position.set(10, 10, 3);
@@ -83,7 +80,6 @@ function animate() {
 }
 
 animate();
-
 // END THREE JS CODE
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -100,16 +96,6 @@ document.addEventListener("DOMContentLoaded", () => {
             });
         }
     });
-
-
-    //const emitEventButton = document.getElementById("emitEventButton");
-    //let emittedCount = 0;
-    //emitEventButton.addEventListener("click", () => {
-    //    emittedCount++;
-    //    window.__JUCE__.backend.emitEvent("exampleJavaScriptEvent", {
-    //        emittedCount: emittedCount
-    //    });
-    //});
 
     // UNDO-REDO
     const undoButton = document.getElementById("undoButton");
@@ -137,64 +123,36 @@ document.addEventListener("DOMContentLoaded", () => {
     // GAIN
     const gainSlider = document.getElementById("gainSlider");
     const gainSliderState = Juce.getSliderState("GAIN");
-
-    gainSlider.min = gainSliderState.properties.start;
-    gainSlider.max = gainSliderState.properties.end;
-    gainSlider.step = 1 / gainSliderState.properties.numSteps;
-
-    gainSlider.oninput = function () {
-        gainSliderState.setNormalisedValue(this.value);
-    }
-
-    gainSliderState.valueChangedEvent.addListener(() => {
-        gainSlider.value = gainSliderState.getScaledValue();
-    });
+    updateSliderDOMObjectAndSliderState(gainSlider, gainSliderState, (1/gainSliderState.properties.numSteps));
 
     // ROOM SIZE
     const roomSizeSlider = document.getElementById("roomSizeSlider");
     const roomSizeSliderState = Juce.getSliderState("SIZE");
-    roomSizeSlider.min = roomSizeSliderState.properties.start;
-    roomSizeSlider.max = roomSizeSliderState.properties.end;
-    roomSizeSlider.step = 1 / roomSizeSliderState.properties.numSteps;
-
-    roomSizeSlider.oninput = function () {
-        roomSizeSliderState.setNormalisedValue(this.value);
-    }
-
-    roomSizeSliderState.valueChangedEvent.addListener(() => {
-        roomSizeSlider.value = roomSizeSliderState.getScaledValue();
-    });
+    updateSliderDOMObjectAndSliderState(roomSizeSlider, roomSizeSliderState, (1/roomSizeSliderState.properties.numSteps));
 
     // MIX
     const mixSlider = document.getElementById("mixSlider");
     const mixSliderState = Juce.getSliderState("MIX");
-    mixSlider.min = mixSliderState.properties.start;
-    mixSlider.max = mixSliderState.properties.end;
-    mixSlider.step = 1 / mixSliderState.properties.numSteps;
-
-    mixSlider.oninput = function () {
-        mixSliderState.setNormalisedValue(this.value);
-    }
-
-    mixSliderState.valueChangedEvent.addListener(() => {
-        mixSlider.value = mixSliderState.getScaledValue();
-    });
+    updateSliderDOMObjectAndSliderState(mixSlider, mixSliderState, (1/mixSliderState.properties.numSteps));
 
     // WIDTH
     const widthSlider = document.getElementById("widthSlider");
     const widthSliderState = Juce.getSliderState("WIDTH");
-    widthSlider.min = widthSliderState.properties.start;
-    widthSlider.max = widthSliderState.properties.end;
-    widthSlider.step = 1 / widthSliderState.properties.numSteps;
+    updateSliderDOMObjectAndSliderState(widthSlider, widthSliderState, (1/widthSliderState.properties.numSteps));
 
+    function updateSliderDOMObjectAndSliderState(sliderDOMObject, sliderState, sliderSteps) {
+        sliderDOMObject.min = sliderState.properties.start;
+        sliderDOMObject.max = sliderState.properties.end;
+        sliderDOMObject.step = sliderSteps;
 
-    widthSlider.oninput = function () {
-        widthSliderState.setNormalisedValue(this.value);
-    };
+        sliderDOMObject.oninput = function () {
+            sliderState.setNormalisedValue(this.value);
+        };
 
-    widthSliderState.valueChangedEvent.addListener(() => {
-        widthSlider.value = widthSliderState.getScaledValue();
-    });
+         sliderState.valueChangedEvent.addListener(() => {
+            sliderDOMObject.value = sliderState.getScaledValue();
+        });
+    }
 
     window.__JUCE__.backend.addEventListener("outputLevel", () => {
         fetch(Juce.getBackendResourceAddress("outputLevel.json"))
