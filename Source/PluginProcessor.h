@@ -71,11 +71,13 @@ namespace webview_plugin
         juce::dsp::Reverb reverb;
         juce::dsp::Reverb::Parameters params;
 
-        void updateReverb();
-        
         juce::AudioParameterFloat* size{ nullptr };
         juce::AudioParameterFloat* mix{ nullptr };
         juce::AudioParameterFloat* width{ nullptr };
+        juce::AudioParameterFloat* damp{ nullptr };
+        juce::AudioParameterFloat* freeze{ nullptr };
+
+        void updateReverb();
 
         juce::UndoManager undoManager;
 

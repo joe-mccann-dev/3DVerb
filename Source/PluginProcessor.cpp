@@ -33,7 +33,15 @@ namespace webview_plugin
                 id::MIX, "mix", juce::NormalisableRange<float>{0.0f, 100.0f, 0.01f, 1.0f}, 100.f));
 
             layout.add(std::make_unique<juce::AudioParameterFloat>(
-                id::WIDTH, "width", juce::NormalisableRange<float>{0.0f, 100.0f, 0.01f, 10.f}, 100.f));
+                id::WIDTH, "width", juce::NormalisableRange<float>{0.0f, 100.0f, 0.01f, 1.0f}, 100.f));
+
+            layout.add(std::make_unique<juce::AudioParameterFloat>(
+                // range params =  (rangeStart, rangeEnd, intervalValue, skewFactor)
+                id::DAMP, "damp", juce::NormalisableRange<float>{0.0f, 100.0f, 0.01f, 1.0f}, 100.f));
+
+            layout.add(std::make_unique<juce::AudioParameterFloat>(
+                // range params =  (rangeStart, rangeEnd, intervalValue, skewFactor)
+                id::FREEZE, "freeze", juce::NormalisableRange<float>{0.0f, 100.f, 0.01f, 1.0f}, 0.0f));
 
             return layout;
         }
@@ -55,7 +63,9 @@ namespace webview_plugin
         bypass{ *dynamic_cast<juce::AudioParameterBool*>(apvts.getParameter(id::BYPASS.getParamID())) },
         size{ dynamic_cast<juce::AudioParameterFloat*>(apvts.getParameter(id::SIZE.getParamID())) },
         mix{ dynamic_cast<juce::AudioParameterFloat*>(apvts.getParameter(id::MIX.getParamID())) },
-        width{ dynamic_cast<juce::AudioParameterFloat*>(apvts.getParameter(id::WIDTH.getParamID())) }
+        width{ dynamic_cast<juce::AudioParameterFloat*>(apvts.getParameter(id::WIDTH.getParamID())) },
+        damp{dynamic_cast<juce::AudioParameterFloat*>(apvts.getParameter(id::DAMP.getParamID()))},
+        freeze{dynamic_cast<juce::AudioParameterFloat*>(apvts.getParameter(id::FREEZE.getParamID()))}
     {
     }
 
@@ -186,6 +196,8 @@ namespace webview_plugin
         params.wetLevel = mix->get() * 0.01f;
         params.dryLevel = 1.0f - mix->get() * 0.01f;
         params.width = width->get() * 0.01f;
+        params.damping = damp->get() * 0.01f;
+        params.freezeMode = freeze->get() * 0.01f;
         reverb.setParameters(params);
     }
 

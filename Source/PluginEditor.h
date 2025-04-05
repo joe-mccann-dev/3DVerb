@@ -67,6 +67,8 @@ namespace webview_plugin
 		juce::WebSliderRelay webReverbSizeRelay;
 		juce::WebSliderRelay webMixRelay; 
 		juce::WebSliderRelay webWidthRelay;
+		juce::WebSliderRelay webDampRelay;
+		juce::WebSliderRelay webFreezeRelay;
 
 
 		juce::WebBrowserComponent webView;
@@ -77,6 +79,9 @@ namespace webview_plugin
 		juce::WebSliderParameterAttachment webReverbSizeSliderAttachment;
 		juce::WebSliderParameterAttachment webMixSliderAttachment;
 		juce::WebSliderParameterAttachment webWidthSliderAttachment;
+		juce::WebSliderParameterAttachment webDampSliderAttachment;
+		juce::WebSliderParameterAttachment webFreezeSliderAttachment;
+
 
 
 		// END WEBVIEW

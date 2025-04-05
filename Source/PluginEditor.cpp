@@ -70,6 +70,8 @@ namespace webview_plugin
         webReverbSizeRelay{id::SIZE.getParamID()},
         webMixRelay{id::MIX.getParamID()},
         webWidthRelay{id::WIDTH.getParamID()},
+        webDampRelay{id::DAMP.getParamID()},
+        webFreezeRelay{id::FREEZE.getParamID()},
 
         webView
         { 
@@ -98,7 +100,9 @@ namespace webview_plugin
         .withOptionsFrom(webBypassRelay)
         .withOptionsFrom(webReverbSizeRelay)
         .withOptionsFrom(webMixRelay)
-        .withOptionsFrom(webWidthRelay)},
+        .withOptionsFrom(webWidthRelay)
+        .withOptionsFrom(webDampRelay)
+        .withOptionsFrom(webFreezeRelay)},
         webGainSliderAttachment{ *audioProcessor.apvts.getParameter(id::GAIN.getParamID()),
                                 webGainRelay,
                                 &undoManager },
@@ -113,8 +117,13 @@ namespace webview_plugin
                                  &undoManager},
         webWidthSliderAttachment{ *audioProcessor.apvts.getParameter(id::WIDTH.getParamID()),
                                  webWidthRelay,
+                                 &undoManager},
+        webDampSliderAttachment{ *audioProcessor.apvts.getParameter(id::DAMP.getParamID()),
+                                 webDampRelay,
+                                 &undoManager},
+        webFreezeSliderAttachment{ *audioProcessor.apvts.getParameter(id::FREEZE.getParamID()),
+                                 webFreezeRelay,
                                  &undoManager}
-
     {
 
         addAndMakeVisible(webView);

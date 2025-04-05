@@ -138,7 +138,15 @@ document.addEventListener("DOMContentLoaded", () => {
     // WIDTH
     const widthSlider = document.getElementById("widthSlider");
     const widthSliderState = Juce.getSliderState("WIDTH");
-    updateSliderDOMObjectAndSliderState(widthSlider, widthSliderState, (1/widthSliderState.properties.numSteps));
+    updateSliderDOMObjectAndSliderState(widthSlider, widthSliderState, (1 / widthSliderState.properties.numSteps));
+
+    const dampSlider = document.getElementById("dampSlider");
+    const dampSliderState = Juce.getSliderState("DAMP");
+    updateSliderDOMObjectAndSliderState(dampSlider, dampSliderState, (1 / dampSliderState.properties.numSteps));
+
+    const freezeSlider = document.getElementById("freezeSlider");
+    const freezeSliderState = Juce.getSliderState("FREEZE");
+    updateSliderDOMObjectAndSliderState(freezeSlider, freezeSliderState, (1 / freezeSliderState.properties.numSteps));
 
     function updateSliderDOMObjectAndSliderState(sliderDOMObject, sliderState, sliderSteps) {
         sliderDOMObject.min = sliderState.properties.start;
