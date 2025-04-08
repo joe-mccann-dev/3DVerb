@@ -46,11 +46,16 @@ const scene = new Scene();
 const camera = new PerspectiveCamera(75, (window.innerWidth / window.innerHeight), 0.1, 1000);
 const renderer = new WebGLRenderer();
 
-renderer.setSize(window.innerWidth, window.innerHeight);
-document.body.appendChild(renderer.domElement);
+const visualizer = document.getElementById("visualizer");
+const visualizerStyle = getComputedStyle(visualizer);
+const visualizerWidth = parseInt(visualizerStyle.width);
+const visualizerHeight = parseInt(visualizerStyle.height) - 20;
+
+renderer.setSize(visualizerWidth, visualizerHeight);
+visualizer.appendChild(renderer.domElement);
 
 camera.position.set(10, -5, 20);
-camera.lookAt(0, -5, 0);
+camera.lookAt(0, 0, 0);
 
 const loader = new GLTFLoader();
 loader.load('assets/cube.glb', function (glb) {
@@ -59,6 +64,7 @@ loader.load('assets/cube.glb', function (glb) {
     scene.add(cube)
 }, undefined, function (error) {
     console.error(error);
+
 });
 
 const light = new DirectionalLight(0xffffed, 1);
@@ -157,9 +163,16 @@ document.addEventListener("DOMContentLoaded", () => {
     const dampSliderState = Juce.getSliderState("DAMP");
     updateSliderDOMObjectAndSliderState(dampSlider, dampSliderState, (1 / dampSliderState.properties.numSteps));
 
-    const freezeSlider = document.getElementById("freezeSlider");
-    const freezeSliderState = Juce.getSliderState("FREEZE");
-    updateSliderDOMObjectAndSliderState(freezeSlider, freezeSliderState, (1 / freezeSliderState.properties.numSteps));
+    // toggle cpp backend float value based on html checked value
+    // value > 0.5 == freeze mode; value < 0.5 == normal mode
+    const freezeToggleState = Juce.getSliderState("FREEZE");
+    freezeCheckbox.oninput = function () {
+        freezeToggleState.setNormalisedValue(this.checked ? 1.0 : 0.0);
+    };
+    // box is checked if backend value is greater than or equal to 0.5
+    freezeToggleState.valueChangedEvent.addListener(() => {
+        freezeCheckbox.checked = freezeToggleState.getNormalisedValue() >= 0.5;
+    });
 
     function updateSliderDOMObjectAndSliderState(sliderDOMObject, sliderState, sliderSteps) {
         sliderDOMObject.min = sliderState.properties.start;

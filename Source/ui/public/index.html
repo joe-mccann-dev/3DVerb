@@ -15,76 +15,90 @@
     <script type="module" src="index.js"></script>
     <title>Reverbulizer</title>
     <link rel="icon" type="image/x-icon" href="/assets/favicon.ico">
+    <link rel="stylesheet" href="index.css" >
 </head>
 
-<body style="background-color: #333">
-    <main style="color: #eee">
-        <h1>Reverbulizer Plugin</h1>
-        <table id="productInfo">
-            <thead>
-                <tr>
-                    <td>Property</td>
-                    <td>Value</td>
-                </tr>
-            </thead>
-            <tr>
-                <td>Vendor</td>
-                <td id="pluginVendor"></td>
-            </tr>
-            <tr>
-                <td>Plugin name</td>
-                <td id="pluginName"></td>
-            </tr>
-            <tr>
-                <td>Plugin version</td>
-                <td id="pluginVersion"></td>
-            </tr>
-        </table>
-        <button id="undoButton">undo (ctrl+z)</button>
-        <button id="redoButton">redo (ctrl+y)</button>
-        <br />
-        <br>
-        <label for="gainSlider">GAIN</label>
-        <input type="range" id="gainSlider" style="width: 100%; height: 20px">
-        <br />
-
-        <br />
-        <label for="roomSizeSlider">ROOM SIZE</label>
-        <input type="range" id="roomSizeSlider" min="0" max="100" value="50" style="width: 100%; height: 20px;">
-        <br />
-
-        <br />
-        <label for="roomSizeSlider">MIX</label>
-        <input type="range" id="mixSlider" min="0" max="100" value="50" style="width: 100%; height: 20px;">
-        <br />
-
-        <br />
-        <label for="widthSlider">WIDTH</label>
-        <input type="range" id="widthSlider" min="0" max="100" value="50" style="width: 100%; height: 20px;">
-        <br />
+<body>
+    <main id="main">
+        <div class="plugin">
+            <div>
+                <h1>Reverbulizer Plugin</h1>
+                <table id="productInfo">
+                    <thead>
+                        <tr>
+                            <td>Property</td>
+                            <td>Value</td>
+                        </tr>
+                    </thead>
+                    <tr>
+                        <td>Vendor</td>
+                        <td id="pluginVendor"></td>
+                    </tr>
+                    <tr>
+                        <td>Plugin name</td>
+                        <td id="pluginName"></td>
+                    </tr>
+                    <tr>
+                        <td>Plugin version</td>
+                        <td id="pluginVersion"></td>
+                    </tr>
+                </table>
+            </div>
 
 
-        <br />
-        <label for="dampSlider">DAMP</label>
-        <input type="range" id="dampSlider" style="width: 100%; height: 20px;">
-        <br />
+            <div>
+                <button id="undoButton">undo (ctrl+z)</button>
+                <button id="redoButton">redo (ctrl+y)</button>
+            </div>
 
-        <br />
-        <label for="freezeSlider">FREEZE</label>
-        <input type="range" id="freezeSlider" style="width: 100%; height: 20px;">
-        <br />
 
-        <br />
-        <label for="bypassCheckbox">Bypass</label>
-        <input type="checkbox" id="bypassCheckbox" />
-        <br />
-        <br />
+            <div>
+                <br />
+                <label for="bypassCheckbox">Bypass</label>
+                <input type="checkbox" id="bypassCheckbox" />
+                <br />
+                <label for="monoCheckbox">Mono Input</label>
+                <input type="checkbox" id="monoCheckbox" />
+                <br />
+            </div>
 
-        <br />
-        <label for="monoCheckbox">Mono Input</label>
-        <input type="checkbox" id="monoCheckbox" />
-        <br />
-        <br />
+
+            <br />
+            <br>
+            <label for="gainSlider">GAIN</label>
+            <input class="slider" type="range" id="gainSlider">
+            <br />
+
+            <br />
+            <label for="roomSizeSlider">ROOM SIZE</label>
+            <input class="slider" type="range" id="roomSizeSlider" min="0" max="100" value="50">
+            <br />
+
+            <br />
+            <label for="roomSizeSlider">MIX</label>
+            <input class="slider" type="range" id="mixSlider" min="0" max="100" value="50">
+            <br />
+
+            <br />
+            <label for="widthSlider">WIDTH</label>
+            <input class="slider" type="range" id="widthSlider" min="0" max="100" value="50">
+            <br />
+
+
+            <br />
+            <label for="dampSlider">DAMP</label>
+            <input class="slider" type="range" id="dampSlider">
+            <br />
+
+            <br />
+            <label for="freezeCheckbox">FREEZE</label>
+            <input type="checkbox" id="freezeCheckbox">
+            <br />
+        </div>
+
+        <div class="visualizer" id="visualizer"></div>
+        
+
     </main>
 </body>
 

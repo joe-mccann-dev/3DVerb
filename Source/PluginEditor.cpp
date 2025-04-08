@@ -170,7 +170,7 @@ namespace webview_plugin
         addAndMakeVisible(monoButton);
 
         setResizable(true, true);
-        setSize(1024, 768);
+        setSize(1366, 768);
         startTimer(60);
     }
 
@@ -183,13 +183,13 @@ namespace webview_plugin
     {
         auto bounds = getLocalBounds();
         //const int amountToRemove = getWidth() / 2;
-        webView.setBounds(bounds.removeFromRight(720));
-        runJavaScriptButton.setBounds(bounds.removeFromTop(50).reduced(5));
-        emitJavaScriptButton.setBounds(bounds.removeFromTop(50).reduced(5));
-        labelUpdatedFromJavaScript.setBounds(bounds.removeFromTop(50).reduced(5));
-        gainSlider.setBounds(bounds.removeFromTop(50).reduced(5));
-        bypassButton.setBounds(bounds.removeFromTop(50).reduced(10));
-        monoButton.setBounds(bounds.removeFromTop(50).reduced(10));
+        webView.setBounds(bounds);
+        //runJavaScriptButton.setBounds(bounds.removeFromTop(50).reduced(5));
+        //emitJavaScriptButton.setBounds(bounds.removeFromTop(50).reduced(5));
+        //labelUpdatedFromJavaScript.setBounds(bounds.removeFromTop(50).reduced(5));
+        //gainSlider.setBounds(bounds.removeFromTop(50).reduced(5));
+        //bypassButton.setBounds(bounds.removeFromTop(50).reduced(10));
+        //monoButton.setBounds(bounds.removeFromTop(50).reduced(10));
     }
 
     void ReverbulizerAudioProcessorEditor::timerCallback()

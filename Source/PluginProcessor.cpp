@@ -43,8 +43,8 @@ namespace webview_plugin
                 id::DAMP, "damp", juce::NormalisableRange<float>{0.0f, 100.0f, 0.01f, 1.0f}, 0.0f));
 
             layout.add(std::make_unique<juce::AudioParameterFloat>(
-                // range params =  (rangeStart, rangeEnd, intervalValue, skewFactor)
-                id::FREEZE, "freeze", juce::NormalisableRange<float>{0.0f, 100.f, 0.01f, 0.5f}, 0.0f));
+                id::FREEZE, "freeze",
+                juce::NormalisableRange<float>{0.0f, 1.0f, 0.01f}, 0.0f));
 
             return layout;
         }
@@ -69,7 +69,7 @@ namespace webview_plugin
         mix{ dynamic_cast<juce::AudioParameterFloat*>(apvts.getParameter(id::MIX.getParamID())) },
         width{ dynamic_cast<juce::AudioParameterFloat*>(apvts.getParameter(id::WIDTH.getParamID())) },
         damp{dynamic_cast<juce::AudioParameterFloat*>(apvts.getParameter(id::DAMP.getParamID()))},
-        freeze{dynamic_cast<juce::AudioParameterFloat*>(apvts.getParameter(id::FREEZE.getParamID()))}
+        freeze{ dynamic_cast<juce::AudioParameterFloat*>(apvts.getParameter(id::FREEZE.getParamID())) }
     {
     }
 
@@ -194,7 +194,8 @@ namespace webview_plugin
         params.dryLevel = 1.0f - mix->get() * 0.01f;
         params.width = width->get() * 0.01f;
         params.damping = damp->get() * 0.01f;
-        params.freezeMode = freeze->get() * 0.01f;
+        params.freezeMode = freeze->get();
+
         reverb.setParameters(params);
     }
 
