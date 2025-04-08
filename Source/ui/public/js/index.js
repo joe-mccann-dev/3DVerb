@@ -1,24 +1,5 @@
 import * as Juce from "./juce/index.js";
-
-import {
-    Scene,
-    PerspectiveCamera,
-    WebGLRenderer,
-    Line,
-    LineBasicMaterial,
-    BufferGeometry,
-    BufferAttribute,
-    DirectionalLight,
-    AmbientLight,
-    CircleGeometry,
-    MeshBasicMaterial,
-    Mesh
-
-} from 'three';
-
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
-
-console.log("Hello, JS Frontend!");
+import * as Animated from "./animated.js";
 
 window.__JUCE__.backend.addEventListener(
     "exampleEvent",
@@ -40,53 +21,6 @@ fetch(Juce.getBackendResourceAddress("data.json"))
     .then((textFromBackend) => {
         console.log(textFromBackend);
     });
-
-// THREE JS CODE
-const scene = new Scene();
-const camera = new PerspectiveCamera(75, (window.innerWidth / window.innerHeight), 0.1, 1000);
-const renderer = new WebGLRenderer();
-
-const visualizer = document.getElementById("visualizer");
-const visualizerStyle = getComputedStyle(visualizer);
-const visualizerWidth = parseInt(visualizerStyle.width);
-const visualizerHeight = parseInt(visualizerStyle.height) - 20;
-
-renderer.setSize(visualizerWidth, visualizerHeight);
-visualizer.appendChild(renderer.domElement);
-
-camera.position.set(10, -5, 20);
-camera.lookAt(0, 0, 0);
-
-const loader = new GLTFLoader();
-loader.load('assets/cube.glb', function (glb) {
-    const cube = glb.scene;
-    cube.scale.set(1, 1, 1);
-    scene.add(cube)
-}, undefined, function (error) {
-    console.error(error);
-
-});
-
-const light = new DirectionalLight(0xffffed, 1);
-light.position.set(10, 10, 3);
-scene.add(light);
-
-const ambientLight = new AmbientLight(0x404040);
-scene.add(ambientLight);
-
-const geometry = new CircleGeometry(6, 32);
-const material = new MeshBasicMaterial({ color: 0x9944ee });
-const circle = new Mesh(geometry, material);
-
-scene.add(circle);
-
-function animate() {
-    requestAnimationFrame(animate);
-    renderer.render(scene, camera);
-}
-
-animate();
-// END THREE JS CODE
 
 document.addEventListener("DOMContentLoaded", () => {
     document.addEventListener('keydown', (event) => {
@@ -200,4 +134,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 circle.scale.set(scaleFactor, scaleFactor, scaleFactor);
             });
     });
+
+    Animated.animate();
 });
