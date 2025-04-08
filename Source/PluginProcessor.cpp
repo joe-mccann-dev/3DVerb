@@ -25,6 +25,9 @@ namespace webview_plugin
             layout.add(std::make_unique<juce::AudioParameterBool>(
                 id::BYPASS, "bypass", false, juce::AudioParameterBoolAttributes{}.withLabel("Bypass")));
 
+            layout.add(std::make_unique<juce::AudioParameterBool>(
+                id::MONO, "mono", false, juce::AudioParameterBoolAttributes{}.withLabel("Mono Input")));
+
             layout.add(std::make_unique<juce::AudioParameterFloat>(
                 id::SIZE, "size", juce::NormalisableRange<float>{0.0f, 100.0f, 0.01f, 1.0f}, 50.0f));
 
@@ -37,11 +40,11 @@ namespace webview_plugin
 
             layout.add(std::make_unique<juce::AudioParameterFloat>(
                 // range params =  (rangeStart, rangeEnd, intervalValue, skewFactor)
-                id::DAMP, "damp", juce::NormalisableRange<float>{0.0f, 100.0f, 0.01f, 1.0f}, 100.f));
+                id::DAMP, "damp", juce::NormalisableRange<float>{0.0f, 100.0f, 0.01f, 1.0f}, 0.0f));
 
             layout.add(std::make_unique<juce::AudioParameterFloat>(
                 // range params =  (rangeStart, rangeEnd, intervalValue, skewFactor)
-                id::FREEZE, "freeze", juce::NormalisableRange<float>{0.0f, 100.f, 0.01f, 1.0f}, 0.0f));
+                id::FREEZE, "freeze", juce::NormalisableRange<float>{0.0f, 100.f, 0.01f, 0.5f}, 0.0f));
 
             return layout;
         }
@@ -61,6 +64,7 @@ namespace webview_plugin
         gain{ apvts.getRawParameterValue(id::GAIN.getParamID()) },
         // note: can review WebViewPluginDemo to find cleaner way to cast this
         bypass{ *dynamic_cast<juce::AudioParameterBool*>(apvts.getParameter(id::BYPASS.getParamID())) },
+        mono {*dynamic_cast<juce::AudioParameterBool*>(apvts.getParameter(id::MONO.getParamID()))},
         size{ dynamic_cast<juce::AudioParameterFloat*>(apvts.getParameter(id::SIZE.getParamID())) },
         mix{ dynamic_cast<juce::AudioParameterFloat*>(apvts.getParameter(id::MIX.getParamID())) },
         width{ dynamic_cast<juce::AudioParameterFloat*>(apvts.getParameter(id::WIDTH.getParamID())) },
@@ -167,26 +171,19 @@ namespace webview_plugin
     #ifndef JucePlugin_PreferredChannelConfigurations
     bool ReverbulizerAudioProcessor::isBusesLayoutSupported(const BusesLayout& layouts) const
     {
-    #if JucePlugin_IsMidiEffect
         juce::ignoreUnused(layouts);
-        return true;
-    #else
         // This is the place where you check if the layout is supported.
         // In this template code we only support mono or stereo.
         // Some plugin hosts, such as certain GarageBand versions, will only
         // load plugins that support stereo bus layouts.
-        if (layouts.getMainOutputChannelSet() != juce::AudioChannelSet::mono()
-            && layouts.getMainOutputChannelSet() != juce::AudioChannelSet::stereo())
-            return false;
+        if (layouts.getMainOutputChannelSet() == juce::AudioChannelSet::mono()
+            || layouts.getMainOutputChannelSet() == juce::AudioChannelSet::stereo())
+        {
+            return layouts.getMainOutputChannelSet() == juce::AudioChannelSet::stereo();
+        }
 
-        // This checks if the input layout matches the output layout
-    #if ! JucePlugin_IsSynth
-        if (layouts.getMainOutputChannelSet() != layouts.getMainInputChannelSet())
-            return false;
-    #endif
+        return false;
 
-        return true;
-    #endif
     }
     #endif
 
@@ -208,6 +205,21 @@ namespace webview_plugin
         for (auto i = getTotalNumInputChannels(); i < getTotalNumOutputChannels(); ++i)
         {
             buffer.clear(i, 0, buffer.getNumSamples());
+        }
+
+        // TODO: Only perform this check in Standalone Mode 
+        bool monoInputChecked = mono.get();
+        if (monoInputChecked && getTotalNumInputChannels() >= 2)
+        {
+            auto* monoInput = buffer.getReadPointer(0);
+            auto* leftOut = buffer.getWritePointer(0);
+            auto* rightOut = buffer.getWritePointer(1);
+
+            for (int i = 0; i < buffer.getNumSamples(); ++i)
+            {
+                leftOut[i] = monoInput[i];
+                rightOut[i] = monoInput[i];
+            }
         }
 
         if (bypass.get()) { return; }
@@ -248,12 +260,20 @@ namespace webview_plugin
         // You should use this method to store your parameters in the memory block.
         // You could do that either as raw data, or use the XML or ValueTree classes
         // as intermediaries to make it easy to save and load complex data.
+        juce::MemoryOutputStream mos(destData, true);
+        apvts.state.writeToStream(mos);
     }
 
     void ReverbulizerAudioProcessor::setStateInformation(const void* data, int sizeInBytes)
     {
         // You should use this method to restore your parameters from this memory block,
         // whose contents will have been created by the getStateInformation() call.
+        auto tree = juce::ValueTree::readFromData(data, sizeInBytes);
+        if (tree.isValid())
+        {
+            apvts.replaceState(tree);
+            updateReverb();
+        }
     }
 }
     //==============================================================================

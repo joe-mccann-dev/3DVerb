@@ -63,6 +63,7 @@ namespace webview_plugin
         //==============================================================================
         std::atomic<float>* gain{ nullptr };
         juce::AudioParameterBool& bypass;
+        juce::AudioParameterBool& mono;
 
         juce::dsp::BallisticsFilter<float> envelopeFollower;
         juce::AudioBuffer<float> envelopeFollowerOutputBuffer;

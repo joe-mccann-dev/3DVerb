@@ -9,4 +9,5 @@ namespace webview_plugin::id
 	const juce::ParameterID WIDTH{ "WIDTH", 1 };
 	const juce::ParameterID DAMP{ "DAMP", 1 };
 	const juce::ParameterID FREEZE{ "FREEZE", 1 };
+	const juce::ParameterID MONO{ "MONO", 1 };
 }

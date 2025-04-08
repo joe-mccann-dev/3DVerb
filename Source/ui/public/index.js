@@ -120,6 +120,19 @@ document.addEventListener("DOMContentLoaded", () => {
         bypassCheckbox.checked = bypassToggleState.getValue();
     });
 
+    // MONO
+    const monoCheckbox = document.getElementById("monoCheckbox");
+    const monoToggleState = Juce.getToggleState("MONO");
+    console.log("monoToggleState: ", monoToggleState);
+
+    monoCheckbox.oninput = function () {
+        monoToggleState.setValue(this.checked);
+    }
+
+    monoToggleState.valueChangedEvent.addListener(() => {
+        monoCheckbox.checked = monoToggleState.getValue();
+    });
+
     // GAIN
     const gainSlider = document.getElementById("gainSlider");
     const gainSliderState = Juce.getSliderState("GAIN");

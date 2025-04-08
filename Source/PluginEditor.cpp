@@ -62,11 +62,13 @@ namespace webview_plugin
         undoManager(um),
         audioProcessor(p),
 
-        gainSliderAttachment{*audioProcessor.apvts.getParameter(id::GAIN.getParamID()), gainSlider, &undoManager},
-        bypassButtonAttachment { *audioProcessor.apvts.getParameter(id::BYPASS.getParamID()), bypassButton, &undoManager},
+        gainSliderAttachment{ *audioProcessor.apvts.getParameter(id::GAIN.getParamID()), gainSlider, &undoManager },
+        bypassButtonAttachment { *audioProcessor.apvts.getParameter(id::BYPASS.getParamID()), bypassButton, &undoManager },
+        monoButtonAttachment { *audioProcessor.apvts.getParameter(id::MONO.getParamID()), monoButton, &undoManager },
 
         webGainRelay{id::GAIN.getParamID()},
         webBypassRelay{ id::BYPASS.getParamID() },
+        webMonoRelay{id::MONO.getParamID() },
         webReverbSizeRelay{id::SIZE.getParamID()},
         webMixRelay{id::MIX.getParamID()},
         webWidthRelay{id::WIDTH.getParamID()},
@@ -98,6 +100,7 @@ namespace webview_plugin
         .withEventListener("redoRequest", [this](juce::var redoButton) { undoManager.redo(); })
         .withOptionsFrom(webGainRelay)
         .withOptionsFrom(webBypassRelay)
+        .withOptionsFrom(webMonoRelay)
         .withOptionsFrom(webReverbSizeRelay)
         .withOptionsFrom(webMixRelay)
         .withOptionsFrom(webWidthRelay)
@@ -109,6 +112,9 @@ namespace webview_plugin
         webBypassToggleAttachment{ *audioProcessor.apvts.getParameter(id::BYPASS.getParamID()),
                                    webBypassRelay,
                                    &undoManager},
+        webMonoToggleAttachment{*audioProcessor.apvts.getParameter(id::MONO.getParamID()),
+                                 webMonoRelay,
+                                 &undoManager},
         webReverbSizeSliderAttachment{ *audioProcessor.apvts.getParameter(id::SIZE.getParamID()),
                                    webReverbSizeRelay,
                                    &undoManager},
@@ -151,7 +157,7 @@ namespace webview_plugin
 
         emitJavaScriptButton.onClick = [this] {
             static const juce::Identifier EVENT_ID{ "exampleEvent" };
-            webView.emitEventIfBrowserIsVisible(EVENT_ID, 42.0);
+            webView.emitEventIfBrowserIsVisible(EVENT_ID, audioProcessor.apvts.getParameter(id::MONO.getParamID())->paramID);
         };
         addAndMakeVisible(emitJavaScriptButton);
 
@@ -161,6 +167,7 @@ namespace webview_plugin
         gainSlider.setSliderStyle(juce::Slider::SliderStyle::LinearBar);
 
         addAndMakeVisible(bypassButton);
+        addAndMakeVisible(monoButton);
 
         setResizable(true, true);
         setSize(1024, 768);
@@ -182,6 +189,7 @@ namespace webview_plugin
         labelUpdatedFromJavaScript.setBounds(bounds.removeFromTop(50).reduced(5));
         gainSlider.setBounds(bounds.removeFromTop(50).reduced(5));
         bypassButton.setBounds(bounds.removeFromTop(50).reduced(10));
+        monoButton.setBounds(bounds.removeFromTop(50).reduced(10));
     }
 
     void ReverbulizerAudioProcessorEditor::timerCallback()

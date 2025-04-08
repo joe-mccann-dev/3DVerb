@@ -50,6 +50,9 @@ namespace webview_plugin
 		juce::ToggleButton bypassButton{ "Bypass" };
 		juce::ButtonParameterAttachment bypassButtonAttachment;
 
+		juce::ToggleButton monoButton{ "mono" };
+		juce::ButtonParameterAttachment monoButtonAttachment;
+
 		//juce::Slider widthSlider{ "widthSlider" };
 		//juce::SliderParameterAttachment widthSliderAttachment;
 
@@ -63,6 +66,7 @@ namespace webview_plugin
 		// BEGIN WEB VIEW
 		juce::WebSliderRelay webGainRelay;
 		juce::WebToggleButtonRelay webBypassRelay;
+		juce::WebToggleButtonRelay webMonoRelay;
 
 		juce::WebSliderRelay webReverbSizeRelay;
 		juce::WebSliderRelay webMixRelay; 
@@ -75,6 +79,7 @@ namespace webview_plugin
 
 		juce::WebSliderParameterAttachment webGainSliderAttachment;
 		juce::WebToggleButtonParameterAttachment webBypassToggleAttachment;
+		juce::WebToggleButtonParameterAttachment webMonoToggleAttachment;
 
 		juce::WebSliderParameterAttachment webReverbSizeSliderAttachment;
 		juce::WebSliderParameterAttachment webMixSliderAttachment;
