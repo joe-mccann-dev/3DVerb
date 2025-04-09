@@ -15,42 +15,38 @@
     <script type="module" src="js/index.js"></script>
     <title>Reverbulizer</title>
     <link rel="icon" type="image/x-icon" href="/assets/favicon.ico">
-    <link rel="stylesheet" href="index.css" >
+    <link rel="stylesheet" href="index.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Baumans&display=swap" rel="stylesheet">
 </head>
 
 <body>
     <main id="main">
         <div class="plugin">
-            <div>
-                <h1>Reverbulizer Plugin</h1>
-                <table id="productInfo">
-                    <thead>
-                        <tr>
-                            <td>Property</td>
-                            <td>Value</td>
-                        </tr>
-                    </thead>
+            <div class="header">
+                <h1>Reverbulizer</h1>
+                <table class="productInfo" id="productInfo">
+                    <!--<thead>
+        <tr>
+            <td>Property</td>
+            <td>Value</td>
+        </tr>
+    </thead>-->
                     <tr>
-                        <td>Vendor</td>
-                        <td id="pluginVendor"></td>
-                    </tr>
-                    <tr>
-                        <td>Plugin name</td>
-                        <td id="pluginName"></td>
-                    </tr>
-                    <tr>
-                        <td>Plugin version</td>
+                        <td>version</td>
                         <td id="pluginVersion"></td>
                     </tr>
+                    <tr>
+                        <!--<td>vendor</td>-->
+                        <td id="pluginVendor"></td>
+                    </tr>
+                    <!--<tr>-->
+                    <!--<td>name</td>-->
+                    <!--<td id="pluginName"></td>
+    </tr>-->
                 </table>
             </div>
-
-
-            <div>
-                <button id="undoButton">undo (ctrl+z)</button>
-                <button id="redoButton">redo (ctrl+y)</button>
-            </div>
-
 
             <div>
                 <br />
@@ -94,10 +90,15 @@
             <label for="freezeCheckbox">FREEZE</label>
             <input type="checkbox" id="freezeCheckbox">
             <br />
+
+            <div class="undoRedo">
+                <button id="undoButton">undo</button>
+                <button id="redoButton">redo</button>
+            </div>
         </div>
 
         <div class="visualizer" id="visualizer"></div>
-        
+
 
     </main>
 </body>

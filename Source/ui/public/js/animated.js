@@ -3,6 +3,7 @@ import {
     Scene,
     PerspectiveCamera,
     WebGLRenderer,
+    Color,
     Line,
     LineBasicMaterial,
     BufferGeometry,
@@ -17,6 +18,15 @@ import {
 
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { AnimationMixer } from 'three/src/animation/AnimationMixer.js';
+
+// COLORS
+const lightIndigo = 0xBFDBFE;
+const mediumIndigo = 0x6366F1;
+const darkIndigo = 0x3730A3;
+const mediumDarkGray = 0x374151;
+const darkGray = 0x111827;
+const mediumDarkAmber = 0xB45309;
+// END COLORS
 
 // THREE JS CODE
 const scene = new Scene();
@@ -54,8 +64,11 @@ scene.add(light);
 const ambientLight = new AmbientLight(0x404040);
 scene.add(ambientLight);
 
+scene.background = new Color(mediumDarkGray);
+
 const geometry = new CircleGeometry(6, 32);
-const material = new MeshBasicMaterial({ color: 0x9944ee });
+
+const material = new MeshBasicMaterial({ color: mediumDarkAmber });
 const circle = new Mesh(geometry, material);
 
 scene.add(circle);
@@ -68,4 +81,5 @@ function animate() {
 
 export {
     animate,
+    circle,
 }

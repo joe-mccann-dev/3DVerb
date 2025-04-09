@@ -1,12 +1,37 @@
+:root {
+    --dark-gray: #111827;
+    --medium-light-gray: #9CA3AF;
+    --light-gray: #E5E7EB;
+    --medium-amber: #FBBF24;
+    --medium-dark-amber: #B45309;
+}
+
 body {
-    background-color: #333;
+    background-color: var(--dark-gray);
 }
 
 main {
-    color: #eee;
+    color: var(--light-gray);
     display: flex;
     gap: 10px;
     height: 92vh;
+    font-family: Baumans;
+    letter-spacing: 3px;
+}
+
+.header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.productInfo {
+    border: solid 2px var(--medium-amber);
+    border-radius: 12px;
+    background-color: var(--medium-light-gray);
+    color: var(--dark-gray);
+    padding: 12px;
+    font-size: 14px;
 }
 
 .slider {
@@ -14,8 +39,14 @@ main {
 }
 
 .plugin {
+    border: solid 2px var(--medium-dark-amber);
+    border-radius: 12px;
     width: 60%;
     padding: 20px;
+}
+
+.undoRedo {
+    padding: 24px 0;
 }
 
 .visualizer {

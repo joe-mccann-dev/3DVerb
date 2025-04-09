@@ -10,8 +10,8 @@ window.__JUCE__.backend.addEventListener(
 
 const data = window.__JUCE__.initialisationData;
 
-document.getElementById("pluginVendor").textContent = data.pluginVendor;
-document.getElementById("pluginName").textContent = data.pluginName;
+document.getElementById("pluginVendor").textContent = "by " + data.pluginVendor;
+//document.getElementById("pluginName").textContent = data.pluginName;
 document.getElementById("pluginVersion").textContent = data.pluginVersion;
 
 const undoRedoCtrl = Juce.getNativeFunction("webUndoRedo");
@@ -131,7 +131,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 const signalStrength = levelData["left"];
                 const scaleFactor = signalStrength <= -60 ? 1 : (((signalStrength / 60) + 1) * 2);
                 //console.log("Scale Factor is: ", scaleFactor);
-                circle.scale.set(scaleFactor, scaleFactor, scaleFactor);
+                Animated.circle.scale.set(scaleFactor, scaleFactor, scaleFactor);
             });
     });
 
