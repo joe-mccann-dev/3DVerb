@@ -8,6 +8,7 @@
 
 body {
     background-color: var(--dark-gray);
+    padding: 14px;
 }
 
 main {
@@ -38,6 +39,12 @@ main {
     width: 100%;
 }
 
+input.checkbox {
+    cursor: pointer;
+    width: 20px;
+    height: 20px;
+}
+
 .plugin {
     border: solid 2px var(--medium-dark-amber);
     border-radius: 12px;
@@ -49,10 +56,17 @@ main {
     padding: 24px 0;
 }
 
+.undoRedo button {
+    padding: 6px;
+    font-family: Baumans;
+    font-size: 12px;
+    font-weight: bold;
+}
+
 .visualizer {
     width: 100%;
     height: 100%;
-    padding: 20px;
+    padding: 0 20px;
 }
 
 canvas {
