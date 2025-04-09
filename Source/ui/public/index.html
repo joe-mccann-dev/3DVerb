@@ -8,6 +8,7 @@
         {
           "imports": {
             "three": "/node_modules/three/build/three.module.js",
+            "three/examples/jsm/loaders/GLTFLoader": "/node_modules/three/examples/jsm/loaders/GLTFLoader.js"
           }
         }
     </script>
@@ -27,11 +28,11 @@
                 <h1>Reverbulizer</h1>
                 <table class="productInfo" id="productInfo">
                     <!--<thead>
-        <tr>
-            <td>Property</td>
-            <td>Value</td>
-        </tr>
-    </thead>-->
+                <tr>
+                    <td>Property</td>
+                    <td>Value</td>
+                </tr>
+            </thead>-->
                     <tr>
                         <td>version</td>
                         <td id="pluginVersion"></td>
@@ -43,52 +44,52 @@
                     <!--<tr>-->
                     <!--<td>name</td>-->
                     <!--<td id="pluginName"></td>
-    </tr>-->
+            </tr>-->
                 </table>
             </div>
 
             <div>
-                <br />
-                <label for="bypassCheckbox">Bypass</label>
-                <input class="checkbox" type="checkbox" id="bypassCheckbox" />
-                <br />
-                <label for="monoCheckbox">Mono Input</label>
-                <input class="checkbox" type="checkbox" id="monoCheckbox" />
-                <br />
+                <div class="labelAndParam">
+                    <label for="bypassCheckbox">Bypass</label>
+                    <input class="checkbox" type="checkbox" id="bypassCheckbox" />
+
+                    <label for="monoCheckbox">Mono Input</label>
+                    <input class="checkbox" type="checkbox" id="monoCheckbox" />
+                </div>
             </div>
 
 
-            <br />
-            <br>
-            <label for="gainSlider">GAIN</label>
-            <input class="slider" type="range" id="gainSlider">
-            <br />
-
-            <br />
-            <label for="roomSizeSlider">ROOM SIZE</label>
-            <input class="slider" type="range" id="roomSizeSlider" min="0" max="100" value="50">
-            <br />
-
-            <br />
-            <label for="roomSizeSlider">MIX</label>
-            <input class="slider" type="range" id="mixSlider" min="0" max="100" value="50">
-            <br />
-
-            <br />
-            <label for="widthSlider">WIDTH</label>
-            <input class="slider" type="range" id="widthSlider" min="0" max="100" value="50">
-            <br />
+            <div class="labelAndParam">
+                <label for="gainSlider">GAIN</label>
+                <input class="slider" type="range" id="gainSlider">
+            </div>
 
 
-            <br />
-            <label for="dampSlider">DAMP</label>
-            <input class="slider" type="range" id="dampSlider">
-            <br />
+            <div class="labelAndParam">
+                <label for="roomSizeSlider">ROOM SIZE</label>
+                <input class="slider" type="range" id="roomSizeSlider" min="0" max="100" value="50">
+            </div>
 
-            <br />
-            <label for="freezeCheckbox">FREEZE</label>
-            <input class="checkbox" type="checkbox" id="freezeCheckbox">
-            <br />
+
+            <div class="labelAndParam">
+                <label for="mixSlider">MIX</label>
+                <input class="slider" type="range" id="mixSlider" min="0" max="100" value="50">
+            </div>
+            
+            <div class="labelAndParam">
+                <label for="widthSlider">WIDTH</label>
+                <input class="slider" type="range" id="widthSlider" min="0" max="100" value="50">
+            </div>
+
+            <div class="labelAndParam">
+                <label for="dampSlider">DAMP</label>
+                <input class="slider" type="range" id="dampSlider">
+            </div>
+
+            <div class="labelAndParam">
+                <label for="freezeCheckbox">FREEZE</label>
+                <input class="checkbox" type="checkbox" id="freezeCheckbox">
+            </div>
 
             <div class="undoRedo">
                 <button id="undoButton">undo</button>

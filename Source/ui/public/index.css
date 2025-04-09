@@ -35,8 +35,11 @@ main {
     font-size: 14px;
 }
 
+
 .slider {
-    width: 100%;
+    width: 320px;
+    height: 20px;
+    
 }
 
 input.checkbox {
@@ -50,6 +53,16 @@ input.checkbox {
     border-radius: 12px;
     width: 60%;
     padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.labelAndParam {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 4px;
 }
 
 .undoRedo {

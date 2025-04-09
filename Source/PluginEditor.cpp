@@ -157,7 +157,7 @@ namespace webview_plugin
 
         emitJavaScriptButton.onClick = [this] {
             static const juce::Identifier EVENT_ID{ "exampleEvent" };
-            webView.emitEventIfBrowserIsVisible(EVENT_ID, audioProcessor.apvts.getParameter(id::MONO.getParamID())->paramID);
+            webView.emitEventIfBrowserIsVisible(EVENT_ID, audioProcessor.apvts.getParameter(id::MIX.getParamID())->getCurrentValueAsText());
         };
         addAndMakeVisible(emitJavaScriptButton);
 

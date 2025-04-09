@@ -109,6 +109,8 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     function updateSliderDOMObjectAndSliderState(sliderDOMObject, sliderState, sliderSteps) {
+        console.log("sliderDOMObject: ", sliderDOMObject);
+        console.log("sliderState: ", sliderState);
         sliderDOMObject.min = sliderState.properties.start;
         sliderDOMObject.max = sliderState.properties.end;
         sliderDOMObject.step = sliderSteps;
@@ -117,7 +119,7 @@ document.addEventListener("DOMContentLoaded", () => {
             sliderState.setNormalisedValue(this.value);
         };
 
-         sliderState.valueChangedEvent.addListener(() => {
+        sliderState.valueChangedEvent.addListener(() => {
             sliderDOMObject.value = sliderState.getScaledValue();
         });
     }

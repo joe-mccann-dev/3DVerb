@@ -26,17 +26,17 @@ namespace webview_plugin
                 id::BYPASS, "bypass", false, juce::AudioParameterBoolAttributes{}.withLabel("Bypass")));
 
             layout.add(std::make_unique<juce::AudioParameterBool>(
-                id::MONO, "mono", false, juce::AudioParameterBoolAttributes{}.withLabel("Mono Input")));
+                id::MONO, "mono", true, juce::AudioParameterBoolAttributes{}.withLabel("Mono Input")));
 
             layout.add(std::make_unique<juce::AudioParameterFloat>(
-                id::SIZE, "size", juce::NormalisableRange<float>{0.0f, 100.0f, 0.01f, 1.0f}, 50.0f));
+                id::SIZE, "size", juce::NormalisableRange<float>{0.0f, 100.0f, 0.01f, 1.0f}, 0.0f));
 
             layout.add(std::make_unique<juce::AudioParameterFloat>(
                 // range params =  (rangeStart, rangeEnd, intervalValue, skewFactor)
                 id::MIX, "mix", juce::NormalisableRange<float>{0.0f, 100.0f, 0.01f, 1.0f}, 100.f));
 
             layout.add(std::make_unique<juce::AudioParameterFloat>(
-                id::WIDTH, "width", juce::NormalisableRange<float>{0.0f, 100.0f, 0.01f, 1.0f}, 100.f));
+                id::WIDTH, "width", juce::NormalisableRange<float>{0.0f, 100.0f, 0.01f, 1.0f}, 0.f));
 
             layout.add(std::make_unique<juce::AudioParameterFloat>(
                 // range params =  (rangeStart, rangeEnd, intervalValue, skewFactor)
