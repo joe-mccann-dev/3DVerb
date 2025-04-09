@@ -27,79 +27,82 @@
             <div class="header">
                 <h1>Reverbulizer</h1>
                 <table class="productInfo" id="productInfo">
-                    <!--<thead>
-                <tr>
-                    <td>Property</td>
-                    <td>Value</td>
-                </tr>
-            </thead>-->
                     <tr>
                         <td>version</td>
                         <td id="pluginVersion"></td>
                     </tr>
                     <tr>
-                        <!--<td>vendor</td>-->
                         <td id="pluginVendor"></td>
                     </tr>
-                    <!--<tr>-->
-                    <!--<td>name</td>-->
-                    <!--<td id="pluginName"></td>
-            </tr>-->
                 </table>
             </div>
 
-            <div>
+            <div class="bypassAndMono">
                 <div class="labelAndParam">
-                    <label for="bypassCheckbox">Bypass</label>
+                    <label for="bypassCheckbox">bypass</label>
                     <input class="checkbox" type="checkbox" id="bypassCheckbox" />
 
-                    <label for="monoCheckbox">Mono Input</label>
+                    <label for="monoCheckbox">mono input</label>
                     <input class="checkbox" type="checkbox" id="monoCheckbox" />
                 </div>
             </div>
 
+            <div class="primaryParams">
+                <div class="labelAndParam">
+                    <div class="sliderLabelAndValue">
+                        <label for="gainSlider">gain</label>
+                        <p class="sliderValue" id="gainSliderValue"></p>
+                    </div>
 
-            <div class="labelAndParam">
-                <label for="gainSlider">GAIN</label>
-                <input class="slider" type="range" id="gainSlider">
+                    <input class="slider" type="range" id="gainSlider">
+                </div>
+
+                <div class="labelAndParam">
+                    <div class="sliderLabelAndValue">
+                        <label for="roomSizeSlider">room size</label>
+                        <p class="sliderValue" id="roomSizeSliderValue"></p>
+                    </div>
+                    <input class="slider" type="range" id="roomSizeSlider">
+                </div>
+
+                <div class="labelAndParam">
+                    <div class="sliderLabelAndValue">
+                        <label for="mixSlider">mix</label>
+                        <p class="sliderValue" id="mixSliderValue"></p>
+                    </div>
+                    <input class="slider" type="range" id="mixSlider">
+                </div>
+
+                <div class="labelAndParam">
+                    <div class="sliderLabelAndValue">
+                        <label for="widthSlider">width</label>
+                        <p class="sliderValue" id="widthSliderValue"></p>
+                    </div>
+                    <input class="slider" type="range" id="widthSlider">
+                </div>
+
+                <div class="labelAndParam">
+                    <div class="sliderLabelAndValue">
+                        <label for="dampSlider">damp</label>
+                        <p class="sliderValue" id="dampSliderValue"></p>
+                    </div>
+                    <input class="slider" type="range" id="dampSlider">
+                </div>
+
+                <div class="labelAndParam">
+                    <label for="freezeCheckbox">freeze</label>
+                    <input class="checkbox" type="checkbox" id="freezeCheckbox">
+                </div>
+
             </div>
 
-
-            <div class="labelAndParam">
-                <label for="roomSizeSlider">ROOM SIZE</label>
-                <input class="slider" type="range" id="roomSizeSlider" min="0" max="100" value="50">
-            </div>
-
-
-            <div class="labelAndParam">
-                <label for="mixSlider">MIX</label>
-                <input class="slider" type="range" id="mixSlider" min="0" max="100" value="50">
-            </div>
-            
-            <div class="labelAndParam">
-                <label for="widthSlider">WIDTH</label>
-                <input class="slider" type="range" id="widthSlider" min="0" max="100" value="50">
-            </div>
-
-            <div class="labelAndParam">
-                <label for="dampSlider">DAMP</label>
-                <input class="slider" type="range" id="dampSlider">
-            </div>
-
-            <div class="labelAndParam">
-                <label for="freezeCheckbox">FREEZE</label>
-                <input class="checkbox" type="checkbox" id="freezeCheckbox">
-            </div>
 
             <div class="undoRedo">
                 <button id="undoButton">undo</button>
                 <button id="redoButton">redo</button>
             </div>
         </div>
-
         <div class="visualizer" id="visualizer"></div>
-
-
     </main>
 </body>
 

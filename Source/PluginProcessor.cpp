@@ -23,24 +23,24 @@ namespace webview_plugin
                 id::GAIN, "gain", juce::NormalisableRange<float>{0.f, 1.0f, 0.01f, 0.9f}, 1.f));
 
             layout.add(std::make_unique<juce::AudioParameterBool>(
-                id::BYPASS, "bypass", false, juce::AudioParameterBoolAttributes{}.withLabel("Bypass")));
+                id::BYPASS, "bypass", false, juce::AudioParameterBoolAttributes{}));
 
             layout.add(std::make_unique<juce::AudioParameterBool>(
-                id::MONO, "mono", true, juce::AudioParameterBoolAttributes{}.withLabel("Mono Input")));
+                id::MONO, "mono", true, juce::AudioParameterBoolAttributes{}));
 
             layout.add(std::make_unique<juce::AudioParameterFloat>(
-                id::SIZE, "size", juce::NormalisableRange<float>{0.0f, 100.0f, 0.01f, 1.0f}, 0.0f));
-
-            layout.add(std::make_unique<juce::AudioParameterFloat>(
-                // range params =  (rangeStart, rangeEnd, intervalValue, skewFactor)
-                id::MIX, "mix", juce::NormalisableRange<float>{0.0f, 100.0f, 0.01f, 1.0f}, 100.f));
-
-            layout.add(std::make_unique<juce::AudioParameterFloat>(
-                id::WIDTH, "width", juce::NormalisableRange<float>{0.0f, 100.0f, 0.01f, 1.0f}, 0.f));
+                id::SIZE, "size", juce::NormalisableRange<float>{0.f, 1.0f, 0.01f, 1.f}, 0.5f));
 
             layout.add(std::make_unique<juce::AudioParameterFloat>(
                 // range params =  (rangeStart, rangeEnd, intervalValue, skewFactor)
-                id::DAMP, "damp", juce::NormalisableRange<float>{0.0f, 100.0f, 0.01f, 1.0f}, 0.0f));
+                id::MIX, "mix", juce::NormalisableRange<float>{0.f, 1.0f, 0.01f, 1.f}, 0.75f));
+
+            layout.add(std::make_unique<juce::AudioParameterFloat>(
+                id::WIDTH, "width", juce::NormalisableRange<float>{0.f, 1.0f, 0.01f, 1.f}, 0.75f));
+
+            layout.add(std::make_unique<juce::AudioParameterFloat>(
+                // range params =  (rangeStart, rangeEnd, intervalValue, skewFactor)
+                id::DAMP, "damp", juce::NormalisableRange<float>{0.f, 1.0f, 0.01f, 1.f}, 0.5f));
 
             layout.add(std::make_unique<juce::AudioParameterFloat>(
                 id::FREEZE, "freeze",
@@ -189,11 +189,11 @@ namespace webview_plugin
 
     void ReverbulizerAudioProcessor::updateReverb()
     {
-        params.roomSize = size->get() * 0.01f;
-        params.wetLevel = mix->get() * 0.01f;
-        params.dryLevel = 1.0f - mix->get() * 0.01f;
-        params.width = width->get() * 0.01f;
-        params.damping = damp->get() * 0.01f;
+        params.roomSize = size->get();
+        params.wetLevel = mix->get();
+        params.dryLevel = 1.0f - mix->get();
+        params.width = width->get();
+        params.damping = damp->get();
         params.freezeMode = freeze->get();
 
         reverb.setParameters(params);

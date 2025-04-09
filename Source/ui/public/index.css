@@ -1,6 +1,7 @@
 :root {
     --dark-gray: #111827;
     --medium-light-gray: #9CA3AF;
+    --medium-dark-gray: #374151;
     --light-gray: #E5E7EB;
     --medium-amber: #FBBF24;
     --medium-dark-amber: #B45309;
@@ -22,19 +23,30 @@ main {
 
 .header {
     display: flex;
-    flex-direction: column;
-    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    border-bottom: solid 1px var(--medium-dark-gray);
 }
 
 .productInfo {
-    border: solid 2px var(--medium-amber);
+    border: solid 1px var(--medium-amber);
     border-radius: 12px;
-    background-color: var(--medium-light-gray);
-    color: var(--dark-gray);
-    padding: 12px;
-    font-size: 14px;
+    background-color: var(--medium-dark-gray);
+    color: var(---gray);
+    padding: 2px;
+    font-size: 12px;
+    height: 24px;
 }
 
+.bypassAndMono {
+    border-bottom: solid 1px var(--medium-dark-gray);
+    padding: 20px 0;
+}
+
+.primaryParams {
+    border-bottom: solid 1px var(--medium-dark-gray);
+    padding: 20px 0;
+}
 
 .slider {
     width: 320px;
@@ -51,20 +63,24 @@ input.checkbox {
 .plugin {
     border: solid 2px var(--medium-dark-amber);
     border-radius: 12px;
-    width: 60%;
+    width: 64%;
     padding: 20px;
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 8px;
 }
 
 .labelAndParam {
     display: flex;
-    align-items: center;
     justify-content: space-between;
     gap: 4px;
 }
 
+.sliderValue {
+    font-size: 12px;
+    color: var(--medium-amber);
+    margin-left: 2px;
+}
 .undoRedo {
     padding: 24px 0;
 }

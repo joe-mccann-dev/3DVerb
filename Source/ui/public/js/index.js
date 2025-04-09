@@ -76,26 +76,31 @@ document.addEventListener("DOMContentLoaded", () => {
     // GAIN
     const gainSlider = document.getElementById("gainSlider");
     const gainSliderState = Juce.getSliderState("GAIN");
-    updateSliderDOMObjectAndSliderState(gainSlider, gainSliderState, (1/gainSliderState.properties.numSteps));
+    const gainSliderStepValue = 0.01;
+    updateSliderDOMObjectAndSliderState(gainSlider, gainSliderState, gainSliderStepValue);
 
     // ROOM SIZE
     const roomSizeSlider = document.getElementById("roomSizeSlider");
     const roomSizeSliderState = Juce.getSliderState("SIZE");
-    updateSliderDOMObjectAndSliderState(roomSizeSlider, roomSizeSliderState, (1/roomSizeSliderState.properties.numSteps));
+    const roomSizeSliderStepValue = 0.01;
+    updateSliderDOMObjectAndSliderState(roomSizeSlider, roomSizeSliderState, roomSizeSliderStepValue);
 
     // MIX
     const mixSlider = document.getElementById("mixSlider");
     const mixSliderState = Juce.getSliderState("MIX");
-    updateSliderDOMObjectAndSliderState(mixSlider, mixSliderState, (1/mixSliderState.properties.numSteps));
+    const mixSliderStepValue = 0.01;
+    updateSliderDOMObjectAndSliderState(mixSlider, mixSliderState, mixSliderStepValue);
 
     // WIDTH
     const widthSlider = document.getElementById("widthSlider");
     const widthSliderState = Juce.getSliderState("WIDTH");
-    updateSliderDOMObjectAndSliderState(widthSlider, widthSliderState, (1 / widthSliderState.properties.numSteps));
+    const widthSliderStepValue = 0.01;
+    updateSliderDOMObjectAndSliderState(widthSlider, widthSliderState, widthSliderStepValue);
 
     const dampSlider = document.getElementById("dampSlider");
     const dampSliderState = Juce.getSliderState("DAMP");
-    updateSliderDOMObjectAndSliderState(dampSlider, dampSliderState, (1 / dampSliderState.properties.numSteps));
+    const dampSliderStepValue = 0.01;
+    updateSliderDOMObjectAndSliderState(dampSlider, dampSliderState, dampSliderStepValue);
 
     // toggle cpp backend float value based on html checked value
     // value > 0.5 == freeze mode; value < 0.5 == normal mode
@@ -108,20 +113,28 @@ document.addEventListener("DOMContentLoaded", () => {
         freezeCheckbox.checked = freezeToggleState.getNormalisedValue() >= 0.5;
     });
 
-    function updateSliderDOMObjectAndSliderState(sliderDOMObject, sliderState, sliderSteps) {
+    function updateSliderDOMObjectAndSliderState(sliderDOMObject, sliderState, stepValue) {
         console.log("sliderDOMObject: ", sliderDOMObject);
         console.log("sliderState: ", sliderState);
         sliderDOMObject.min = sliderState.properties.start;
         sliderDOMObject.max = sliderState.properties.end;
-        sliderDOMObject.step = sliderSteps;
+        sliderDOMObject.step = stepValue;
 
         sliderDOMObject.oninput = function () {
             sliderState.setNormalisedValue(this.value);
+            updateValueElement(sliderDOMObject, this.value);
         };
 
         sliderState.valueChangedEvent.addListener(() => {
             sliderDOMObject.value = sliderState.getScaledValue();
+            updateValueElement(sliderDOMObject, sliderDOMObject.value);
         });
+    }
+
+    function updateValueElement(sliderDOMObject, value) {
+        const valueElementID = sliderDOMObject.id + "Value";
+        const valueElement = document.getElementById(valueElementID);
+        valueElement.textContent = value;
     }
 
     window.__JUCE__.backend.addEventListener("outputLevel", () => {
