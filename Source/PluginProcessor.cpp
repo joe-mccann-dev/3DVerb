@@ -242,6 +242,7 @@ namespace webview_plugin
 
         outputLevelLeft = juce::Decibels::gainToDecibels(
             envOutBlock.getSample(0u, static_cast<int>(envOutBlock.getNumSamples() - 1)));
+        isFrozen = params.freezeMode > 0.5f;
     }
 
     //==============================================================================

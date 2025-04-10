@@ -58,6 +58,7 @@ namespace webview_plugin
         juce::AudioProcessorValueTreeState apvts;
 
         std::atomic<float> outputLevelLeft;
+        bool isFrozen;
 
     private:
         //==============================================================================

@@ -158,6 +158,19 @@ document.addEventListener("DOMContentLoaded", () => {
                 const scaleFactor = signalStrength <= -60 ? 1 : (((signalStrength / 60) + 1) * 2);
                 //console.log("Scale Factor is: ", scaleFactor);
                 Animated.circle.scale.set(scaleFactor, scaleFactor, scaleFactor);
+                //console.log(Animated.circle);
+            });
+    });
+
+    const mediumDarkAmber = new Animated.Color(Animated.mediumDarkAmber);
+    const coolBlue = new Animated.Color(Animated.coolBlue);
+    window.__JUCE__.backend.addEventListener("isFrozen", () => {
+        fetch(Juce.getBackendResourceAddress("freeze.json"))
+            .then((response) => response.text())
+            .then((freeze) => {
+                const frozenData = JSON.parse(freeze);
+                const isFrozen = frozenData["freeze"];
+                Animated.circle.material.color = isFrozen ? coolBlue : mediumDarkAmber;
             });
     });
 

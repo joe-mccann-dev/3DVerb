@@ -26,6 +26,7 @@ const darkIndigo = 0x3730A3;
 const mediumDarkGray = 0x374151;
 const darkGray = 0x111827;
 const mediumDarkAmber = 0xB45309;
+const coolBlue = 0x60A5FA;
 // END COLORS
 
 // THREE JS CODE
@@ -39,17 +40,33 @@ renderer.setSize(parseInt(visualizerStyle.width), parseInt(visualizerStyle.heigh
 visualizer.appendChild(renderer.domElement);
 
 camera.position.set(10, -5, 20);
-camera.lookAt(0, 0, 0);
+camera.lookAt(0, 3, 0);
 
 const loader = new GLTFLoader();
 const mixer = new AnimationMixer();
 
 // https://sketchfab.com/3d-models/blue-flower-animated-c20b1f12833148e09f7f49c3dd444906
+let animationClip;
 loader.load('assets/Blue_end.glb', function (glb) {
 
     const threeD_Object = glb.scene;
-    threeD_Object.scale.set(400, 400, 400);
-    let action = mixer.clipAction(glb.animations[0], threeD_Object);
+    threeD_Object.scale.set(200, 200, 200);
+    threeD_Object.rotateZ(47);
+    threeD_Object.rotateY(45);
+    threeD_Object.rotateX(-54);
+    animationClip = glb.animations[0];
+    //const track0 = animationClip["tracks"][0];
+    let duration = animationClip["duration"];
+    //duration = 20.0;
+    animationClip.duration = duration;
+    //console.log("duration: ", duration);
+    //let track0_times = track0["times"][0];
+    //track0_times = 0.56;
+    //console.log("track0_times:", track0_times);
+    //console.log("track0: ", track0);
+    ////animaionClip.duration = 4;
+    console.log("animationClip: ", animationClip);
+    let action = mixer.clipAction(animationClip, threeD_Object);
     action.play();
     scene.add(threeD_Object);
 
@@ -58,7 +75,7 @@ loader.load('assets/Blue_end.glb', function (glb) {
 });
 
 const light = new DirectionalLight(0xffffed, 1);
-light.position.set(10, 10, 3);
+light.position.set(1, 1, 5);
 scene.add(light);
 
 const ambientLight = new AmbientLight(0x404040);
@@ -68,8 +85,9 @@ scene.background = new Color(mediumDarkGray);
 
 const geometry = new CircleGeometry(6, 32);
 
-const material = new MeshBasicMaterial({ color: mediumDarkAmber });
+let material = new MeshBasicMaterial({ color: mediumDarkAmber });
 const circle = new Mesh(geometry, material);
+console.log(circle);
 
 scene.add(circle);
 
@@ -82,4 +100,8 @@ function animate() {
 export {
     animate,
     circle,
+    animationClip,
+    Color,
+    coolBlue,
+    mediumDarkAmber
 }

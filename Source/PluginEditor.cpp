@@ -195,6 +195,7 @@ namespace webview_plugin
     void ReverbulizerAudioProcessorEditor::timerCallback()
     {
        webView.emitEventIfBrowserIsVisible("outputLevel", juce::var{});
+       webView.emitEventIfBrowserIsVisible("isFrozen", juce::var{});
     }
 
     // ctrl + z == undo; ctrl + y == redo
@@ -235,6 +236,16 @@ namespace webview_plugin
         {
             juce::DynamicObject::Ptr data{ new juce::DynamicObject };
             data->setProperty("left", audioProcessor.outputLevelLeft.load());
+            const auto string = juce::JSON::toString(data.get());
+            juce::MemoryInputStream stream{ string.getCharPointer(),
+                string.getNumBytesAsUTF8(), false };
+            return juce::WebBrowserComponent::Resource{ streamToVector(stream), juce::String{"application/json"} };
+        }
+
+        if (resourceToRetrieve == "freeze.json")
+        {
+            juce::DynamicObject::Ptr data{ new juce::DynamicObject };
+            data->setProperty("freeze", audioProcessor.isFrozen);
             const auto string = juce::JSON::toString(data.get());
             juce::MemoryInputStream stream{ string.getCharPointer(),
                 string.getNumBytesAsUTF8(), false };
