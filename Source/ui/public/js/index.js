@@ -111,6 +111,17 @@ document.addEventListener("DOMContentLoaded", () => {
     // box is checked if backend value is greater than or equal to 0.5
     freezeToggleState.valueChangedEvent.addListener(() => {
         freezeCheckbox.checked = freezeToggleState.getNormalisedValue() >= 0.5;
+        const label = document.getElementById("freezeLabel");
+        label.style["color"] = freezeCheckbox.checked ? "#60A5FA" : "#BFDBFE";
+        label.style["border"] = freezeCheckbox.checked ? "solid 1px #60A5FA" : "none";
+        if (freezeCheckbox.checked) {
+            label.style["color"] = "#60A5FA";
+            label.style["border"] = "solid 1px #60A5FA";
+        }
+        else {
+            label.style["color"] = "#BFDBFE";
+            label.style["border"] = "none";
+        }
     });
 
     function updateSliderDOMObjectAndSliderState(sliderDOMObject, sliderState, stepValue) {

@@ -81,6 +81,12 @@ input.checkbox {
     color: var(--medium-amber);
     margin-left: 2px;
 }
+
+.freezeLabel {
+    padding: 2px;
+    border-radius: 12px;
+}
+
 .undoRedo {
     padding: 24px 0;
 }

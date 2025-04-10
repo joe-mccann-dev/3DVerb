@@ -151,12 +151,7 @@ namespace webview_plugin
         spec.numChannels = static_cast<juce::uint32>(getTotalNumOutputChannels());
 
         envelopeFollower.prepare(spec);
-        envelopeFollower.setAttackTime(200.f);
-        envelopeFollower.setReleaseTime(200.f);
-        envelopeFollower.setLevelCalculationType(
-            juce::dsp::BallisticsFilter<float>::LevelCalculationType::peak
-        );
-
+        setEnvFollowerParams(envelopeFollower);
         envelopeFollowerOutputBuffer.setSize(getTotalNumOutputChannels(), samplesPerBlock);
 
         reverb.prepare(spec);
@@ -199,6 +194,14 @@ namespace webview_plugin
         reverb.setParameters(params);
     }
 
+    void ReverbulizerAudioProcessor::setEnvFollowerParams(juce::dsp::BallisticsFilter<float> envFollower)
+    {  
+        envFollower.setAttackTime(200.f);
+        envFollower.setReleaseTime(200.f);
+        envFollower.setLevelCalculationType(
+            juce::dsp::BallisticsFilter<float>::LevelCalculationType::peak);
+    }
+
     void ReverbulizerAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
     {
         juce::ScopedNoDenormals noDenormals;
@@ -226,22 +229,19 @@ namespace webview_plugin
         if (bypass.get()) { return; }
         // TODO: smooth gain to prevent rapid changes in gain
         buffer.applyGain(*gain);
-        
+
         juce::dsp::AudioBlock<float> block{ buffer };
-
         juce::dsp::AudioBlock<float> envOutBlock{ envelopeFollowerOutputBuffer };
-        juce::dsp::ProcessContextNonReplacing<float> envCtx{ block, envOutBlock };
 
+        juce::dsp::ProcessContextNonReplacing<float> envCtx{ block, envOutBlock };
         envelopeFollower.process(envCtx);
 
         updateReverb();
-
         juce::dsp::ProcessContextReplacing<float> reverbCtx{block};
         reverb.process(reverbCtx);
 
         outputLevelLeft = juce::Decibels::gainToDecibels(
-            envOutBlock.getSample(0u, static_cast<int>(envOutBlock.getNumSamples() - 1))
-        );
+            envOutBlock.getSample(0u, static_cast<int>(envOutBlock.getNumSamples() - 1)));
     }
 
     //==============================================================================

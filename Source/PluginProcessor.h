@@ -79,6 +79,7 @@ namespace webview_plugin
         juce::AudioParameterFloat* freeze{ nullptr };
 
         void updateReverb();
+        void setEnvFollowerParams(juce::dsp::BallisticsFilter<float> envFollower);
 
         juce::UndoManager undoManager;
 
