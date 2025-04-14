@@ -14,6 +14,32 @@ document.getElementById("pluginVendor").textContent = "by " + data.pluginVendor;
 //document.getElementById("pluginName").textContent = data.pluginName;
 document.getElementById("pluginVersion").textContent = data.pluginVersion;
 
+const undoButton = document.getElementById("undoButton");
+const redoButton = document.getElementById("redoButton");
+const bypassCheckbox = document.getElementById("bypassCheckbox");
+const bypassToggleState = Juce.getToggleState("BYPASS");
+
+const monoCheckbox = document.getElementById("monoCheckbox");
+const monoToggleState = Juce.getToggleState("MONO");
+
+const gainSlider = document.getElementById("gainSlider");
+const gainSliderState = Juce.getSliderState("GAIN");
+
+const roomSizeSlider = document.getElementById("roomSizeSlider");
+const roomSizeSliderState = Juce.getSliderState("SIZE");
+
+const mixSlider = document.getElementById("mixSlider");
+const mixSliderState = Juce.getSliderState("MIX");
+
+const widthSlider = document.getElementById("widthSlider");
+const widthSliderState = Juce.getSliderState("WIDTH");
+
+const dampSlider = document.getElementById("dampSlider");
+const dampSliderState = Juce.getSliderState("DAMP");
+
+const freezeCheckbox = document.getElementById("freezeCheckbox");
+const freezeToggleState = Juce.getSliderState("FREEZE");
+
 const undoRedoCtrl = Juce.getNativeFunction("webUndoRedo");
 
 fetch(Juce.getBackendResourceAddress("data.json"))
@@ -38,20 +64,15 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     // UNDO-REDO
-    const undoButton = document.getElementById("undoButton");
     undoButton.addEventListener("click", () => {
         window.__JUCE__.backend.emitEvent("undoRequest", null);
     });
 
-    const redoButton = document.getElementById("redoButton");
     redoButton.addEventListener("click", () => {
         window.__JUCE__.backend.emitEvent("redoRequest", null);
     })
 
     // BYPASS
-    const bypassCheckbox = document.getElementById("bypassCheckbox");
-    const bypassToggleState = Juce.getToggleState("BYPASS");
-
     bypassCheckbox.oninput = function () {
         bypassToggleState.setValue(this.checked);
     }
@@ -61,10 +82,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     // MONO
-    const monoCheckbox = document.getElementById("monoCheckbox");
-    const monoToggleState = Juce.getToggleState("MONO");
-    console.log("monoToggleState: ", monoToggleState);
-
     monoCheckbox.oninput = function () {
         monoToggleState.setValue(this.checked);
     }
@@ -74,37 +91,27 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     // GAIN
-    const gainSlider = document.getElementById("gainSlider");
-    const gainSliderState = Juce.getSliderState("GAIN");
     const gainSliderStepValue = 0.01;
     updateSliderDOMObjectAndSliderState(gainSlider, gainSliderState, gainSliderStepValue);
 
     // ROOM SIZE
-    const roomSizeSlider = document.getElementById("roomSizeSlider");
-    const roomSizeSliderState = Juce.getSliderState("SIZE");
     const roomSizeSliderStepValue = 0.01;
     updateSliderDOMObjectAndSliderState(roomSizeSlider, roomSizeSliderState, roomSizeSliderStepValue);
 
     // MIX
-    const mixSlider = document.getElementById("mixSlider");
-    const mixSliderState = Juce.getSliderState("MIX");
     const mixSliderStepValue = 0.01;
     updateSliderDOMObjectAndSliderState(mixSlider, mixSliderState, mixSliderStepValue);
 
     // WIDTH
-    const widthSlider = document.getElementById("widthSlider");
-    const widthSliderState = Juce.getSliderState("WIDTH");
     const widthSliderStepValue = 0.01;
     updateSliderDOMObjectAndSliderState(widthSlider, widthSliderState, widthSliderStepValue);
 
-    const dampSlider = document.getElementById("dampSlider");
-    const dampSliderState = Juce.getSliderState("DAMP");
     const dampSliderStepValue = 0.01;
     updateSliderDOMObjectAndSliderState(dampSlider, dampSliderState, dampSliderStepValue);
 
+    // FREEZE
     // toggle cpp backend float value based on html checked value
     // value > 0.5 == freeze mode; value < 0.5 == normal mode
-    const freezeToggleState = Juce.getSliderState("FREEZE");
     freezeCheckbox.oninput = function () {
         freezeToggleState.setNormalisedValue(this.checked ? 1.0 : 0.0);
     };
@@ -176,3 +183,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     Animated.animate();
 });
+
+export {
+    freezeCheckbox,
+}

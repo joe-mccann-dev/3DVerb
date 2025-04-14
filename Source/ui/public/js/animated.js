@@ -19,6 +19,8 @@ import {
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { AnimationMixer } from 'three/src/animation/AnimationMixer.js';
 
+import * as UI from './index.js';
+
 // COLORS
 const lightIndigo = 0xBFDBFE;
 const mediumIndigo = 0x6366F1;
@@ -47,13 +49,12 @@ const mixer = new AnimationMixer();
 
 // https://sketchfab.com/3d-models/blue-flower-animated-c20b1f12833148e09f7f49c3dd444906
 let animationClip;
+let threeD_Object;
 loader.load('assets/Blue_end.glb', function (glb) {
 
-    const threeD_Object = glb.scene;
+    threeD_Object = glb.scene;
     threeD_Object.scale.set(200, 200, 200);
-    threeD_Object.rotateZ(47);
-    threeD_Object.rotateY(45);
-    threeD_Object.rotateX(-54);
+
     animationClip = glb.animations[0];
     //const track0 = animationClip["tracks"][0];
     let duration = animationClip["duration"];
@@ -94,10 +95,14 @@ scene.add(circle);
 function animate() {
     requestAnimationFrame(animate);
     renderer.render(scene, camera);
+    if (!UI.freezeCheckbox.checked) {
+        threeD_Object.rotation.y += 0.01;
+    }
     mixer.update(1 / 60);
 }
 
 export {
+    threeD_Object,
     animate,
     circle,
     animationClip,
