@@ -4,22 +4,14 @@ import {
     PerspectiveCamera,
     WebGLRenderer,
     Color,
-    Line,
-    LineBasicMaterial,
-    MeshBasicMaterial,
     MeshStandardMaterial,
-    BufferGeometry,
-    BufferAttribute,
     DirectionalLight,
     AmbientLight,
-    CircleGeometry,
     SphereGeometry,
     Mesh,
-    SRGBColorSpace,
     PMREMGenerator,
 } from 'three';
 
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { AnimationMixer } from 'three/src/animation/AnimationMixer.js'; 
 
 import * as UI from './index.js';
@@ -38,60 +30,75 @@ const lightYellow = 0xFDE68A;
 
 // THREE JS CODE
 const scene = new Scene();
-const camera = new PerspectiveCamera(75, (window.innerWidth / window.innerHeight), 0.1, 1000);
-const renderer = new WebGLRenderer({antialias: true});
-renderer.outputColorSpace = SRGBColorSpace; 
+const renderer = new WebGLRenderer({ antialias: true });
 
 const visualizer = document.getElementById("visualizer");
 const visualizerStyle = getComputedStyle(visualizer);
-renderer.setSize(parseInt(visualizerStyle.width), parseInt(visualizerStyle.height));
-visualizer.appendChild(renderer.domElement);
 
-camera.position.set(-10, -10, 20);
+renderer.setSize(parseInt(visualizerStyle.width), parseInt(visualizerStyle.height));
+const canvas = renderer.domElement;
+visualizer.appendChild(canvas);
+
+const width = canvas.width;
+const height = canvas.height;
+const aspect = width / height;
+const camera = new PerspectiveCamera(75, aspect, 0.1, 20);
+
+camera.position.set(0, 0, 10);
 camera.lookAt(0, 0, 0);
 
 const light = new DirectionalLight(0xffffed, 1);
-light.position.set(-10, 10, 10);
+light.position.set(0, 5, 22);
 scene.add(light);
 
-const ambientLight = new AmbientLight(0xffffed, 1.1);
+const ambientLight = new AmbientLight(0xffffed, 0.5);
 scene.add(ambientLight);
 scene.background = new Color(mediumDarkGray);
 
 const pmrem = new PMREMGenerator(renderer).fromScene(scene);
-const circleGeometry = new CircleGeometry(12, 24);
-const circleMaterial = new MeshStandardMaterial({ color: lightYellow, envMap: pmrem });
-const circle = new Mesh(circleGeometry, circleMaterial);
 
-const sphereRadius = 8;
-const sphereWidthSegments = 48;
-const sphereHeightSegments = 32;
-const sphereGeometry = new SphereGeometry(sphereRadius, sphereWidthSegments, sphereHeightSegments);
-const sphereMaterial = new MeshStandardMaterial({ color: mediumIndigo, envMap: pmrem });
-const sphere = new Mesh(sphereGeometry, sphereMaterial);
+// sphere1
+const sphere1Radius = 1;
+const sphere1WidthSegments = 5;
+const sphere1HeightSegments = 5;
+const sphere1Geometry = new SphereGeometry(sphere1Radius, sphere1WidthSegments, sphere1HeightSegments);
+const sphere1Material = new MeshStandardMaterial({ color: mediumIndigo, envMap: pmrem });
+const sphere1 = new Mesh(sphere1Geometry, sphere1Material);
+sphere1.position.set(-5, -2, 0);
 
-scene.add(circle);
-scene.add(sphere);
+// sphere2
+const sphere2 = new Mesh(sphere1Geometry, sphere1Material);
+sphere2.position.set(0, 4, 0);
 
-circle.rotateY(320);
+// sphere3
+const sphere3 = new Mesh(sphere1Geometry, sphere1Material);
+sphere3.position.set(5, -2, 0);
+
+scene.add(sphere1);
+scene.add(sphere2);
+scene.add(sphere3);
 
 const mixer = new AnimationMixer();
+
 function animate() {
     requestAnimationFrame(animate);
     renderer.render(scene, camera);
     if (!UI.freezeCheckbox.checked) {
-        sphere.rotation.y += 0.001;
+        sphere1.rotation.y += 0.001;
+        sphere2.rotation.y += 0.004;
+        sphere3.rotation.y += 0.002;
     }
     mixer.update(1 / 60);
 }
 
 export {
     animate,
-    circle,
-    sphere,
     Color,
     coolBlue,
+    mediumIndigo,
     mediumDarkAmber,
     mediumAmber,
-    lightYellow
+    lightYellow,
+    sphere1,
+    sphere2,
 }

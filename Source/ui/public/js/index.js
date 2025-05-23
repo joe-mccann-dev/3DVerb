@@ -160,24 +160,25 @@ document.addEventListener("DOMContentLoaded", () => {
             .then((response) => response.text())
             .then((outputLevel) => {
                 const levelData = JSON.parse(outputLevel);
-                //console.log(levelData);
+
                 const signalStrength = levelData["left"];
                 const scaleFactor = signalStrength <= -60 ? 1 : (((signalStrength / 60) + 1) * 2);
-                //console.log("Scale Factor is: ", scaleFactor);
-                Animated.circle.scale.set(scaleFactor, scaleFactor, scaleFactor);
-                //console.log(Animated.circle);
+
+                //Animated.sphere1.scale.set(scaleFactor, scaleFactor, scaleFactor);
+                //Animated.sphere2.scale.set(scaleFactor, scaleFactor, scaleFactor);
             });
     });
 
     const lightYellow = new Animated.Color(Animated.lightYellow);
     const coolBlue = new Animated.Color(Animated.coolBlue);
+    const mediumIndigo = new Animated.Color(Animated.mediumIndigo);
     window.__JUCE__.backend.addEventListener("isFrozen", () => {
         fetch(Juce.getBackendResourceAddress("freeze.json"))
             .then((response) => response.text())
             .then((freeze) => {
                 const frozenData = JSON.parse(freeze);
                 const isFrozen = frozenData["freeze"];
-                Animated.circle.material.color = isFrozen ? coolBlue : lightYellow;
+                Animated.sphere1.material.color = isFrozen ? coolBlue : mediumIndigo;
             });
     });
 
