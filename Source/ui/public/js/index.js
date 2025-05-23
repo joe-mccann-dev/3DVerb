@@ -169,7 +169,7 @@ document.addEventListener("DOMContentLoaded", () => {
             });
     });
 
-    const mediumDarkAmber = new Animated.Color(Animated.mediumDarkAmber);
+    const lightYellow = new Animated.Color(Animated.lightYellow);
     const coolBlue = new Animated.Color(Animated.coolBlue);
     window.__JUCE__.backend.addEventListener("isFrozen", () => {
         fetch(Juce.getBackendResourceAddress("freeze.json"))
@@ -177,7 +177,7 @@ document.addEventListener("DOMContentLoaded", () => {
             .then((freeze) => {
                 const frozenData = JSON.parse(freeze);
                 const isFrozen = frozenData["freeze"];
-                Animated.circle.material.color = isFrozen ? coolBlue : mediumDarkAmber;
+                Animated.circle.material.color = isFrozen ? coolBlue : lightYellow;
             });
     });
 

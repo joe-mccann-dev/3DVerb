@@ -6,18 +6,21 @@ import {
     Color,
     Line,
     LineBasicMaterial,
+    MeshBasicMaterial,
+    MeshStandardMaterial,
     BufferGeometry,
     BufferAttribute,
     DirectionalLight,
     AmbientLight,
     CircleGeometry,
-    MeshBasicMaterial,
-    Mesh
-
+    SphereGeometry,
+    Mesh,
+    SRGBColorSpace,
+    PMREMGenerator,
 } from 'three';
 
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
-import { AnimationMixer } from 'three/src/animation/AnimationMixer.js';
+import { AnimationMixer } from 'three/src/animation/AnimationMixer.js'; 
 
 import * as UI from './index.js';
 
@@ -27,77 +30,68 @@ const mediumIndigo = 0x6366F1;
 const darkIndigo = 0x3730A3;
 const mediumDarkGray = 0x374151;
 const darkGray = 0x111827;
+const mediumAmber = 0xFBBF24;
 const mediumDarkAmber = 0xB45309;
 const coolBlue = 0x60A5FA;
+const lightYellow = 0xFDE68A;
 // END COLORS
 
 // THREE JS CODE
 const scene = new Scene();
 const camera = new PerspectiveCamera(75, (window.innerWidth / window.innerHeight), 0.1, 1000);
-const renderer = new WebGLRenderer();
+const renderer = new WebGLRenderer({antialias: true});
+renderer.outputColorSpace = SRGBColorSpace; 
 
 const visualizer = document.getElementById("visualizer");
 const visualizerStyle = getComputedStyle(visualizer);
 renderer.setSize(parseInt(visualizerStyle.width), parseInt(visualizerStyle.height));
 visualizer.appendChild(renderer.domElement);
 
-camera.position.set(-10, -5, 20);
-camera.lookAt(0, 3, 0);
-
-const loader = new GLTFLoader();
-const mixer = new AnimationMixer();
-
-// https://sketchfab.com/3d-models/blue-flower-animated-c20b1f12833148e09f7f49c3dd444906
-let animationClip;
-let threeD_Object;
-loader.load('assets/sphere.glb', function (glb) {
-
-    threeD_Object = glb.scene;
-    threeD_Object.scale.set(1, 1, 1);
-    console.log(threeD_Object);
-
-    //animationClip = glb.animations[0];
-
-    //let action = mixer.clipAction(animationClip, threeD_Object);
-    //action.play();
-    scene.add(threeD_Object);
-
-}, undefined, function (error) {
-    console.error(error);
-});
+camera.position.set(-10, -10, 20);
+camera.lookAt(0, 0, 0);
 
 const light = new DirectionalLight(0xffffed, 1);
 light.position.set(-10, 10, 10);
 scene.add(light);
 
-const ambientLight = new AmbientLight(0xffffed, 1);
+const ambientLight = new AmbientLight(0xffffed, 1.1);
 scene.add(ambientLight);
-
 scene.background = new Color(mediumDarkGray);
 
-const geometry = new CircleGeometry(6, 32);
+const pmrem = new PMREMGenerator(renderer).fromScene(scene);
+const circleGeometry = new CircleGeometry(12, 24);
+const circleMaterial = new MeshStandardMaterial({ color: lightYellow, envMap: pmrem });
+const circle = new Mesh(circleGeometry, circleMaterial);
 
-let material = new MeshBasicMaterial({ color: mediumDarkAmber });
-const circle = new Mesh(geometry, material);
-console.log(circle);
+const sphereRadius = 8;
+const sphereWidthSegments = 48;
+const sphereHeightSegments = 32;
+const sphereGeometry = new SphereGeometry(sphereRadius, sphereWidthSegments, sphereHeightSegments);
+const sphereMaterial = new MeshStandardMaterial({ color: mediumIndigo, envMap: pmrem });
+const sphere = new Mesh(sphereGeometry, sphereMaterial);
 
 scene.add(circle);
+scene.add(sphere);
 
+circle.rotateY(320);
+
+const mixer = new AnimationMixer();
 function animate() {
     requestAnimationFrame(animate);
     renderer.render(scene, camera);
     if (!UI.freezeCheckbox.checked) {
-        threeD_Object.rotation.y += 0.001;
+        sphere.rotation.y += 0.001;
     }
     mixer.update(1 / 60);
 }
 
 export {
-    threeD_Object,
     animate,
     circle,
-    animationClip,
+    sphere,
     Color,
     coolBlue,
-    mediumDarkAmber
+    mediumDarkAmber,
+    mediumAmber,
+    lightYellow
 }
