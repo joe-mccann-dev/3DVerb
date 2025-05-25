@@ -12,8 +12,6 @@ import {
     PMREMGenerator,
 } from 'three';
 
-import { AnimationMixer } from 'three/src/animation/AnimationMixer.js'; 
-
 import * as UI from './index.js';
 
 // COLORS
@@ -44,52 +42,59 @@ const height = canvas.height;
 const aspect = width / height;
 const camera = new PerspectiveCamera(75, aspect, 0.1, 20);
 
-camera.position.set(0, 0, 10);
-camera.lookAt(0, 0, 0);
+camera.position.z = 10;
 
-const light = new DirectionalLight(0xffffed, 1);
-light.position.set(0, 5, 22);
+const light = new DirectionalLight(0xffffed, 3);
+light.position.set(-1, 2, 12);
 scene.add(light);
 
-const ambientLight = new AmbientLight(0xffffed, 0.5);
+const ambientLight = new AmbientLight(lightYellow, 0.5);
 scene.add(ambientLight);
 scene.background = new Color(mediumDarkGray);
 
 const pmrem = new PMREMGenerator(renderer).fromScene(scene);
 
-// sphere1
-const sphere1Radius = 1;
-const sphere1WidthSegments = 5;
-const sphere1HeightSegments = 5;
-const sphere1Geometry = new SphereGeometry(sphere1Radius, sphere1WidthSegments, sphere1HeightSegments);
-const sphere1Material = new MeshStandardMaterial({ color: mediumIndigo, envMap: pmrem });
-const sphere1 = new Mesh(sphere1Geometry, sphere1Material);
-sphere1.position.set(-5, -2, 0);
 
-// sphere2
-const sphere2 = new Mesh(sphere1Geometry, sphere1Material);
-sphere2.position.set(0, 4, 0);
+const sphereRadius = .5;
+const sphereWidthSegments = 5;
+const sphereHeightSegments = 10;
+const sphereGeometry = new SphereGeometry(sphereRadius, sphereWidthSegments, sphereHeightSegments);
 
-// sphere3
-const sphere3 = new Mesh(sphere1Geometry, sphere1Material);
-sphere3.position.set(5, -2, 0);
 
-scene.add(sphere1);
-scene.add(sphere2);
-scene.add(sphere3);
+const spheres = [
+    makeSphere(sphereGeometry, mediumIndigo, [-5, -2, 0]),
+    makeSphere(sphereGeometry, mediumDarkAmber, [0, 4, 0]),
+    makeSphere(sphereGeometry, lightYellow, [5, -2, 0]),
+    makeSphere(sphereGeometry, lightIndigo, [0, 0, 2]),
+];
 
-const mixer = new AnimationMixer();
+function makeSphere(geometry, color, positions) {
+    const material = new MeshStandardMaterial({ color: color, envMap: pmrem });
 
-function animate() {
-    requestAnimationFrame(animate);
-    renderer.render(scene, camera);
-    if (!UI.freezeCheckbox.checked) {
-        sphere1.rotation.y += 0.001;
-        sphere2.rotation.y += 0.004;
-        sphere3.rotation.y += 0.002;
-    }
-    mixer.update(1 / 60);
+    const sphere = new Mesh(geometry, material);
+    scene.add(sphere);
+
+    sphere.position.set(positions[0], positions[1], positions[2]);
+
+    return sphere;
 }
+
+function animate(time) {
+    time *= 0.001;
+
+    if (!UI.freezeCheckbox.checked) {
+        spheres.forEach((sphere, index) => {
+            const speed = 1 + index * 0.1;
+            const rotation = time * speed;
+            sphere.rotation.x = rotation;
+            sphere.rotation.y = rotation;
+        });
+    }
+
+    renderer.render(scene, camera);
+    requestAnimationFrame(animate);
+}
+
 
 export {
     animate,
@@ -99,6 +104,5 @@ export {
     mediumDarkAmber,
     mediumAmber,
     lightYellow,
-    sphere1,
-    sphere2,
+    spheres,
 }

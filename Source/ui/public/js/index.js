@@ -169,20 +169,29 @@ document.addEventListener("DOMContentLoaded", () => {
             });
     });
 
-    const lightYellow = new Animated.Color(Animated.lightYellow);
     const coolBlue = new Animated.Color(Animated.coolBlue);
-    const mediumIndigo = new Animated.Color(Animated.mediumIndigo);
+    Animated.spheres.forEach((sphere) => {
+        if (!sphere.userData.color) {
+            sphere.userData.color = sphere.material.color.clone();
+        }
+    });
     window.__JUCE__.backend.addEventListener("isFrozen", () => {
         fetch(Juce.getBackendResourceAddress("freeze.json"))
             .then((response) => response.text())
             .then((freeze) => {
                 const frozenData = JSON.parse(freeze);
                 const isFrozen = frozenData["freeze"];
-                Animated.sphere1.material.color = isFrozen ? coolBlue : mediumIndigo;
+                Animated.spheres.forEach((sphere) => {
+                    if (isFrozen) {
+                        sphere.material.color.copy(coolBlue);
+                    } else {
+                        sphere.material.color.copy(sphere.userData.color);
+                    }
+                });
             });
     });
 
-    Animated.animate();
+    requestAnimationFrame(Animated.animate);
 });
 
 export {
