@@ -156,19 +156,17 @@ document.addEventListener("DOMContentLoaded", () => {
         valueElement.textContent = value;
     }
 
+    // OUTPUT LEVEL EVENT
     window.__JUCE__.backend.addEventListener("outputLevel", () => {
         fetch(Juce.getBackendResourceAddress("outputLevel.json"))
-            .then((response) => response.text())
-            .then((outputLevel) => {
-                const levelData = JSON.parse(outputLevel);
-
-                const signalStrength = levelData["left"];
-                const scaleFactor = signalStrength < -30 ? 1 : ((signalStrength / 60) + 1) * 2.5;
-
+            .then((response) => response.json())
+            .then((outputLevelData) => {
+                const scaleFactor = outputLevelData.left < -30 ? 1 : ((outputLevelData.left / 60) + 1) * 2.5;
                 Animated.spheres[Animated.spheres.length - 1].scale.set(scaleFactor, scaleFactor, scaleFactor);
             });
     });
 
+    // FREEZE EVENT
     const coolBlue = new Animated.Color(Animated.coolBlue);
     Animated.spheres.forEach((sphere, index) => {
         if (!sphere.userData.color) {
@@ -177,12 +175,10 @@ document.addEventListener("DOMContentLoaded", () => {
     });
     window.__JUCE__.backend.addEventListener("isFrozen", () => {
         fetch(Juce.getBackendResourceAddress("freeze.json"))
-            .then((response) => response.text())
-            .then((freeze) => {
-                const frozenData = JSON.parse(freeze);
-                const isFrozen = frozenData["freeze"];
+            .then((response) => response.json())
+            .then((freezeData) => {
                 Animated.spheres.forEach((sphere) => {
-                    if (isFrozen) {
+                    if (freezeData.freeze) {
                         sphere.material.color.copy(coolBlue);
                     } else {
                         sphere.material.color.copy(sphere.userData.color);
@@ -191,14 +187,13 @@ document.addEventListener("DOMContentLoaded", () => {
             });
     });
 
+    // MIX EVENT
     window.__JUCE__.backend.addEventListener("mixValue", () => {
         fetch(Juce.getBackendResourceAddress("mix.json"))
-            .then((response) => response.text())
-            .then((mix) => {
-                const mixData = JSON.parse(mix);
-                const mixValue = mixData["mix"];
+            .then((response) => response.json())
+            .then((mixData) => {
                 Animated.spheres.slice(0, -1).forEach((sphere) => {
-                    const scaleValue = Animated.sphereRadius + mixValue * 1.8;
+                    const scaleValue = Animated.sphereRadius + mixData.mix * 1.8;
                     sphere.scale.set(scaleValue, scaleValue, scaleValue);
                 });
             });
@@ -208,6 +203,7 @@ document.addEventListener("DOMContentLoaded", () => {
         sphere.userData.originalPosition = sphere.position.clone();
     });
 
+    // ROOM SIZE EVENT
     window.__JUCE__.backend.addEventListener("roomSizeValue", () => {
         fetch(Juce.getBackendResourceAddress("roomSize.json"))
             .then((response) => response.json())
