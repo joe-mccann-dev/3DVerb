@@ -162,7 +162,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 const levelData = JSON.parse(outputLevel);
 
                 const signalStrength = levelData["left"];
-                const scaleFactor = signalStrength < -30 ? 1 : (((signalStrength / 60) + 1) * 2);
+                const scaleFactor = signalStrength < -30 ? 1 : ((signalStrength / 60) + 1) * 2.5;
 
                 Animated.spheres[Animated.spheres.length - 1].scale.set(scaleFactor, scaleFactor, scaleFactor);
             });
@@ -197,7 +197,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 const mixData = JSON.parse(mix);
                 const mixValue = mixData["mix"];
                 for (let i = 0; i < Animated.spheres.length - 1; ++i) {
-                    const scaleValue = Animated.sphereRadius + mixValue * 1.4;
+                    const scaleValue = Animated.sphereRadius + mixValue * 1.8;
                     Animated.spheres[i].scale.set(scaleValue, scaleValue, scaleValue);
                 }
             });

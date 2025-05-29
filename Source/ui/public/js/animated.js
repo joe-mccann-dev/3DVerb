@@ -10,6 +10,8 @@ import {
     DirectionalLight,
     AmbientLight,
     SphereGeometry,
+    PlaneGeometry,
+    PCFSoftShadowMap,
     Mesh,
     PMREMGenerator,
 } from 'three';
@@ -37,6 +39,8 @@ const visualizer = document.getElementById("visualizer");
 const visualizerStyle = getComputedStyle(visualizer);
 
 renderer.setSize(parseInt(visualizerStyle.width), parseInt(visualizerStyle.height));
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = PCFSoftShadowMap;
 const canvas = renderer.domElement;
 visualizer.appendChild(canvas);
 
@@ -45,19 +49,29 @@ const height = canvas.height;
 const aspect = width / height;
 const camera = new PerspectiveCamera(50, aspect, 0.1, 32);
 
-camera.position.set(-1, -12.5, 10); 
+camera.position.set(0, -12, 12); 
 camera.lookAt(new Vector3(0, 0, 0));
 
 const light = new DirectionalLight(0xffffed, 3);
-light.position.set(5, -14, 12);
+light.position.set(0, -14, 16);
+light.castShadow = true;
+
+// (Optional) Adjust shadow camera for better coverage and quality
+light.shadow.camera.left = -10;
+light.shadow.camera.right = 10;
+light.shadow.camera.top = 10;
+light.shadow.camera.bottom = -10;
+light.shadow.camera.near = 1;
+light.shadow.camera.far = 50;
+light.shadow.mapSize.width = 2048;
+light.shadow.mapSize.height = 2048;
 scene.add(light);
 
-const ambientLight = new AmbientLight(0xffffed, 0.15);
+const ambientLight = new AmbientLight(0xffffed, 0.5);
 scene.add(ambientLight);
 scene.background = new Color(mediumDarkGray);
 
 const pmrem = new PMREMGenerator(renderer).fromScene(scene);
-
 
 const sphereRadius = 0.4;
 const sphereWidthSegments = 8;
@@ -83,6 +97,9 @@ function makeSphere(geometry, color, positions) {
 
     sphere.position.set(positions[0], positions[1], positions[2]);
 
+    sphere.castShadow = true;
+    sphere.receiveShadow = true;
+
     return sphere;
 }
 
@@ -100,11 +117,21 @@ const lines = [
     addLineGeometry(5, 0, -4, 0, 0, 6),
 
     // lines connecting to bottom
-    addLineGeometry(-5, 0, -4, 0, 0, -3, lightYellow),
-    addLineGeometry(-5, 0, 4, 0, 0, -3, lightYellow),
-    addLineGeometry(5, 0, 4, 0, 0, -3, lightYellow),
-    addLineGeometry(5, 0, -4, 0, 0, -3, lightYellow),
+    addLineGeometry(-5, 0, -4, 0, 0, -4, lightYellow),
+    addLineGeometry(-5, 0, 4, 0, 0, -4, lightYellow),
+    addLineGeometry(5, 0, 4, 0, 0, -4, lightYellow),
+    addLineGeometry(5, 0, -4, 0, 0, -4  , lightYellow),
 ]
+
+const planeGeometry = new PlaneGeometry(17.5, 18);
+const planeMaterial = new MeshStandardMaterial({ color: 0x64748b });
+const plane = new Mesh(planeGeometry, planeMaterial);
+//plane.rotation.x = Math.PI / 6;
+plane.position.y = 6; 
+plane.position.z = -6;
+plane.position.x = 0;
+plane.receiveShadow = true;
+scene.add(plane);
 
 function addLineGeometry(src_x, dest_x, src_y, dest_y, src_z, dest_z, color = lightIndigo) {
     const distance = Math.sqrt(
@@ -129,8 +156,10 @@ function addLineGeometry(src_x, dest_x, src_y, dest_y, src_z, dest_z, color = li
         (src_z + dest_z) / 2
     );
 
-
     mesh.lookAt(new Vector3(dest_x, dest_y, dest_z));
+
+    mesh.castShadow = true;
+    mesh.receiveShadow = true;
     
     scene.add(mesh);
     
