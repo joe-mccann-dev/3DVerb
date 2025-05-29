@@ -197,6 +197,7 @@ namespace webview_plugin
        webView.emitEventIfBrowserIsVisible("outputLevel", juce::var{});
        webView.emitEventIfBrowserIsVisible("isFrozen", juce::var{});
        webView.emitEventIfBrowserIsVisible("mixValue", juce::var{});
+       webView.emitEventIfBrowserIsVisible("roomSizeValue", juce::var{});
     }
 
     // ctrl + z == undo; ctrl + y == redo
@@ -262,6 +263,17 @@ namespace webview_plugin
                 string.getNumBytesAsUTF8(), false };
 
             return juce::WebBrowserComponent::Resource{ streamToVector(stream), juce::String{"application/json"} };
+        }
+
+        if (resourceToRetrieve == "roomSize.json")
+        {
+            juce::DynamicObject::Ptr data{ new juce::DynamicObject };
+            data->setProperty("roomSize", audioProcessor.roomSizeValue);
+            const auto string = juce::JSON::toString(data.get());
+            juce::MemoryInputStream stream{ string.getCharPointer(),
+                string.getNumBytesAsUTF8(), false };
+
+            return juce::WebBrowserComponent::Resource{ streamToVector(stream), juce::String("application/json") };
         }
 
         //if (resourceToRetrieve == "data.json")

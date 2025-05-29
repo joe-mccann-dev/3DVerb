@@ -244,6 +244,7 @@ namespace webview_plugin
             envOutBlock.getSample(0u, static_cast<int>(envOutBlock.getNumSamples() - 1)));
         isFrozen = params.freezeMode > 0.5f;
         mixValue = params.wetLevel;
+        roomSizeValue = params.roomSize;
     }
 
     //==============================================================================

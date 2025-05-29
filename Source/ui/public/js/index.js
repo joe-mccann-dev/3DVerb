@@ -203,6 +203,16 @@ document.addEventListener("DOMContentLoaded", () => {
             });
     });
 
+    window.__JUCE__.backend.addEventListener("roomSizeValue", () => {
+        fetch(Juce.getBackendResourceAddress("roomSize.json"))
+            .then((response) => response.text())
+            .then((roomSize) => {
+                const roomSizeData = JSON.parse(roomSize);
+                const roomSizeValue = roomSizeData["roomSize"];
+                console.log("roomSizeValue: ", roomSizeValue);
+            });
+    });
+
     requestAnimationFrame(Animated.animate);
 });
 

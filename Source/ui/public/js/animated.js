@@ -56,7 +56,6 @@ const light = new DirectionalLight(0xffffed, 3);
 light.position.set(0, -14, 16);
 light.castShadow = true;
 
-// (Optional) Adjust shadow camera for better coverage and quality
 light.shadow.camera.left = -10;
 light.shadow.camera.right = 10;
 light.shadow.camera.top = 10;
@@ -67,7 +66,7 @@ light.shadow.mapSize.width = 2048;
 light.shadow.mapSize.height = 2048;
 scene.add(light);
 
-const ambientLight = new AmbientLight(0xffffed, 0.5);
+const ambientLight = new AmbientLight(0xffffed, 0.8);
 scene.add(ambientLight);
 scene.background = new Color(mediumDarkGray);
 
@@ -89,21 +88,6 @@ const spheres = [
     makeSphere(centerSphereGeometry, lightIndigo, [0, 0, 0]),
 ];
 
-function makeSphere(geometry, color, positions) {
-    const material = new MeshStandardMaterial({ color: color, envMap: pmrem });
-
-    const sphere = new Mesh(geometry, material);
-    scene.add(sphere);
-
-    sphere.position.set(positions[0], positions[1], positions[2]);
-
-    sphere.castShadow = true;
-    sphere.receiveShadow = true;
-
-    return sphere;
-}
-
-
 const lines = [
     addLineGeometry(-5, 5, 4, 4, 0, 0, fuchsia600),
     addLineGeometry(-5, -5, 4, -4, 0, 0, fuchsia600),
@@ -123,7 +107,7 @@ const lines = [
     addLineGeometry(5, 0, -4, 0, 0, -4  , lightYellow),
 ]
 
-const planeGeometry = new PlaneGeometry(17.5, 18);
+const planeGeometry = new PlaneGeometry(18, 18);
 const planeMaterial = new MeshStandardMaterial({ color: 0x64748b });
 const plane = new Mesh(planeGeometry, planeMaterial);
 //plane.rotation.x = Math.PI / 6;
@@ -132,6 +116,20 @@ plane.position.z = -6;
 plane.position.x = 0;
 plane.receiveShadow = true;
 scene.add(plane);
+
+function makeSphere(geometry, color, positions) {
+    const material = new MeshStandardMaterial({ color: color, envMap: pmrem });
+
+    const sphere = new Mesh(geometry, material);
+    scene.add(sphere);
+
+    sphere.position.set(positions[0], positions[1], positions[2]);
+
+    sphere.castShadow = true;
+    sphere.receiveShadow = true;
+
+    return sphere;
+}
 
 function addLineGeometry(src_x, dest_x, src_y, dest_y, src_z, dest_z, color = lightIndigo) {
     const distance = Math.sqrt(
