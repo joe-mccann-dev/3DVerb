@@ -59,6 +59,7 @@ namespace webview_plugin
 
         std::atomic<float> outputLevelLeft;
         bool isFrozen;
+        juce::var mixValue;
 
     private:
         //==============================================================================

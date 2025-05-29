@@ -196,6 +196,7 @@ namespace webview_plugin
     {
        webView.emitEventIfBrowserIsVisible("outputLevel", juce::var{});
        webView.emitEventIfBrowserIsVisible("isFrozen", juce::var{});
+       webView.emitEventIfBrowserIsVisible("mixValue", juce::var{});
     }
 
     // ctrl + z == undo; ctrl + y == redo
@@ -252,15 +253,26 @@ namespace webview_plugin
             return juce::WebBrowserComponent::Resource{ streamToVector(stream), juce::String{"application/json"} };
         }
 
-        if (resourceToRetrieve == "data.json")
+        if (resourceToRetrieve == "mix.json")
         {
             juce::DynamicObject::Ptr data{ new juce::DynamicObject };
-            data->setProperty("sampleProperty", 300.0);
+            data->setProperty("mix", audioProcessor.mixValue);
             const auto string = juce::JSON::toString(data.get());
             juce::MemoryInputStream stream{ string.getCharPointer(),
                 string.getNumBytesAsUTF8(), false };
+
             return juce::WebBrowserComponent::Resource{ streamToVector(stream), juce::String{"application/json"} };
         }
+
+        //if (resourceToRetrieve == "data.json")
+        //{
+        //    juce::DynamicObject::Ptr data{ new juce::DynamicObject };
+        //    data->setProperty("sampleProperty", 300.0);
+        //    const auto string = juce::JSON::toString(data.get());
+        //    juce::MemoryInputStream stream{ string.getCharPointer(),
+        //        string.getNumBytesAsUTF8(), false };
+        //    return juce::WebBrowserComponent::Resource{ streamToVector(stream), juce::String{"application/json"} };
+        //}
 
         const auto resource = resourceDirectory.getChildFile(resourceToRetrieve).createInputStream();
 

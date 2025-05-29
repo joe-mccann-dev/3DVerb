@@ -42,11 +42,11 @@ const freezeToggleState = Juce.getSliderState("FREEZE");
 
 const undoRedoCtrl = Juce.getNativeFunction("webUndoRedo");
 
-fetch(Juce.getBackendResourceAddress("data.json"))
-    .then(response => response.text())
-    .then((textFromBackend) => {
-        console.log(textFromBackend);
-    });
+//fetch(Juce.getBackendResourceAddress("data.json"))
+//    .then(response => response.text())
+//    .then((textFromBackend) => {
+//        console.log(textFromBackend);
+//});
 
 document.addEventListener("DOMContentLoaded", () => {
     document.addEventListener('keydown', (event) => {
@@ -188,6 +188,16 @@ document.addEventListener("DOMContentLoaded", () => {
                     }
                 });
             });
+    });
+
+    window.__JUCE__.backend.addEventListener("mixValue", () => {
+        fetch(Juce.getBackendResourceAddress("mix.json"))
+            .then((response) => response.text())
+            .then((mix) => {
+                const mixData = JSON.parse(mix);
+                const mixValue = mixData["mix"];
+                console.log("Mix Value", mixValue);
+            })
     });
 
     requestAnimationFrame(Animated.animate);
