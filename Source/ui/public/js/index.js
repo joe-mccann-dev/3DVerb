@@ -168,7 +168,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // FREEZE EVENT
     const coolBlue = new Animated.Color(Animated.coolBlue);
-    Animated.spheres.forEach((sphere, index) => {
+    Animated.spheres.forEach((sphere) => {
         if (!sphere.userData.color) {
             sphere.userData.color = sphere.material.color.clone();
         }
