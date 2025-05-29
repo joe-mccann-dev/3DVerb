@@ -131,6 +131,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
+
     function updateSliderDOMObjectAndSliderState(sliderDOMObject, sliderState, stepValue) {
         console.log("sliderDOMObject: ", sliderDOMObject);
         console.log("sliderState: ", sliderState);
@@ -196,20 +197,25 @@ document.addEventListener("DOMContentLoaded", () => {
             .then((mix) => {
                 const mixData = JSON.parse(mix);
                 const mixValue = mixData["mix"];
-                for (let i = 0; i < Animated.spheres.length - 1; ++i) {
+                Animated.spheres.slice(0, -1).forEach((sphere) => {
                     const scaleValue = Animated.sphereRadius + mixValue * 1.8;
-                    Animated.spheres[i].scale.set(scaleValue, scaleValue, scaleValue);
-                }
+                    sphere.scale.set(scaleValue, scaleValue, scaleValue);
+                });
             });
+    });
+
+    Animated.spheres.forEach((sphere) => {
+        sphere.userData.originalPosition = sphere.position.clone();
     });
 
     window.__JUCE__.backend.addEventListener("roomSizeValue", () => {
         fetch(Juce.getBackendResourceAddress("roomSize.json"))
-            .then((response) => response.text())
-            .then((roomSize) => {
-                const roomSizeData = JSON.parse(roomSize);
-                const roomSizeValue = roomSizeData["roomSize"];
-                console.log("roomSizeValue: ", roomSizeValue);
+            .then((response) => response.json())
+            .then((roomSizeData) => {
+                Animated.spheres.slice(0, -1).forEach((sphere) => {
+                    sphere.position.copy(sphere.userData.originalPosition);
+                    sphere.position.multiplyScalar(roomSizeData.roomSize);
+                });
             });
     });
 

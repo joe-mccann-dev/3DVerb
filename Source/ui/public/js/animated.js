@@ -191,4 +191,5 @@ export {
     lightYellow,
     spheres,
     sphereRadius,
+    Vector3,
 }
