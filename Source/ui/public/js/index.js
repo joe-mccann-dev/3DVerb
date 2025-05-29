@@ -162,15 +162,14 @@ document.addEventListener("DOMContentLoaded", () => {
                 const levelData = JSON.parse(outputLevel);
 
                 const signalStrength = levelData["left"];
-                const scaleFactor = signalStrength <= -60 ? 1 : (((signalStrength / 60) + 1) * 2);
+                const scaleFactor = signalStrength < -30 ? 1 : (((signalStrength / 60) + 1) * 2);
 
-                //Animated.sphere1.scale.set(scaleFactor, scaleFactor, scaleFactor);
-                //Animated.sphere2.scale.set(scaleFactor, scaleFactor, scaleFactor);
+                Animated.spheres[Animated.spheres.length - 1].scale.set(scaleFactor, scaleFactor, scaleFactor);
             });
     });
 
     const coolBlue = new Animated.Color(Animated.coolBlue);
-    Animated.spheres.forEach((sphere) => {
+    Animated.spheres.forEach((sphere, index) => {
         if (!sphere.userData.color) {
             sphere.userData.color = sphere.material.color.clone();
         }
