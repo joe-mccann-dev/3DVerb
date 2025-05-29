@@ -101,10 +101,10 @@ const lines = [
     addLineGeometry(5, 0, -4, 0, 0, 6),
 
     // lines connecting to bottom
-    addLineGeometry(-5, 0, -4, 0, 0, -4, lightYellow),
-    addLineGeometry(-5, 0, 4, 0, 0, -4, lightYellow),
-    addLineGeometry(5, 0, 4, 0, 0, -4, lightYellow),
-    addLineGeometry(5, 0, -4, 0, 0, -4  , lightYellow),
+    //addLineGeometry(-5, 0, -4, 0, 0, -4, lightYellow),
+    //addLineGeometry(-5, 0, 4, 0, 0, -4, lightYellow),
+    //addLineGeometry(5, 0, 4, 0, 0, -4, lightYellow),
+    //addLineGeometry(5, 0, -4, 0, 0, -4  , lightYellow),
 ]
 
 const planeGeometry = new PlaneGeometry(18, 18);
@@ -190,6 +190,7 @@ export {
     mediumAmber,
     lightYellow,
     spheres,
+    lines,
     sphereRadius,
     Vector3,
 }

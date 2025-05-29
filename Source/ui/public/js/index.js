@@ -203,6 +203,11 @@ document.addEventListener("DOMContentLoaded", () => {
         sphere.userData.originalPosition = sphere.position.clone();
     });
 
+    Animated.lines.forEach((line) => {
+        line.userData.originalScale = line.scale.clone();
+        line.userData.originalPosition = line.position.clone();
+    });
+
     // ROOM SIZE EVENT
     window.__JUCE__.backend.addEventListener("roomSizeValue", () => {
         fetch(Juce.getBackendResourceAddress("roomSize.json"))
@@ -211,6 +216,13 @@ document.addEventListener("DOMContentLoaded", () => {
                 Animated.spheres.slice(0, -1).forEach((sphere) => {
                     sphere.position.copy(sphere.userData.originalPosition);
                     sphere.position.multiplyScalar(roomSizeData.roomSize);
+                });
+
+                Animated.lines.forEach((line) => {
+                    line.position.copy(line.userData.originalPosition);
+                    line.scale.copy(line.userData.originalScale);
+                    line.position.multiplyScalar(roomSizeData.roomSize);
+                    line.scale.multiplyScalar(roomSizeData.roomSize);
                 });
             });
     });
