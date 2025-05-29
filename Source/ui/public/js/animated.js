@@ -72,7 +72,7 @@ scene.background = new Color(mediumDarkGray);
 
 const pmrem = new PMREMGenerator(renderer).fromScene(scene);
 
-const sphereRadius = 0.4;
+const sphereRadius = 0.25;
 const sphereWidthSegments = 8;
 const sphereHeightSegments = 10;
 const sphereGeometry = new SphereGeometry(sphereRadius, sphereWidthSegments, sphereHeightSegments);
@@ -81,33 +81,33 @@ const centerSphereGeometry = new SphereGeometry(centerSphereRadius, sphereWidthS
 
 
 const spheres = [
-    makeSphere(sphereGeometry, mediumIndigo, [-5, -4, 0]),
-    makeSphere(sphereGeometry, darkGray, [-5, 4, 0]),
-    makeSphere(sphereGeometry, mediumDarkAmber, [5, 4, 0]),
-    makeSphere(sphereGeometry, lightYellow, [5, -4, 0]),
+    makeSphere(sphereGeometry, mediumIndigo, [-6, -5, 0]),
+    makeSphere(sphereGeometry, darkGray, [-6, 5, 0]),
+    makeSphere(sphereGeometry, mediumDarkAmber, [6, 5, 0]),
+    makeSphere(sphereGeometry, lightYellow, [6, -5, 0]),
     makeSphere(centerSphereGeometry, lightIndigo, [0, 0, 0]),
 ];
 
 const lines = [
-    addLineGeometry(-5, 5, 4, 4, 0, 0, fuchsia600),
-    addLineGeometry(-5, -5, 4, -4, 0, 0, fuchsia600),
-    addLineGeometry(-5, 5, -4, -4, 0, 0, fuchsia600),
-    addLineGeometry(5, 5, -4, 4, 0, 0, fuchsia600),
+    addLineGeometry(-6, 6, 5, 5, 0, 0, fuchsia600),
+    addLineGeometry(-6, -6, 5, -5, 0, 0, fuchsia600),
+    addLineGeometry(-6, 6, -5, -5, 0, 0, fuchsia600),
+    addLineGeometry(6, 6, -5, 5, 0, 0, fuchsia600),
 
-    // lines connecting to center sphere
-    addLineGeometry(-5, 0, 4, 0, 0, 6),
-    addLineGeometry(5, 0, 4, 0, 0, 6),
-    addLineGeometry(-5, 0, -4, 0, 0, 6),
-    addLineGeometry(5, 0, -4, 0, 0, 6),
+    // lines connecting to center apex
+    addLineGeometry(-6, 0, 5, 0, 0, 7.4),
+    addLineGeometry(6, 0, 5, 0, 0, 7.4),
+    addLineGeometry(-6, 0, -5, 0, 0, 7.4),
+    addLineGeometry(6, 0, -5, 0, 0, 7.4),
 
     // lines connecting to bottom
-    //addLineGeometry(-5, 0, -4, 0, 0, -4, lightYellow),
-    //addLineGeometry(-5, 0, 4, 0, 0, -4, lightYellow),
-    //addLineGeometry(5, 0, 4, 0, 0, -4, lightYellow),
-    //addLineGeometry(5, 0, -4, 0, 0, -4  , lightYellow),
+    //addLineGeometry(-6, 0, -5, 0, 0, -5, lightYellow),
+    //addLineGeometry(-6, 0, 5, 0, 0, -5, lightYellow),
+    //addLineGeometry(6, 0, 5, 0, 0, -5, lightYellow),
+    //addLineGeometry(6, 0, -5, 0, 0, -5  , lightYellow),
 ]
 
-const planeGeometry = new PlaneGeometry(18, 18);
+const planeGeometry = new PlaneGeometry(19, 17.3);
 const planeMaterial = new MeshStandardMaterial({ color: 0x64748b });
 const plane = new Mesh(planeGeometry, planeMaterial);
 //plane.rotation.x = Math.PI / 6;
