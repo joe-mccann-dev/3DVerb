@@ -196,8 +196,11 @@ document.addEventListener("DOMContentLoaded", () => {
             .then((mix) => {
                 const mixData = JSON.parse(mix);
                 const mixValue = mixData["mix"];
-                console.log("Mix Value", mixValue);
-            })
+                for (let i = 0; i < Animated.spheres.length - 1; ++i) {
+                    const scaleValue = Animated.sphereRadius + mixValue * 1.4;
+                    Animated.spheres[i].scale.set(scaleValue, scaleValue, scaleValue);
+                }
+            });
     });
 
     requestAnimationFrame(Animated.animate);

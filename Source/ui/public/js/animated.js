@@ -63,7 +63,7 @@ const sphereRadius = 0.4;
 const sphereWidthSegments = 8;
 const sphereHeightSegments = 10;
 const sphereGeometry = new SphereGeometry(sphereRadius, sphereWidthSegments, sphereHeightSegments);
-const centerSphereRadius = 0.8;
+const centerSphereRadius = 0.6;
 const centerSphereGeometry = new SphereGeometry(centerSphereRadius, sphereWidthSegments, sphereHeightSegments);
 
 
@@ -163,4 +163,5 @@ export {
     mediumAmber,
     lightYellow,
     spheres,
+    sphereRadius,
 }
