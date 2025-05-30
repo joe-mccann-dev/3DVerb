@@ -49,7 +49,7 @@ const height = canvas.height;
 const aspect = width / height;
 const camera = new PerspectiveCamera(50, aspect, 0.1, 32);
 
-camera.position.set(0, -12, 12); 
+camera.position.set(0.8, -13, 11.5); 
 camera.lookAt(new Vector3(0, 0, 0));
 
 const light = new DirectionalLight(0xffffed, 3);
@@ -113,7 +113,7 @@ const plane = new Mesh(planeGeometry, planeMaterial);
 //plane.rotation.x = Math.PI / 6;
 plane.position.y = 6; 
 plane.position.z = -6;
-plane.position.x = 0;
+plane.position.x = -0.2;
 plane.receiveShadow = true;
 scene.add(plane);
 

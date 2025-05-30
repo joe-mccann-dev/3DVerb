@@ -85,7 +85,7 @@ namespace webview_plugin
         .withResourceProvider([this](const auto& url) {return getResource(url); },
                               juce::URL{LOCAL_VITE_SERVER}.getOrigin())
         .withNativeIntegrationEnabled()
-        .withUserScript(R"(console.log("C++ backend here: This is run before any other loading happens.");)")
+        //.withUserScript(R"(console.log("C++ backend here: This is run before any other loading happens.");)")
         .withInitialisationData("pluginVendor", ProjectInfo::companyName)
         .withInitialisationData("pluginName", ProjectInfo::projectName)
         .withInitialisationData("pluginVersion", ProjectInfo::versionString)

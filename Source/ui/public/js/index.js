@@ -1,13 +1,6 @@
 import * as Juce from "./juce/index.js";
 import * as Animated from "./animated.js";
 
-window.__JUCE__.backend.addEventListener(
-    "exampleEvent",
-    (objectFromCppBackend) => {
-        console.log(objectFromCppBackend);
-    }
-);
-
 const data = window.__JUCE__.initialisationData;
 
 document.getElementById("pluginVendor").textContent = "by " + data.pluginVendor;
@@ -41,12 +34,6 @@ const freezeCheckbox = document.getElementById("freezeCheckbox");
 const freezeToggleState = Juce.getSliderState("FREEZE");
 
 const undoRedoCtrl = Juce.getNativeFunction("webUndoRedo");
-
-//fetch(Juce.getBackendResourceAddress("data.json"))
-//    .then(response => response.text())
-//    .then((textFromBackend) => {
-//        console.log(textFromBackend);
-//});
 
 document.addEventListener("DOMContentLoaded", () => {
     document.addEventListener('keydown', (event) => {
@@ -131,10 +118,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-
     function updateSliderDOMObjectAndSliderState(sliderDOMObject, sliderState, stepValue) {
-        console.log("sliderDOMObject: ", sliderDOMObject);
-        console.log("sliderState: ", sliderState);
         sliderDOMObject.min = sliderState.properties.start;
         sliderDOMObject.max = sliderState.properties.end;
         sliderDOMObject.step = stepValue;
@@ -156,6 +140,56 @@ document.addEventListener("DOMContentLoaded", () => {
         valueElement.textContent = value;
     }
 
+    //https://www.freecodecamp.org/news/throttling-in-javascript/
+    function throttle(func, delay) {
+        let timeout = null;
+        return (...args) => {
+            if (!timeout) {
+                func(...args);
+                timeout = setTimeout(() => {
+                    timeout = null;
+                }, delay);
+            }
+        }
+    }
+
+    const mixThrottleHandler = throttle((mixValue) => {
+        Animated.spheres.slice(0, -1).forEach((sphere) => {
+            const scale = Animated.sphereRadius + mixValue;
+            sphere.scale.set(scale, scale, scale);
+        });
+    }, 100);
+
+    const roomSizeThrottleHandler = throttle((roomSizeValue) => {
+        const min = 0.4;
+        const scale = min + (1 - min) * roomSizeValue;
+        Animated.spheres.slice(0, -1).forEach((sphere) => {
+            sphere.position.copy(sphere.userData.originalPosition);
+            sphere.position.multiplyScalar(scale);
+        });
+
+        Animated.lines.forEach((line) => {
+            line.position.copy(line.userData.originalPosition);
+            line.scale.copy(line.userData.originalScale);
+            line.position.multiplyScalar(scale);
+            line.scale.multiplyScalar(scale);
+        });
+
+        Animated.plane.scale.copy(Animated.plane.userData.originalScale);
+        Animated.plane.scale.set(scale, scale, scale);
+    }, 100);
+
+    const coolBlue = new Animated.Color(Animated.coolBlue);
+    const freezeThrottleHandler = throttle((frozen) => {
+        Animated.spheres.forEach((sphere) => {
+            if (frozen) {
+                sphere.material.color.copy(coolBlue);
+            } else {
+                sphere.material.color.copy(sphere.userData.color);
+            }
+        });
+    }, 200);
+
     // OUTPUT LEVEL EVENT
     window.__JUCE__.backend.addEventListener("outputLevel", () => {
         fetch(Juce.getBackendResourceAddress("outputLevel.json"))
@@ -163,11 +197,11 @@ document.addEventListener("DOMContentLoaded", () => {
             .then((outputLevelData) => {
                 const scaleFactor = outputLevelData.left < -30 ? 1 : ((outputLevelData.left / 60) + 1) * 2.5;
                 Animated.spheres[Animated.spheres.length - 1].scale.set(scaleFactor, scaleFactor, scaleFactor);
-            });
+            })
+            .catch(console.error);
     });
 
     // FREEZE EVENT
-    const coolBlue = new Animated.Color(Animated.coolBlue);
     Animated.spheres.forEach((sphere) => {
         if (!sphere.userData.color) {
             sphere.userData.color = sphere.material.color.clone();
@@ -177,14 +211,9 @@ document.addEventListener("DOMContentLoaded", () => {
         fetch(Juce.getBackendResourceAddress("freeze.json"))
             .then((response) => response.json())
             .then((freezeData) => {
-                Animated.spheres.forEach((sphere) => {
-                    if (freezeData.freeze) {
-                        sphere.material.color.copy(coolBlue);
-                    } else {
-                        sphere.material.color.copy(sphere.userData.color);
-                    }
-                });
-            });
+                freezeThrottleHandler(freezeData.freeze);
+            })
+            .catch(console.error);
     });
 
     // MIX EVENT
@@ -192,11 +221,10 @@ document.addEventListener("DOMContentLoaded", () => {
         fetch(Juce.getBackendResourceAddress("mix.json"))
             .then((response) => response.json())
             .then((mixData) => {
-                Animated.spheres.slice(0, -1).forEach((sphere) => {
-                    const scaleValue = Animated.sphereRadius + mixData.mix;
-                    sphere.scale.set(scaleValue, scaleValue, scaleValue);
-                });
-            });
+                mixThrottleHandler(mixData.mix);
+            })
+            .catch(console.error);
+            
     });
 
     // ROOM SIZE EVENT
@@ -213,23 +241,9 @@ document.addEventListener("DOMContentLoaded", () => {
         fetch(Juce.getBackendResourceAddress("roomSize.json"))
             .then((response) => response.json())
             .then((roomSizeData) => {
-                const min = 0.4;
-                const scale = min + (1 - min) * roomSizeData.roomSize;
-                Animated.spheres.slice(0, -1).forEach((sphere) => {
-                    sphere.position.copy(sphere.userData.originalPosition);
-                    sphere.position.multiplyScalar(scale);
-                });
-
-                Animated.lines.forEach((line) => {
-                    line.position.copy(line.userData.originalPosition);
-                    line.scale.copy(line.userData.originalScale);
-                    line.position.multiplyScalar(scale);
-                    line.scale.multiplyScalar(scale);
-                });
-
-                Animated.plane.scale.copy(Animated.plane.userData.originalScale);
-                Animated.plane.scale.set(scale, scale, scale);
-            });
+                roomSizeThrottleHandler(roomSizeData.roomSize);
+            })
+            .catch(console.error);
     });
 
     requestAnimationFrame(Animated.animate);
