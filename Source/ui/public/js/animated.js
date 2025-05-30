@@ -72,7 +72,7 @@ scene.background = new Color(mediumDarkGray);
 
 const pmrem = new PMREMGenerator(renderer).fromScene(scene);
 
-const sphereRadius = 0.25;
+const sphereRadius = 0.42;
 const sphereWidthSegments = 8;
 const sphereHeightSegments = 10;
 const sphereGeometry = new SphereGeometry(sphereRadius, sphereWidthSegments, sphereHeightSegments);
@@ -107,7 +107,7 @@ const lines = [
     //addLineGeometry(6, 0, -5, 0, 0, -5  , lightYellow),
 ]
 
-const planeGeometry = new PlaneGeometry(19, 17.3);
+const planeGeometry = new PlaneGeometry(19, 17.3, 2, 2);
 const planeMaterial = new MeshStandardMaterial({ color: 0x64748b });
 const plane = new Mesh(planeGeometry, planeMaterial);
 //plane.rotation.x = Math.PI / 6;
@@ -191,6 +191,7 @@ export {
     lightYellow,
     spheres,
     lines,
+    plane,
     sphereRadius,
     Vector3,
 }

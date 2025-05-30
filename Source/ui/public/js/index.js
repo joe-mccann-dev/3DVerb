@@ -193,37 +193,42 @@ document.addEventListener("DOMContentLoaded", () => {
             .then((response) => response.json())
             .then((mixData) => {
                 Animated.spheres.slice(0, -1).forEach((sphere) => {
-                    const scaleValue = Animated.sphereRadius + mixData.mix * 1.8;
+                    const scaleValue = Animated.sphereRadius + mixData.mix;
                     sphere.scale.set(scaleValue, scaleValue, scaleValue);
                 });
             });
     });
 
+    // ROOM SIZE EVENT
     Animated.spheres.forEach((sphere) => {
         sphere.userData.originalPosition = sphere.position.clone();
     });
-
     Animated.lines.forEach((line) => {
         line.userData.originalScale = line.scale.clone();
         line.userData.originalPosition = line.position.clone();
     });
+    Animated.plane.userData.originalScale = Animated.plane.scale.clone();
 
-    // ROOM SIZE EVENT
     window.__JUCE__.backend.addEventListener("roomSizeValue", () => {
         fetch(Juce.getBackendResourceAddress("roomSize.json"))
             .then((response) => response.json())
             .then((roomSizeData) => {
+                const min = 0.4;
+                const scale = min + (1 - min) * roomSizeData.roomSize;
                 Animated.spheres.slice(0, -1).forEach((sphere) => {
                     sphere.position.copy(sphere.userData.originalPosition);
-                    sphere.position.multiplyScalar(roomSizeData.roomSize);
+                    sphere.position.multiplyScalar(scale);
                 });
 
                 Animated.lines.forEach((line) => {
                     line.position.copy(line.userData.originalPosition);
                     line.scale.copy(line.userData.originalScale);
-                    line.position.multiplyScalar(roomSizeData.roomSize);
-                    line.scale.multiplyScalar(roomSizeData.roomSize);
+                    line.position.multiplyScalar(scale);
+                    line.scale.multiplyScalar(scale);
                 });
+
+                Animated.plane.scale.copy(Animated.plane.userData.originalScale);
+                Animated.plane.scale.set(scale, scale, scale);
             });
     });
 
