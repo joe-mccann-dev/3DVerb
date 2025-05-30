@@ -13,7 +13,7 @@ import {
     PlaneGeometry,
     PCFSoftShadowMap,
     Mesh,
-    PMREMGenerator,
+    CubeTextureLoader,
 } from 'three';
 
 import * as UI from './index.js';
@@ -35,6 +35,16 @@ const fuchsia600 = 0xc026d3;
 const scene = new Scene();
 const renderer = new WebGLRenderer({ antialias: true });
 
+const cubeTextureLoader = new CubeTextureLoader()
+const environmentMap = cubeTextureLoader.load([
+    '../assets/environment_map/px.png',
+    '../assets/environment_map/nx.png',
+    '../assets/environment_map/py.png',
+    '../assets/environment_map/ny.png',
+    '../assets/environment_map/pz.png',
+    '../assets/environment_map/nz.png'
+])
+
 const visualizer = document.getElementById("visualizer");
 const visualizerStyle = getComputedStyle(visualizer);
 
@@ -47,12 +57,12 @@ visualizer.appendChild(canvas);
 const width = canvas.width;
 const height = canvas.height;
 const aspect = width / height;
-const camera = new PerspectiveCamera(50, aspect, 0.1, 32);
+const camera = new PerspectiveCamera(60, aspect, 0.1, 50);
 
-camera.position.set(0.8, -13, 11.5); 
+camera.position.set(0.8, -14.5, 11.5); 
 camera.lookAt(new Vector3(0, 0, 0));
 
-const light = new DirectionalLight(0xffffed, 3);
+const light = new DirectionalLight(0xffffed, 1);
 light.position.set(0, -14, 16);
 light.castShadow = true;
 
@@ -67,10 +77,9 @@ light.shadow.mapSize.height = 2048;
 scene.add(light);
 
 const ambientLight = new AmbientLight(0xffffed, 0.8);
-scene.add(ambientLight);
-scene.background = new Color(mediumDarkGray);
+//scene.add(ambientLight);
 
-const pmrem = new PMREMGenerator(renderer).fromScene(scene);
+scene.background = environmentMap;
 
 const sphereRadius = 0.42;
 const sphereWidthSegments = 8;
@@ -108,7 +117,7 @@ const lines = [
 ]
 
 const planeGeometry = new PlaneGeometry(19, 17.3, 2, 2);
-const planeMaterial = new MeshStandardMaterial({ color: 0x64748b });
+const planeMaterial = new MeshStandardMaterial({ color: 0x64748b, envMap: environmentMap });
 const plane = new Mesh(planeGeometry, planeMaterial);
 //plane.rotation.x = Math.PI / 6;
 plane.position.y = 6; 
@@ -118,7 +127,7 @@ plane.receiveShadow = true;
 scene.add(plane);
 
 function makeSphere(geometry, color, positions) {
-    const material = new MeshStandardMaterial({ color: color, envMap: pmrem });
+    const material = new MeshStandardMaterial({ color: color, envMap: environmentMap });
 
     const sphere = new Mesh(geometry, material);
     scene.add(sphere);
@@ -143,7 +152,8 @@ function addLineGeometry(src_x, dest_x, src_y, dest_y, src_z, dest_z, color = li
 
     const material = new MeshStandardMaterial({
         color: color,
-        wireframe: true
+        wireframe: true,
+        envMap: environmentMap,
     });
 
     const mesh = new Mesh(geometry, material);

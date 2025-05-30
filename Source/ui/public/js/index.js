@@ -195,7 +195,7 @@ document.addEventListener("DOMContentLoaded", () => {
         fetch(Juce.getBackendResourceAddress("outputLevel.json"))
             .then((response) => response.json())
             .then((outputLevelData) => {
-                const scaleFactor = outputLevelData.left < -30 ? 1 : ((outputLevelData.left / 60) + 1) * 2.5;
+                const scaleFactor = outputLevelData.left < -30 ? 1 : ((outputLevelData.left / 60) + 1) * 3.0;
                 Animated.spheres[Animated.spheres.length - 1].scale.set(scaleFactor, scaleFactor, scaleFactor);
             })
             .catch(console.error);
