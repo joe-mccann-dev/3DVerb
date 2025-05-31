@@ -20,6 +20,10 @@ import * as UI from './index.js';
 
 // COLORS
 const lightIndigo = 0xBFDBFE;
+const cloud = 0xb9b9c3;
+const deepSkyBlue = 0x3b3a60;
+const mediumSkyBlue = 0x4a4a85;
+const cloudBlue = 0xc1c0cb;
 const mediumIndigo = 0x6366F1;
 const darkIndigo = 0x3730A3;
 const mediumDarkGray = 0x374151;
@@ -37,12 +41,12 @@ const renderer = new WebGLRenderer({ antialias: true });
 
 const cubeTextureLoader = new CubeTextureLoader()
 const environmentMap = cubeTextureLoader.load([
-    '../assets/environment_map/px.png',
-    '../assets/environment_map/nx.png',
-    '../assets/environment_map/py.png',
-    '../assets/environment_map/ny.png',
-    '../assets/environment_map/pz.png',
-    '../assets/environment_map/nz.png'
+    '../assets/environment_map/sunset/px.png',
+    '../assets/environment_map/sunset/nx.png',
+    '../assets/environment_map/sunset/py.png',
+    '../assets/environment_map/sunset/ny.png',
+    '../assets/environment_map/sunset/pz.png',
+    '../assets/environment_map/sunset/nz.png'
 ])
 
 const visualizer = document.getElementById("visualizer");
@@ -94,7 +98,7 @@ const spheres = [
     makeSphere(sphereGeometry, darkGray, [-6, 5, 0]),
     makeSphere(sphereGeometry, mediumDarkAmber, [6, 5, 0]),
     makeSphere(sphereGeometry, lightYellow, [6, -5, 0]),
-    makeSphere(centerSphereGeometry, lightIndigo, [0, 0, 0]),
+    makeSphere(centerSphereGeometry, cloudBlue, [0, 0, 0]),
 ];
 
 const lines = [
@@ -110,14 +114,14 @@ const lines = [
     addLineGeometry(6, 0, -5, 0, 0, 7.4),
 
     // lines connecting to bottom
-    //addLineGeometry(-6, 0, -5, 0, 0, -5, lightYellow),
-    //addLineGeometry(-6, 0, 5, 0, 0, -5, lightYellow),
-    //addLineGeometry(6, 0, 5, 0, 0, -5, lightYellow),
-    //addLineGeometry(6, 0, -5, 0, 0, -5  , lightYellow),
+    addLineGeometry(-6, 0, -5, 0, 0, -5, lightYellow),
+    addLineGeometry(-6, 0, 5, 0, 0, -5, lightYellow),
+    addLineGeometry(6, 0, 5, 0, 0, -5, lightYellow),
+    addLineGeometry(6, 0, -5, 0, 0, -5  , lightYellow),
 ]
 
 const planeGeometry = new PlaneGeometry(19, 17.3, 2, 2);
-const planeMaterial = new MeshStandardMaterial({ color: 0x64748b, envMap: environmentMap });
+const planeMaterial = new MeshStandardMaterial({ color: deepSkyBlue, envMap: environmentMap });
 const plane = new Mesh(planeGeometry, planeMaterial);
 //plane.rotation.x = Math.PI / 6;
 plane.position.y = 6; 
