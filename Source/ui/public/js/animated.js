@@ -41,12 +41,12 @@ const renderer = new WebGLRenderer({ antialias: true });
 
 const cubeTextureLoader = new CubeTextureLoader()
 const environmentMap = cubeTextureLoader.load([
-    '../assets/environment_map/sunset/px.png',
-    '../assets/environment_map/sunset/nx.png',
-    '../assets/environment_map/sunset/py.png',
-    '../assets/environment_map/sunset/ny.png',
-    '../assets/environment_map/sunset/pz.png',
-    '../assets/environment_map/sunset/nz.png'
+    '../assets/environment_map/mountain/px.png',
+    '../assets/environment_map/mountain/nx.png',
+    '../assets/environment_map/mountain/py.png',
+    '../assets/environment_map/mountain/ny.png',
+    '../assets/environment_map/mountain/pz.png',
+    '../assets/environment_map/mountain/nz.png'
 ])
 
 const visualizer = document.getElementById("visualizer");
@@ -61,13 +61,13 @@ visualizer.appendChild(canvas);
 const width = canvas.width;
 const height = canvas.height;
 const aspect = width / height;
-const camera = new PerspectiveCamera(60, aspect, 0.1, 50);
+const camera = new PerspectiveCamera(100, aspect, 0.1, 70);
 
-camera.position.set(0.8, -14.5, 11.5); 
-camera.lookAt(new Vector3(0, 0, 0));
+camera.position.set(-95, -100, 100);
+camera.lookAt(new Vector3(-55, -12, -100));
 
-const light = new DirectionalLight(0xffffed, 1);
-light.position.set(0, -14, 16);
+const light = new DirectionalLight(0xffffed, 0.5);
+light.position.set(-2, 4, -20);
 light.castShadow = true;
 
 light.shadow.camera.left = -10;
@@ -75,13 +75,13 @@ light.shadow.camera.right = 10;
 light.shadow.camera.top = 10;
 light.shadow.camera.bottom = -10;
 light.shadow.camera.near = 1;
-light.shadow.camera.far = 50;
+light.shadow.camera.far = 70;
 light.shadow.mapSize.width = 2048;
 light.shadow.mapSize.height = 2048;
-scene.add(light);
+//scene.add(light);
 
-const ambientLight = new AmbientLight(0xffffed, 0.8);
-//scene.add(ambientLight);
+const ambientLight = new AmbientLight(0xf5f5e7, 0.8);
+scene.add(ambientLight);
 
 scene.background = environmentMap;
 
@@ -128,7 +128,7 @@ plane.position.y = 6;
 plane.position.z = -6;
 plane.position.x = -0.2;
 plane.receiveShadow = true;
-scene.add(plane);
+//scene.add(plane);
 
 function makeSphere(geometry, color, positions) {
     const material = new MeshStandardMaterial({ color: color, envMap: environmentMap });
