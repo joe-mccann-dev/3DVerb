@@ -97,27 +97,27 @@ const centerSphereGeometry = new SphereGeometry(centerSphereRadius, sphereWidthS
 //camera.lookAt(new Vector3(-55, -12, -100));
 const spheres = [
     // left
-    makeSphere(sphereGeometry, mediumIndigo, [-50, 0, 150]),
-    makeSphere(sphereGeometry, darkGray, [-50, 100, 150]),
+    makeSphere(sphereGeometry, lightIndigo, [-50, -10, 150]),
+    makeSphere(sphereGeometry, mediumIndigo, [-50, -10, -50]),
     //right
-    makeSphere(sphereGeometry, mediumDarkAmber, [150, 0, 150]),
-    makeSphere(sphereGeometry, lightYellow, [150, 100, 150]),
+    makeSphere(sphereGeometry, mediumDarkAmber, [150, -10, 150]),
+    makeSphere(sphereGeometry, lightYellow, [150, -10, -50]),
     // center
-    makeSphere(centerSphereGeometry, cloudBlue, [50, 50, 0]),
+    makeSphere(centerSphereGeometry, cloudBlue, [50, 200, 0]),
     
 ];
 
 const lines = [
-    addLineGeometry(-50, 150, 100, 100, 150, 150, fuchsia600),
-    addLineGeometry(-50, -50, 0, 100, 150, 150, fuchsia600),
-    addLineGeometry(-50, 150, 0, 0, 150, 150, fuchsia600),
-    addLineGeometry(150, 150, 100, 0, 150, 150, fuchsia600),
+    addLineGeometry(-50, 150, -10, -10, -50, -50, fuchsia600),
+    addLineGeometry(-50, -50, -10, -10, 150, -50, fuchsia600),
+    addLineGeometry(-50, 150, -10, -10, 150, 150, fuchsia600),
+    addLineGeometry(150, 150, -10, -10, 150, -50, fuchsia600),
 
     // lines connecting to center apex
-    addLineGeometry(-50, 50, 100, 50, 150, 50),
-    addLineGeometry(-50, 50, 0, 50, 150, 50),
-    addLineGeometry(150, 50, 0, 50, 150, 50),
-    addLineGeometry(150, 50, 100, 50, 150, 50),
+    //addLineGeometry(-50, 50, 100, 50, 150, 50),
+    //addLineGeometry(-50, 50, 0, 50, 150, 50),
+    //addLineGeometry(150, 50, 0, 50, 150, 50),
+    //addLineGeometry(150, 50, 100, 50, 150, 50),
 
     // lines connecting to bottom
     //addLineGeometry(-6, 0, -5, 0, 0, -5, lightYellow),
