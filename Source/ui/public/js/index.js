@@ -154,7 +154,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     const mixThrottleHandler = throttle((mixValue) => {
-        Animated.spheres.slice(0, -1).forEach((sphere) => {
+        Animated.spheres.forEach((sphere) => {
             const scale = Animated.sphereRadius + mixValue;
             sphere.scale.set(scale, scale, scale);
         });
@@ -163,7 +163,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const roomSizeThrottleHandler = throttle((roomSizeValue) => {
         const min = 0.4;
         const scale = min + (1 - min) * roomSizeValue;
-        Animated.spheres.slice(0, -1).forEach((sphere) => {
+        Animated.spheres.forEach((sphere) => {
             sphere.position.copy(sphere.userData.originalPosition);
             sphere.position.multiplyScalar(scale);
         });
@@ -196,7 +196,7 @@ document.addEventListener("DOMContentLoaded", () => {
             .then((response) => response.json())
             .then((outputLevelData) => {
                 const scaleFactor = outputLevelData.left < -30 ? 1 : ((outputLevelData.left / 60) + 1) * 3.0;
-                Animated.spheres[Animated.spheres.length - 1].scale.set(scaleFactor, scaleFactor, scaleFactor);
+                //Animated.spheres[Animated.spheres.length - 1].scale.set(scaleFactor, scaleFactor, scaleFactor);
             })
             .catch(console.error);
     });

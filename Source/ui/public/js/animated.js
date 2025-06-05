@@ -61,10 +61,10 @@ visualizer.appendChild(canvas);
 const width = canvas.width;
 const height = canvas.height;
 const aspect = width / height;
-const camera = new PerspectiveCamera(100, aspect, 0.1, 70);
+const camera = new PerspectiveCamera(70, aspect, 0.1, 400);
 
-camera.position.set(-95, -100, 100);
-camera.lookAt(new Vector3(-55, -12, -100));
+camera.position.set(60, 50, 320);
+camera.lookAt(new Vector3(50, 50, -50));
 
 const light = new DirectionalLight(0xffffed, 0.5);
 light.position.set(-2, 4, -20);
@@ -81,43 +81,49 @@ light.shadow.mapSize.height = 2048;
 //scene.add(light);
 
 const ambientLight = new AmbientLight(0xf5f5e7, 0.8);
-scene.add(ambientLight);
+//scene.add(ambientLight);
 
 scene.background = environmentMap;
 
-const sphereRadius = 0.42;
-const sphereWidthSegments = 8;
-const sphereHeightSegments = 10;
+const sphereRadius = 3.2;
+const sphereWidthSegments = 16;
+const sphereHeightSegments = 24;
 const sphereGeometry = new SphereGeometry(sphereRadius, sphereWidthSegments, sphereHeightSegments);
-const centerSphereRadius = 0.6;
+const centerSphereRadius = 3.4;
 const centerSphereGeometry = new SphereGeometry(centerSphereRadius, sphereWidthSegments, sphereHeightSegments);
 
 
+//camera.position.set(-95, -100, 100);
+//camera.lookAt(new Vector3(-55, -12, -100));
 const spheres = [
-    makeSphere(sphereGeometry, mediumIndigo, [-6, -5, 0]),
-    makeSphere(sphereGeometry, darkGray, [-6, 5, 0]),
-    makeSphere(sphereGeometry, mediumDarkAmber, [6, 5, 0]),
-    makeSphere(sphereGeometry, lightYellow, [6, -5, 0]),
-    makeSphere(centerSphereGeometry, cloudBlue, [0, 0, 0]),
+    // left
+    makeSphere(sphereGeometry, mediumIndigo, [-50, 0, 150]),
+    makeSphere(sphereGeometry, darkGray, [-50, 100, 150]),
+    //right
+    makeSphere(sphereGeometry, mediumDarkAmber, [150, 0, 150]),
+    makeSphere(sphereGeometry, lightYellow, [150, 100, 150]),
+    // center
+    makeSphere(centerSphereGeometry, cloudBlue, [50, 50, 0]),
+    
 ];
 
 const lines = [
-    addLineGeometry(-6, 6, 5, 5, 0, 0, fuchsia600),
-    addLineGeometry(-6, -6, 5, -5, 0, 0, fuchsia600),
-    addLineGeometry(-6, 6, -5, -5, 0, 0, fuchsia600),
-    addLineGeometry(6, 6, -5, 5, 0, 0, fuchsia600),
+    addLineGeometry(-50, 150, 100, 100, 150, 150, fuchsia600),
+    addLineGeometry(-50, -50, 0, 100, 150, 150, fuchsia600),
+    addLineGeometry(-50, 150, 0, 0, 150, 150, fuchsia600),
+    addLineGeometry(150, 150, 100, 0, 150, 150, fuchsia600),
 
     // lines connecting to center apex
-    addLineGeometry(-6, 0, 5, 0, 0, 7.4),
-    addLineGeometry(6, 0, 5, 0, 0, 7.4),
-    addLineGeometry(-6, 0, -5, 0, 0, 7.4),
-    addLineGeometry(6, 0, -5, 0, 0, 7.4),
+    addLineGeometry(-50, 50, 100, 50, 150, 50),
+    addLineGeometry(-50, 50, 0, 50, 150, 50),
+    addLineGeometry(150, 50, 0, 50, 150, 50),
+    addLineGeometry(150, 50, 100, 50, 150, 50),
 
     // lines connecting to bottom
-    addLineGeometry(-6, 0, -5, 0, 0, -5, lightYellow),
-    addLineGeometry(-6, 0, 5, 0, 0, -5, lightYellow),
-    addLineGeometry(6, 0, 5, 0, 0, -5, lightYellow),
-    addLineGeometry(6, 0, -5, 0, 0, -5  , lightYellow),
+    //addLineGeometry(-6, 0, -5, 0, 0, -5, lightYellow),
+    //addLineGeometry(-6, 0, 5, 0, 0, -5, lightYellow),
+    //addLineGeometry(6, 0, 5, 0, 0, -5, lightYellow),
+    //addLineGeometry(6, 0, -5, 0, 0, -5  , lightYellow),
 ]
 
 const planeGeometry = new PlaneGeometry(19, 17.3, 2, 2);
