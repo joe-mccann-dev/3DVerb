@@ -161,7 +161,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }, 100);
 
     const roomSizeThrottleHandler = throttle((roomSizeValue) => {
-        const min = 0.4;
+        const min = 0.5;
         const scale = min + (1 - min) * roomSizeValue;
         Animated.spheres.forEach((sphere) => {
             sphere.position.copy(sphere.userData.originalPosition);
@@ -176,7 +176,10 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         Animated.plane.scale.copy(Animated.plane.userData.originalScale);
-        Animated.plane.scale.set(scale, scale, scale);
+        Animated.plane.scale.multiplyScalar(scale);
+
+        Animated.plane.position.copy(Animated.plane.userData.originalPosition);
+        Animated.plane.position.multiplyScalar(scale)
     }, 100);
 
     const coolBlue = new Animated.Color(Animated.coolBlue);
@@ -236,6 +239,7 @@ document.addEventListener("DOMContentLoaded", () => {
         line.userData.originalPosition = line.position.clone();
     });
     Animated.plane.userData.originalScale = Animated.plane.scale.clone();
+    Animated.plane.userData.originalPosition = Animated.plane.position.clone();
 
     window.__JUCE__.backend.addEventListener("roomSizeValue", () => {
         fetch(Juce.getBackendResourceAddress("roomSize.json"))

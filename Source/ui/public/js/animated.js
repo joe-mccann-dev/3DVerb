@@ -61,10 +61,10 @@ visualizer.appendChild(canvas);
 const width = canvas.width;
 const height = canvas.height;
 const aspect = width / height;
-const camera = new PerspectiveCamera(70, aspect, 0.1, 400);
+const camera = new PerspectiveCamera(75, aspect, 0.1, 400);
 
-camera.position.set(60, 50, 320);
-camera.lookAt(new Vector3(50, 50, -50));
+camera.position.set(50, 80, 320);
+//camera.lookAt(new Vector3(50, 50, -50));
 
 const light = new DirectionalLight(0xffffed, 0.5);
 light.position.set(-2, 4, -20);
@@ -128,15 +128,17 @@ const lines = [
     //addLineGeometry(6, 0, -5, 0, 0, -5  , lightYellow),
 ]
 
-const planeGeometry = new PlaneGeometry(19, 17.3, 2, 2);
-const planeMaterial = new MeshStandardMaterial({ color: deepSkyBlue, envMap: environmentMap });
+const planeGeometry = new PlaneGeometry(198, 198, 1, 1);
+const planeMaterial = new MeshStandardMaterial({ color: fuchsia600, envMap: environmentMap });
 const plane = new Mesh(planeGeometry, planeMaterial);
-//plane.rotation.x = Math.PI / 6;
-plane.position.y = 6; 
-plane.position.z = -6;
-plane.position.x = -0.2;
+plane.rotation.x = -Math.PI / 2;
+plane.position.x = 50;
+plane.position.y = -10; 
+plane.position.z = 50;
+
+plane.castShadow = true;
 plane.receiveShadow = true;
-//scene.add(plane);
+scene.add(plane);
 
 function makeSphere(geometry, color, positions) {
     const material = new MeshStandardMaterial({ color: color, envMap: environmentMap });
