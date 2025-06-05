@@ -97,27 +97,29 @@ const centerSphereGeometry = new SphereGeometry(centerSphereRadius, sphereWidthS
 //camera.lookAt(new Vector3(-55, -12, -100));
 const spheres = [
     // left
-    makeSphere(sphereGeometry, lightIndigo, [-50, -10, 150]),
+    makeSphere(sphereGeometry, fuchsia600, [-50, -10, 150]),
     makeSphere(sphereGeometry, mediumIndigo, [-50, -10, -50]),
     //right
     makeSphere(sphereGeometry, mediumDarkAmber, [150, -10, 150]),
     makeSphere(sphereGeometry, lightYellow, [150, -10, -50]),
+    // pinnacle
+    makeSphere(sphereGeometry, cloudBlue, [50, 200, 0]),
     // center
-    makeSphere(centerSphereGeometry, cloudBlue, [50, 200, 0]),
+    makeSphere(centerSphereGeometry, mediumDarkGray, [50, 50, 50])
     
 ];
 
 const lines = [
-    addLineGeometry(-50, 150, -10, -10, -50, -50, fuchsia600),
-    addLineGeometry(-50, -50, -10, -10, 150, -50, fuchsia600),
-    addLineGeometry(-50, 150, -10, -10, 150, 150, fuchsia600),
-    addLineGeometry(150, 150, -10, -10, 150, -50, fuchsia600),
+    addLineGeometry(-50, 150, -10, -10, -50, -50),
+    addLineGeometry(-50, -50, -10, -10, 150, -50),
+    addLineGeometry(-50, 150, -10, -10, 150, 150),
+    addLineGeometry(150, 150, -10, -10, 150, -50),
 
     // lines connecting to center apex
-    //addLineGeometry(-50, 50, 100, 50, 150, 50),
-    //addLineGeometry(-50, 50, 0, 50, 150, 50),
-    //addLineGeometry(150, 50, 0, 50, 150, 50),
-    //addLineGeometry(150, 50, 100, 50, 150, 50),
+    addLineGeometry(-50, 50, -10, 200, -50, 0),
+    addLineGeometry(-50, 50, -10, 200, 150, 0),
+    addLineGeometry(150, 50, -10, 200, -50, 0),
+    addLineGeometry(150, 50, -10, 200, 150, 0),
 
     // lines connecting to bottom
     //addLineGeometry(-6, 0, -5, 0, 0, -5, lightYellow),
@@ -158,7 +160,7 @@ function addLineGeometry(src_x, dest_x, src_y, dest_y, src_z, dest_z, color = li
     );
 
     // use box geometry as a line so lines react to light
-    const geometry = new BoxGeometry(0.02, 0.02, distance);
+    const geometry = new BoxGeometry(0.5, 0.5, distance);
 
     const material = new MeshStandardMaterial({
         color: color,
