@@ -153,11 +153,6 @@ const lines = [
     addLineGeometry(-50, -50, 200, 200, -50, 150),
     addLineGeometry(150, 150, 200, 200, -50, 150),
 
-    // lines connecting to bottom
-    //addLineGeometry(-6, 0, -5, 0, 0, -5, lightYellow),
-    //addLineGeometry(-6, 0, 5, 0, 0, -5, lightYellow),
-    //addLineGeometry(6, 0, 5, 0, 0, -5, lightYellow),
-    //addLineGeometry(6, 0, -5, 0, 0, -5  , lightYellow),
 ]
 
 const planeGeometry = new PlaneGeometry(198, 198, 4, 4);
