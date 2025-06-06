@@ -161,7 +161,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }, 100);
 
     const roomSizeThrottleHandler = throttle((roomSizeValue) => {
-        const min = 0.5;
+        const min = 0.57;
         const scale = min + (1 - min) * roomSizeValue;
         Animated.spheres.forEach((sphere) => {
             sphere.position.copy(sphere.userData.originalPosition);
@@ -186,9 +186,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         Animated.guitarPromise.then(guitar => {
             guitar.position.copy(guitar.userData.originalPosition);
-            guitar.scale.copy(guitar.userData.originalScale);
             guitar.position.multiplyScalar(scale);
-            guitar.scale.multiplyScalar(scale);
         });
     }, 100);
 
@@ -254,9 +252,7 @@ document.addEventListener("DOMContentLoaded", () => {
         plane.userData.originalPosition = plane.position.clone();
     });
 
-
     Animated.guitarPromise.then(guitar => {
-        guitar.userData.originalScale = guitar.scale.clone();
         guitar.userData.originalPosition = guitar.position.clone();
     });
 

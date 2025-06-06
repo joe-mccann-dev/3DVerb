@@ -8,7 +8,6 @@ import {
     BoxGeometry,
     Vector3,
     DirectionalLight,
-    AmbientLight,
     SphereGeometry,
     PlaneGeometry,
     PCFSoftShadowMap,
@@ -107,11 +106,11 @@ const guitarPromise = new Promise((resolve, reject) => {
     loader.load('assets/gibson_es-335_vintage_burst_electric_guitar.glb', function (glb) {
         const guitar = glb.scene;
         guitar.envMap = environmentMap;
-        guitar.scale.set(32, 32, 32);
+        guitar.scale.set(26, 26, 26);
         guitar.rotateZ(Math.PI / 2);
         guitar.rotateX(-Math.PI / 4);
         guitar.rotateY(0.2);
-        guitar.position.set(50, 0, 50);
+        guitar.position.set(50, -5, 50);
         scene.add(guitar);
         resolve(guitar);
     }, undefined, reject)
@@ -154,8 +153,7 @@ const lines = [
     addLineGeometry(-50, -50, 200, 200, -50, 150),
     addLineGeometry(150, 150, 200, 200, -50, 150),
 
-]
-
+];
 
 const planeGeometry = new PlaneGeometry(198, 198, 4, 4);
 const planes = [
