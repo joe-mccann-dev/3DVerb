@@ -14,6 +14,7 @@ import {
     PCFSoftShadowMap,
     Mesh,
     CubeTextureLoader,
+    DoubleSide,
 } from 'three';
 
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
@@ -155,28 +156,33 @@ const lines = [
 
 ]
 
-const planeGeometry = new PlaneGeometry(198, 198, 4, 4);
-const planeMaterial = new MeshStandardMaterial({ color: 'lightblue', envMap: environmentMap });
-const plane = new Mesh(planeGeometry, planeMaterial);
-plane.rotation.x = -Math.PI / 2;
-plane.position.x = 50;
-plane.position.y = -10; 
-plane.position.z = 50;
 
-plane.castShadow = true;
-plane.receiveShadow = true;
-scene.add(plane);
+const planeGeometry = new PlaneGeometry(198, 198, 4, 4);
+const planes = [
+    makePlane(planeGeometry, 'lightblue', [50, -10, 50]),
+    makePlane(planeGeometry, 'lightblue', [50, 200, 50]),
+];
+
+function makePlane(geometry, color, positions) {
+    const material = new MeshStandardMaterial({ color: color, envMap: environmentMap, side: DoubleSide });
+    const plane = new Mesh(geometry, material);
+    plane.rotation.x = -Math.PI / 2;
+    plane.position.set(positions[0], positions[1], positions[2]);
+    plane.castShadow = true;
+    plane.receiveShadow = true;
+    scene.add(plane);
+    return plane;
+}
 
 function makeSphere(geometry, color, positions) {
     const material = new MeshStandardMaterial({ color: color, envMap: environmentMap });
-
     const sphere = new Mesh(geometry, material);
-    scene.add(sphere);
 
     sphere.position.set(positions[0], positions[1], positions[2]);
 
     sphere.castShadow = true;
     sphere.receiveShadow = true;
+    scene.add(sphere);
 
     return sphere;
 }
@@ -242,7 +248,7 @@ export {
     lightYellow,
     spheres,
     lines,
-    plane,
+    planes,
     sphereRadius,
     Vector3,
     guitarPromise,

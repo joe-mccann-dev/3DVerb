@@ -175,11 +175,14 @@ document.addEventListener("DOMContentLoaded", () => {
             line.scale.multiplyScalar(scale);
         });
 
-        Animated.plane.scale.copy(Animated.plane.userData.originalScale);
-        Animated.plane.scale.multiplyScalar(scale);
+        Animated.planes.forEach((plane) => {
+            plane.scale.copy(plane.userData.originalScale);
+            plane.scale.multiplyScalar(scale);
 
-        Animated.plane.position.copy(Animated.plane.userData.originalPosition);
-        Animated.plane.position.multiplyScalar(scale)
+            plane.position.copy(plane.userData.originalPosition);
+            plane.position.multiplyScalar(scale)
+        });
+
 
         Animated.guitarPromise.then(guitar => {
             guitar.position.copy(guitar.userData.originalPosition);
@@ -246,8 +249,11 @@ document.addEventListener("DOMContentLoaded", () => {
         line.userData.originalScale = line.scale.clone();
         line.userData.originalPosition = line.position.clone();
     });
-    Animated.plane.userData.originalScale = Animated.plane.scale.clone();
-    Animated.plane.userData.originalPosition = Animated.plane.position.clone();
+    Animated.planes.forEach((plane) => {
+        plane.userData.originalScale = plane.scale.clone();
+        plane.userData.originalPosition = plane.position.clone();
+    });
+
 
     Animated.guitarPromise.then(guitar => {
         guitar.userData.originalScale = guitar.scale.clone();
