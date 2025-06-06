@@ -16,6 +16,8 @@ import {
     CubeTextureLoader,
 } from 'three';
 
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
 import * as UI from './index.js';
 
 // COLORS
@@ -63,8 +65,14 @@ const height = canvas.height;
 const aspect = width / height;
 const camera = new PerspectiveCamera(75, aspect, 0.1, 400);
 
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.autoRotateSpeed = 0.2;
+controls.autoRotate = true;
+
 camera.position.set(50, 80, 320);
 //camera.lookAt(new Vector3(50, 50, -50));
+
+controls.update();
 
 const light = new DirectionalLight(0xffffed, 0.5);
 light.position.set(-2, 4, -20);
@@ -102,8 +110,8 @@ const spheres = [
     //right
     makeSphere(sphereGeometry, mediumDarkAmber, [150, -10, 150]),
     makeSphere(sphereGeometry, lightYellow, [150, -10, -50]),
-    // pinnacle
-    makeSphere(sphereGeometry, cloudBlue, [50, 200, 0]),
+    // apex
+    makeSphere(sphereGeometry, cloudBlue, [50, 200, 50]),
     // center
     makeSphere(centerSphereGeometry, mediumDarkGray, [50, 50, 50])
     
@@ -116,10 +124,10 @@ const lines = [
     addLineGeometry(150, 150, -10, -10, 150, -50),
 
     // lines connecting to center apex
-    addLineGeometry(-50, 50, -10, 200, -50, 0),
-    addLineGeometry(-50, 50, -10, 200, 150, 0),
-    addLineGeometry(150, 50, -10, 200, -50, 0),
-    addLineGeometry(150, 50, -10, 200, 150, 0),
+    addLineGeometry(-50, 50, -10, 200, -50, 50),
+    addLineGeometry(-50, 50, -10, 200, 150, 50),
+    addLineGeometry(150, 50, -10, 200, -50, 50),
+    addLineGeometry(150, 50, -10, 200, 150, 50),
 
     // lines connecting to bottom
     //addLineGeometry(-6, 0, -5, 0, 0, -5, lightYellow),
@@ -199,7 +207,7 @@ function animate(time) {
             sphere.rotation.y = rotation;
         });
     }
-
+    controls.update();
     renderer.render(scene, camera);
     requestAnimationFrame(animate);
 }
