@@ -180,6 +180,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
         Animated.plane.position.copy(Animated.plane.userData.originalPosition);
         Animated.plane.position.multiplyScalar(scale)
+
+        Animated.guitarPromise.then(guitar => {
+            guitar.position.copy(guitar.userData.originalPosition);
+            guitar.scale.copy(guitar.userData.originalScale);
+            guitar.position.multiplyScalar(scale);
+            guitar.scale.multiplyScalar(scale);
+        });
     }, 100);
 
     const coolBlue = new Animated.Color(Animated.coolBlue);
@@ -200,6 +207,7 @@ document.addEventListener("DOMContentLoaded", () => {
             .then((outputLevelData) => {
                 const scaleFactor = outputLevelData.left < -30 ? 1 : ((outputLevelData.left / 60) + 1) * 3.0;
                 //Animated.spheres[Animated.spheres.length - 1].scale.set(scaleFactor, scaleFactor, scaleFactor);
+                
             })
             .catch(console.error);
     });
@@ -240,6 +248,11 @@ document.addEventListener("DOMContentLoaded", () => {
     });
     Animated.plane.userData.originalScale = Animated.plane.scale.clone();
     Animated.plane.userData.originalPosition = Animated.plane.position.clone();
+
+    Animated.guitarPromise.then(guitar => {
+        guitar.userData.originalScale = guitar.scale.clone();
+        guitar.userData.originalPosition = guitar.position.clone();
+    });
 
     window.__JUCE__.backend.addEventListener("roomSizeValue", () => {
         fetch(Juce.getBackendResourceAddress("roomSize.json"))

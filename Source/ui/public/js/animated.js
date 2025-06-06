@@ -17,6 +17,7 @@ import {
 } from 'three';
 
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 
 import * as UI from './index.js';
 
@@ -49,7 +50,8 @@ const environmentMap = cubeTextureLoader.load([
     '../assets/environment_map/mountain/ny.png',
     '../assets/environment_map/mountain/pz.png',
     '../assets/environment_map/mountain/nz.png'
-])
+]);
+scene.environment = environmentMap;
 
 const visualizer = document.getElementById("visualizer");
 const visualizerStyle = getComputedStyle(visualizer);
@@ -66,10 +68,10 @@ const aspect = width / height;
 const camera = new PerspectiveCamera(75, aspect, 0.1, 400);
 
 const controls = new OrbitControls(camera, renderer.domElement);
-controls.autoRotateSpeed = 0.2;
+controls.autoRotateSpeed = 0.15;
 controls.autoRotate = true;
 
-camera.position.set(50, 80, 320);
+camera.position.set(50, 120, 320);
 //camera.lookAt(new Vector3(50, 50, -50));
 
 controls.update();
@@ -93,6 +95,21 @@ const ambientLight = new AmbientLight(0xf5f5e7, 0.8);
 
 scene.background = environmentMap;
 
+const loader = new GLTFLoader();
+
+const guitarPromise = new Promise((resolve, reject) => {
+    loader.load('assets/gibson_es-335_vintage_burst_electric_guitar.glb', function (glb) {
+        const guitar = glb.scene;
+        guitar.envMap = environmentMap;
+        guitar.scale.set(32, 32, 32);
+        guitar.rotateZ(Math.PI / 2);
+        guitar.rotateX(-Math.PI / 4);
+        guitar.position.set(50, 0, 50);
+        scene.add(guitar);
+        resolve(guitar);
+    }, undefined, reject)
+});
+
 const sphereRadius = 3.2;
 const sphereWidthSegments = 16;
 const sphereHeightSegments = 24;
@@ -111,9 +128,9 @@ const spheres = [
     makeSphere(sphereGeometry, mediumDarkAmber, [150, -10, 150]),
     makeSphere(sphereGeometry, lightYellow, [150, -10, -50]),
     // apex
-    makeSphere(sphereGeometry, cloudBlue, [50, 200, 50]),
+    //makeSphere(sphereGeometry, cloudBlue, [50, 200, 50]),
     // center
-    makeSphere(centerSphereGeometry, mediumDarkGray, [50, 50, 50])
+    //makeSphere(centerSphereGeometry, mediumDarkGray, [50, 80, 50])
     
 ];
 
@@ -136,8 +153,8 @@ const lines = [
     //addLineGeometry(6, 0, -5, 0, 0, -5  , lightYellow),
 ]
 
-const planeGeometry = new PlaneGeometry(198, 198, 1, 1);
-const planeMaterial = new MeshStandardMaterial({ color: fuchsia600, envMap: environmentMap });
+const planeGeometry = new PlaneGeometry(198, 198, 4, 4);
+const planeMaterial = new MeshStandardMaterial({ color: 'lightblue', envMap: environmentMap });
 const plane = new Mesh(planeGeometry, planeMaterial);
 plane.rotation.x = -Math.PI / 2;
 plane.position.x = 50;
@@ -226,4 +243,5 @@ export {
     plane,
     sphereRadius,
     Vector3,
+    guitarPromise,
 }
