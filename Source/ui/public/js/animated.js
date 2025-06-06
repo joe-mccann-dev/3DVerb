@@ -51,6 +51,8 @@ const environmentMap = cubeTextureLoader.load([
     '../assets/environment_map/mountain/pz.png',
     '../assets/environment_map/mountain/nz.png'
 ]);
+
+scene.background = environmentMap;
 scene.environment = environmentMap;
 
 const visualizer = document.getElementById("visualizer");
@@ -65,19 +67,27 @@ visualizer.appendChild(canvas);
 const width = canvas.width;
 const height = canvas.height;
 const aspect = width / height;
-const camera = new PerspectiveCamera(75, aspect, 0.1, 400);
+const camera = new PerspectiveCamera(75, aspect, 0.1, 1000);
 
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.autoRotateSpeed = 0.15;
-controls.autoRotate = true;
+//controls.autoRotate = true;
 
-camera.position.set(50, 120, 320);
-//camera.lookAt(new Vector3(50, 50, -50));
+camera.position.set(32, 103, 350);
+
+camera.lookAt(new Vector3(50, 0, 50));
 
 controls.update();
 
-const light = new DirectionalLight(0xffffed, 0.5);
-light.position.set(-2, 4, -20);
+controls.addEventListener('change', () => {
+    console.log('position:', camera.position);
+    console.log('target:', controls.target);
+});
+
+const light = new DirectionalLight(0xf8f8df, 0.8);
+
+light.position.set(-8, 0.5, 10);
+light.lookAt(50, 0, 50);
 light.castShadow = true;
 
 light.shadow.camera.left = -10;
@@ -88,12 +98,7 @@ light.shadow.camera.near = 1;
 light.shadow.camera.far = 70;
 light.shadow.mapSize.width = 2048;
 light.shadow.mapSize.height = 2048;
-//scene.add(light);
-
-const ambientLight = new AmbientLight(0xf5f5e7, 0.8);
-//scene.add(ambientLight);
-
-scene.background = environmentMap;
+scene.add(light);
 
 const loader = new GLTFLoader();
 
@@ -104,6 +109,7 @@ const guitarPromise = new Promise((resolve, reject) => {
         guitar.scale.set(32, 32, 32);
         guitar.rotateZ(Math.PI / 2);
         guitar.rotateX(-Math.PI / 4);
+        guitar.rotateY(0.2);
         guitar.position.set(50, 0, 50);
         scene.add(guitar);
         resolve(guitar);
