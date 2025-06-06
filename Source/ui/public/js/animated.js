@@ -71,9 +71,9 @@ const camera = new PerspectiveCamera(75, aspect, 0.1, 1000);
 
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.autoRotateSpeed = 0.15;
-//controls.autoRotate = true;
+controls.autoRotate = true;
 
-camera.position.set(32, 103, 350);
+camera.position.set(32, 133, 420);
 
 camera.lookAt(new Vector3(50, 0, 50));
 
@@ -120,37 +120,38 @@ const sphereRadius = 3.2;
 const sphereWidthSegments = 16;
 const sphereHeightSegments = 24;
 const sphereGeometry = new SphereGeometry(sphereRadius, sphereWidthSegments, sphereHeightSegments);
-const centerSphereRadius = 3.4;
-const centerSphereGeometry = new SphereGeometry(centerSphereRadius, sphereWidthSegments, sphereHeightSegments);
 
-
-//camera.position.set(-95, -100, 100);
-//camera.lookAt(new Vector3(-55, -12, -100));
 const spheres = [
     // left
     makeSphere(sphereGeometry, fuchsia600, [-50, -10, 150]),
+    makeSphere(sphereGeometry, fuchsia600, [-50, 200, 150]),
     makeSphere(sphereGeometry, mediumIndigo, [-50, -10, -50]),
+    makeSphere(sphereGeometry, mediumIndigo, [-50, 200, -50]),
     //right
     makeSphere(sphereGeometry, mediumDarkAmber, [150, -10, 150]),
+    makeSphere(sphereGeometry, mediumDarkAmber, [150, 200, 150]),
     makeSphere(sphereGeometry, lightYellow, [150, -10, -50]),
-    // apex
-    //makeSphere(sphereGeometry, cloudBlue, [50, 200, 50]),
-    // center
-    //makeSphere(centerSphereGeometry, mediumDarkGray, [50, 80, 50])
-    
+    makeSphere(sphereGeometry, lightYellow, [150, 200, -50])    
 ];
 
 const lines = [
+    // lines connecting bottom plane
     addLineGeometry(-50, 150, -10, -10, -50, -50),
     addLineGeometry(-50, -50, -10, -10, 150, -50),
     addLineGeometry(-50, 150, -10, -10, 150, 150),
     addLineGeometry(150, 150, -10, -10, 150, -50),
 
-    // lines connecting to center apex
-    addLineGeometry(-50, 50, -10, 200, -50, 50),
-    addLineGeometry(-50, 50, -10, 200, 150, 50),
-    addLineGeometry(150, 50, -10, 200, -50, 50),
-    addLineGeometry(150, 50, -10, 200, 150, 50),
+    // lines connecting bottom to top
+    addLineGeometry(-50, -50, -10, 200, -50, -50),
+    addLineGeometry(150, 150, -10, 200, -50, -50),
+    addLineGeometry(-50, -50, -10, 200, 150, 150),
+    addLineGeometry(150, 150, -10, 200, 150, 150),
+
+    // lines connecting top plane
+    addLineGeometry(-50, 150, 200, 200, 150, 150),
+    addLineGeometry(-50, 150, 200, 200, -50, -50),
+    addLineGeometry(-50, -50, 200, 200, -50, 150),
+    addLineGeometry(150, 150, 200, 200, -50, 150),
 
     // lines connecting to bottom
     //addLineGeometry(-6, 0, -5, 0, 0, -5, lightYellow),
