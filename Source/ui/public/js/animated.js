@@ -6,19 +6,13 @@ import * as UI from './index.js';
 
 // COLORS
 const lightIndigo = 0xBFDBFE;
-const cloud = 0xb9b9c3;
-const deepSkyBlue = 0x3b3a60;
-const mediumSkyBlue = 0x4a4a85;
-const cloudBlue = 0xc1c0cb;
 const mediumIndigo = 0x6366F1;
-const darkIndigo = 0x3730A3;
-const mediumDarkGray = 0x374151;
-const darkGray = 0x111827;
 const mediumAmber = 0xFBBF24;
 const mediumDarkAmber = 0xB45309;
 const coolBlue = 0x60A5FA;
 const lightYellow = 0xFDE68A;
 const fuchsia600 = 0xc026d3;
+const threeColor = THREE.Color;
 // END COLORS
 
 // THREE JS CODE
@@ -62,8 +56,8 @@ camera.lookAt(new THREE.Vector3(50, 0, 50));
 controls.update();
 
 controls.addEventListener('change', () => {
-    console.log('position:', camera.position);
-    console.log('target:', controls.target);
+    //console.log('position:', camera.position);
+    //console.log('target:', controls.target);
 });
 
 const light = new THREE.DirectionalLight(0xf8f8df, 0.8);
@@ -226,10 +220,9 @@ function animate(time) {
     requestAnimationFrame(animate);
 }
 
-const color = THREE.Color;
 export {
+    threeColor,
     animate,
-    color,
     coolBlue,
     mediumIndigo,
     mediumDarkAmber,

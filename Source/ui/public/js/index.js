@@ -190,7 +190,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }, 100);
 
-    const coolBlue = new Animated.olor(Animated.coolBlue);
+    const coolBlue = new Animated.threeColor(Animated.coolBlue);
     const freezeThrottleHandler = throttle((frozen) => {
         Animated.spheres.forEach((sphere) => {
             if (frozen) {
