@@ -107,10 +107,19 @@ const guitarPromise = new Promise((resolve, reject) => {
 
 const objects = [];
 
+// GEOMETRIES
 const sphereRadius = 3.2;
 const sphereWidthSegments = 16;
 const sphereHeightSegments = 24;
 const sphereGeometry = new THREE.SphereGeometry(sphereRadius, sphereWidthSegments, sphereHeightSegments);
+
+const planeGeometry = new THREE.PlaneGeometry(198, 198, 4, 4);
+const planes = [
+    makePlane(planeGeometry, 'lightblue', [50, -10, 50]),
+    makePlane(planeGeometry, 'lightblue', [50, 200, 50]),
+];
+
+// MESH LISTS
 const spheres = [
     // left
     makeSphere(sphereGeometry, fuchsia600, [-50, -10, 150]),
@@ -145,11 +154,7 @@ const lines = [
 
 ];
 
-const planeGeometry = new THREE.PlaneGeometry(198, 198, 4, 4);
-const planes = [
-    makePlane(planeGeometry, 'lightblue', [50, -10, 50]),
-    makePlane(planeGeometry, 'lightblue', [50, 200, 50]),
-];
+// "ADD A MESH" FUNCTIONS
 function makePlane(geometry, color, positions) {
     const material = new THREE.MeshStandardMaterial({ color: color, envMap: environmentMap, side: THREE.DoubleSide });
     const plane = new THREE.Mesh(geometry, material);
