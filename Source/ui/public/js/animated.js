@@ -2,6 +2,22 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
+import System, {
+    Emitter,
+    Rate,
+    Span,
+    Position,
+    Mass,
+    Radius,
+    Life,
+    RadialVelocity,
+    PointZone,
+    Vector3D,
+    Alpha,
+    Scale,
+    Color,
+    SpriteRenderer
+} from 'three-nebula';
 import * as UI from './index.js';
 
 // COLORS
@@ -29,6 +45,7 @@ const environmentMap = cubeTextureLoader.load([
     '../assets/environment_map/mountain/nz.png'
 ]);
 
+
 scene.background = environmentMap;
 scene.environment = environmentMap;
 
@@ -45,23 +62,19 @@ const height = canvas.height;
 const aspect = width / height;
 const camera = new THREE.PerspectiveCamera(75, aspect, 0.1, 1000);
 
+camera.position.set(32, 120, 420);
+camera.lookAt(new THREE.Vector3(50, 0, 50));
+
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.autoRotateSpeed = 0.15;
 controls.autoRotate = true;
-
-camera.position.set(32, 120, 420);
-
-camera.lookAt(new THREE.Vector3(50, 0, 50));
-
 controls.update();
-
 controls.addEventListener('change', () => {
     //console.log('position:', camera.position);
     //console.log('target:', controls.target);
 });
 
 const light = new THREE.DirectionalLight(0xf8f8df, 0.8);
-
 light.position.set(-8, 0.5, 10);
 light.lookAt(50, 0, 50);
 light.castShadow = true;
@@ -92,14 +105,12 @@ const guitarPromise = new Promise((resolve, reject) => {
     }, undefined, reject)
 });
 
-
 const objects = [];
 
 const sphereRadius = 3.2;
 const sphereWidthSegments = 16;
 const sphereHeightSegments = 24;
 const sphereGeometry = new THREE.SphereGeometry(sphereRadius, sphereWidthSegments, sphereHeightSegments);
-
 const spheres = [
     // left
     makeSphere(sphereGeometry, fuchsia600, [-50, -10, 150]),
@@ -115,22 +126,22 @@ const spheres = [
 
 const lines = [
     // lines connecting bottom plane
-    addLineGeometry(-50, 150, -10, -10, -50, -50),
-    addLineGeometry(-50, -50, -10, -10, 150, -50),
-    addLineGeometry(-50, 150, -10, -10, 150, 150),
-    addLineGeometry(150, 150, -10, -10, 150, -50),
+    makeLine(-50, 150, -10, -10, -50, -50),
+    makeLine(-50, -50, -10, -10, 150, -50),
+    makeLine(-50, 150, -10, -10, 150, 150),
+    makeLine(150, 150, -10, -10, 150, -50),
 
     // lines connecting bottom to top
-    addLineGeometry(-50, -50, -10, 200, -50, -50),
-    addLineGeometry(150, 150, -10, 200, -50, -50),
-    addLineGeometry(-50, -50, -10, 200, 150, 150),
-    addLineGeometry(150, 150, -10, 200, 150, 150),
+    makeLine(-50, -50, -10, 200, -50, -50),
+    makeLine(150, 150, -10, 200, -50, -50),
+    makeLine(-50, -50, -10, 200, 150, 150),
+    makeLine(150, 150, -10, 200, 150, 150),
 
     // lines connecting top plane
-    addLineGeometry(-50, 150, 200, 200, 150, 150),
-    addLineGeometry(-50, 150, 200, 200, -50, -50),
-    addLineGeometry(-50, -50, 200, 200, -50, 150),
-    addLineGeometry(150, 150, 200, 200, -50, 150),
+    makeLine(-50, 150, 200, 200, 150, 150),
+    makeLine(-50, 150, 200, 200, -50, -50),
+    makeLine(-50, -50, 200, 200, -50, 150),
+    makeLine(150, 150, 200, 200, -50, 150),
 
 ];
 
@@ -139,7 +150,6 @@ const planes = [
     makePlane(planeGeometry, 'lightblue', [50, -10, 50]),
     makePlane(planeGeometry, 'lightblue', [50, 200, 50]),
 ];
-
 function makePlane(geometry, color, positions) {
     const material = new THREE.MeshStandardMaterial({ color: color, envMap: environmentMap, side: THREE.DoubleSide });
     const plane = new THREE.Mesh(geometry, material);
@@ -169,7 +179,7 @@ function makeSphere(geometry, color, positions) {
     return sphere;
 }
 
-function addLineGeometry(src_x, dest_x, src_y, dest_y, src_z, dest_z, color = lightIndigo) {
+function makeLine(src_x, dest_x, src_y, dest_y, src_z, dest_z, color = lightIndigo) {
     const distance = Math.sqrt(
         (dest_x - src_x) ** 2 +
         (dest_y - src_y) ** 2 +

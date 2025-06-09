@@ -1,8 +1,10 @@
 {
-  "dependencies": {
-    "three": "^0.173.0"
-  },
-  "devDependencies": {
-    "vite": "^6.1.1"
-  }
+    "dependencies": {
+        "@babel/runtime": "^7.27.6",
+        "three": "^0.173.0",
+        "three-nebula": "^10.0.3"
+    },
+    "devDependencies": {
+        "vite": "^6.1.1"
+    }
 }
