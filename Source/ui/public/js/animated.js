@@ -1,24 +1,7 @@
 
-import {
-    Scene,
-    PerspectiveCamera,
-    WebGLRenderer,
-    Color,
-    MeshStandardMaterial,
-    BoxGeometry,
-    Vector3,
-    DirectionalLight,
-    SphereGeometry,
-    PlaneGeometry,
-    PCFSoftShadowMap,
-    Mesh,
-    CubeTextureLoader,
-    DoubleSide,
-} from 'three';
-
+import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
-
 import * as UI from './index.js';
 
 // COLORS
@@ -39,10 +22,10 @@ const fuchsia600 = 0xc026d3;
 // END COLORS
 
 // THREE JS CODE
-const scene = new Scene();
-const renderer = new WebGLRenderer({ antialias: true });
+const scene = new THREE.Scene();
+const renderer = new THREE.WebGLRenderer({ antialias: true });
 
-const cubeTextureLoader = new CubeTextureLoader()
+const cubeTextureLoader = new THREE.CubeTextureLoader()
 const environmentMap = cubeTextureLoader.load([
     '../assets/environment_map/mountain/px.png',
     '../assets/environment_map/mountain/nx.png',
@@ -60,22 +43,21 @@ const visualizerStyle = getComputedStyle(visualizer);
 
 renderer.setSize(parseInt(visualizerStyle.width), parseInt(visualizerStyle.height));
 renderer.shadowMap.enabled = true;
-renderer.shadowMap.type = PCFSoftShadowMap;
 const canvas = renderer.domElement;
 visualizer.appendChild(canvas);
 
 const width = canvas.width;
 const height = canvas.height;
 const aspect = width / height;
-const camera = new PerspectiveCamera(75, aspect, 0.1, 1000);
+const camera = new THREE.PerspectiveCamera(75, aspect, 0.1, 1000);
 
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.autoRotateSpeed = 0.15;
 controls.autoRotate = true;
 
-camera.position.set(32, 133, 420);
+camera.position.set(32, 120, 420);
 
-camera.lookAt(new Vector3(50, 0, 50));
+camera.lookAt(new THREE.Vector3(50, 0, 50));
 
 controls.update();
 
@@ -84,7 +66,7 @@ controls.addEventListener('change', () => {
     console.log('target:', controls.target);
 });
 
-const light = new DirectionalLight(0xf8f8df, 0.8);
+const light = new THREE.DirectionalLight(0xf8f8df, 0.8);
 
 light.position.set(-8, 0.5, 10);
 light.lookAt(50, 0, 50);
@@ -122,7 +104,7 @@ const objects = [];
 const sphereRadius = 3.2;
 const sphereWidthSegments = 16;
 const sphereHeightSegments = 24;
-const sphereGeometry = new SphereGeometry(sphereRadius, sphereWidthSegments, sphereHeightSegments);
+const sphereGeometry = new THREE.SphereGeometry(sphereRadius, sphereWidthSegments, sphereHeightSegments);
 
 const spheres = [
     // left
@@ -158,15 +140,15 @@ const lines = [
 
 ];
 
-const planeGeometry = new PlaneGeometry(198, 198, 4, 4);
+const planeGeometry = new THREE.PlaneGeometry(198, 198, 4, 4);
 const planes = [
     makePlane(planeGeometry, 'lightblue', [50, -10, 50]),
     makePlane(planeGeometry, 'lightblue', [50, 200, 50]),
 ];
 
 function makePlane(geometry, color, positions) {
-    const material = new MeshStandardMaterial({ color: color, envMap: environmentMap, side: DoubleSide });
-    const plane = new Mesh(geometry, material);
+    const material = new THREE.MeshStandardMaterial({ color: color, envMap: environmentMap, side: THREE.DoubleSide });
+    const plane = new THREE.Mesh(geometry, material);
     plane.rotation.x = -Math.PI / 2;
     plane.position.set(positions[0], positions[1], positions[2]);
     plane.castShadow = true;
@@ -179,8 +161,8 @@ function makePlane(geometry, color, positions) {
 }
 
 function makeSphere(geometry, color, positions) {
-    const material = new MeshStandardMaterial({ color: color, envMap: environmentMap });
-    const sphere = new Mesh(geometry, material);
+    const material = new THREE.MeshStandardMaterial({ color: color, envMap: environmentMap });
+    const sphere = new THREE.Mesh(geometry, material);
 
     sphere.position.set(positions[0], positions[1], positions[2]);
 
@@ -201,15 +183,15 @@ function addLineGeometry(src_x, dest_x, src_y, dest_y, src_z, dest_z, color = li
     );
 
     // use box geometry as a line so lines react to light
-    const geometry = new BoxGeometry(0.5, 0.5, distance);
+    const geometry = new THREE.BoxGeometry(0.5, 0.5, distance);
 
-    const material = new MeshStandardMaterial({
+    const material = new THREE.MeshStandardMaterial({
         color: color,
         wireframe: true,
         envMap: environmentMap,
     });
 
-    const line = new Mesh(geometry, material);
+    const line = new THREE.Mesh(geometry, material);
 
     line.position.set(
         (src_x + dest_x) / 2,
@@ -217,7 +199,7 @@ function addLineGeometry(src_x, dest_x, src_y, dest_y, src_z, dest_z, color = li
         (src_z + dest_z) / 2
     );
 
-    line.lookAt(new Vector3(dest_x, dest_y, dest_z));
+    line.lookAt(new THREE.Vector3(dest_x, dest_y, dest_z));
 
     line.castShadow = true;
     line.receiveShadow = true;
@@ -244,10 +226,10 @@ function animate(time) {
     requestAnimationFrame(animate);
 }
 
-
+const color = THREE.Color;
 export {
     animate,
-    Color,
+    color,
     coolBlue,
     mediumIndigo,
     mediumDarkAmber,
@@ -257,6 +239,5 @@ export {
     lines,
     planes,
     sphereRadius,
-    Vector3,
     guitarPromise,
 }
