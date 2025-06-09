@@ -116,6 +116,9 @@ const guitarPromise = new Promise((resolve, reject) => {
     }, undefined, reject)
 });
 
+
+const objects = [];
+
 const sphereRadius = 3.2;
 const sphereWidthSegments = 16;
 const sphereHeightSegments = 24;
@@ -168,7 +171,10 @@ function makePlane(geometry, color, positions) {
     plane.position.set(positions[0], positions[1], positions[2]);
     plane.castShadow = true;
     plane.receiveShadow = true;
+
     scene.add(plane);
+    objects.push(plane);
+
     return plane;
 }
 
@@ -180,7 +186,9 @@ function makeSphere(geometry, color, positions) {
 
     sphere.castShadow = true;
     sphere.receiveShadow = true;
+
     scene.add(sphere);
+    objects.push(sphere);
 
     return sphere;
 }
@@ -201,22 +209,23 @@ function addLineGeometry(src_x, dest_x, src_y, dest_y, src_z, dest_z, color = li
         envMap: environmentMap,
     });
 
-    const mesh = new Mesh(geometry, material);
+    const line = new Mesh(geometry, material);
 
-    mesh.position.set(
+    line.position.set(
         (src_x + dest_x) / 2,
         (src_y + dest_y) / 2,
         (src_z + dest_z) / 2
     );
 
-    mesh.lookAt(new Vector3(dest_x, dest_y, dest_z));
+    line.lookAt(new Vector3(dest_x, dest_y, dest_z));
 
-    mesh.castShadow = true;
-    mesh.receiveShadow = true;
+    line.castShadow = true;
+    line.receiveShadow = true;
     
-    scene.add(mesh);
-    
-    return mesh;
+    scene.add(line);
+    objects.push(line);
+
+    return line;
 }
 
 function animate(time) {
