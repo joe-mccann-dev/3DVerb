@@ -2,10 +2,13 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
-import System, {
+import ParticleSystem, {
     Emitter,
     Rate,
     Span,
+    Body,
+    Gravity,
+    Collision,
     Position,
     Mass,
     Radius,
@@ -16,7 +19,7 @@ import System, {
     Alpha,
     Scale,
     Color,
-    SpriteRenderer
+    MeshRenderer,
 } from 'three-nebula';
 import * as UI from './index.js';
 
@@ -62,7 +65,7 @@ const height = canvas.height;
 const aspect = width / height;
 const camera = new THREE.PerspectiveCamera(75, aspect, 0.1, 1000);
 
-camera.position.set(32, 120, 420);
+camera.position.set(32, 120, 720);
 camera.lookAt(new THREE.Vector3(50, 0, 50));
 
 const controls = new OrbitControls(camera, renderer.domElement);
@@ -109,9 +112,14 @@ const objects = [];
 
 // GEOMETRIES
 const sphereRadius = 3.2;
-const sphereWidthSegments = 16;
+const sphereWidthSegments = 24;
 const sphereHeightSegments = 24;
 const sphereGeometry = new THREE.SphereGeometry(sphereRadius, sphereWidthSegments, sphereHeightSegments);
+
+const emittedSphereRadius = 3;
+const emittedSphereWidthSegments = 12;
+const emittedSphereHeightSegments = 12;
+const emittedSphereGeometry = new THREE.SphereGeometry(emittedSphereRadius, emittedSphereWidthSegments, emittedSphereHeightSegments);
 
 const planeGeometry = new THREE.PlaneGeometry(198, 198, 4, 4);
 const planes = [
@@ -169,7 +177,7 @@ function makePlane(geometry, color, positions) {
     return plane;
 }
 
-function makeSphere(geometry, color, positions) {
+function makeSphere(geometry, color, positions = [0, 0, 0]) {
     const material = new THREE.MeshStandardMaterial({ color: color, envMap: environmentMap });
     const sphere = new THREE.Mesh(geometry, material);
 
@@ -219,6 +227,37 @@ function makeLine(src_x, dest_x, src_y, dest_y, src_z, dest_z, color = lightIndi
     return line;
 }
 
+const emitter = new Emitter();
+const emitterRenderer = new MeshRenderer(scene, THREE);
+const emittedSphere = new THREE.Mesh(
+    emittedSphereGeometry,
+    new THREE.MeshStandardMaterial({
+        color: 'lightblue',
+        metalness: 0.5,
+        wireframe: true,
+    })
+);
+emittedSphere.metalness = 0.5;
+emittedSphere.wireframe = true;
+
+emitter
+    .setRate(new Rate(new Span(2, 5), new Span(0.5, 1)))
+    .addInitializers([
+        new Mass(1),
+        new Radius(100),
+        new Life(10, 20),
+        new Body(emittedSphere),
+        new RadialVelocity(new Span(300, 500), new Vector3D(0, 1, 0), 30),
+        new Position(new PointZone(50, 0, 50)),
+    ])
+    .addBehaviours([new Scale(1), new Gravity(3), new Collision(emitter)])
+    .emit();
+
+const system = new ParticleSystem();
+system
+    .addEmitter(emitter)
+    .addRenderer(emitterRenderer);
+
 function animate(time) {
     time *= 0.001;
 
@@ -230,6 +269,7 @@ function animate(time) {
             sphere.rotation.y = rotation;
         });
     }
+    system.update();
     controls.update();
     renderer.render(scene, camera);
     requestAnimationFrame(animate);
