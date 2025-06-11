@@ -184,10 +184,29 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
 
-        Animated.guitarPromise.then(guitar => {
-            guitar.position.copy(guitar.userData.originalPosition);
-            guitar.position.multiplyScalar(scale);
+        Animated.speakersPromise.then((speakers) => {
+            speakers.forEach((speaker) => {
+                speaker.position.copy(speaker.userData.originalPosition);
+                speaker.position.multiplyScalar(scale);
+            });
         });
+
+        Animated.carpetPromise.then((carpet) => {
+            carpet.scale.copy(carpet.userData.originalScale);
+            carpet.scale.multiplyScalar(scale);
+
+            carpet.position.copy(carpet.userData.originalPosition);
+            carpet.position.multiplyScalar(scale);
+        });
+
+        Animated.lampPromise.then((lamp) => {
+            lamp.scale.copy(lamp.userData.originalScale);
+            lamp.scale.multiplyScalar(scale);
+
+            lamp.position.copy(lamp.userData.originalPosition);
+            lamp.position.multiplyScalar(scale);
+        });
+
     }, 100);
 
     const coolBlue = new Animated.threeColor(Animated.coolBlue);
@@ -252,9 +271,21 @@ document.addEventListener("DOMContentLoaded", () => {
         plane.userData.originalPosition = plane.position.clone();
     });
 
-    Animated.guitarPromise.then(guitar => {
-        guitar.userData.originalPosition = guitar.position.clone();
+    Animated.speakersPromise.then(speakers => {
+        speakers.forEach((speaker) => {
+            speaker.userData.originalPosition = speaker.position.clone();
+        });
     });
+
+    Animated.carpetPromise.then(carpet => {
+        carpet.userData.originalScale = carpet.scale.clone();
+        carpet.userData.originalPosition = carpet.position.clone();
+    });
+
+    Animated.lampPromise.then(lamp => {
+        lamp.userData.originalScale = lamp.scale.clone();
+        lamp.userData.originalPosition = lamp.position.clone();
+    })
 
     window.__JUCE__.backend.addEventListener("roomSizeValue", () => {
         fetch(Juce.getBackendResourceAddress("roomSize.json"))

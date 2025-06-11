@@ -65,7 +65,7 @@ const height = canvas.height;
 const aspect = width / height;
 const camera = new THREE.PerspectiveCamera(75, aspect, 0.1, 1000);
 
-camera.position.set(32, 120, 500);
+camera.position.set(63, 210, 418);
 camera.lookAt(new THREE.Vector3(50, 0, 50));
 
 const controls = new OrbitControls(camera, renderer.domElement);
@@ -73,13 +73,13 @@ controls.autoRotateSpeed = 0.15;
 //controls.autoRotate = true;
 controls.update();
 controls.addEventListener('change', () => {
-    //console.log('position:', camera.position);
-    //console.log('target:', controls.target);
+    console.log('position:', camera.position);
+    console.log('target:', controls.target);
 });
 
-const light = new THREE.DirectionalLight(0xf8f8df, 0.8);
-light.position.set(-8, 0.5, 10);
-light.lookAt(50, 0, 50);
+const light = new THREE.DirectionalLight(0xf8f8df, 3.2);
+light.position.set(50, 200, 50);
+light.lookAt(50, -9, 50);
 light.castShadow = true;
 
 light.shadow.camera.left = -10;
@@ -95,19 +95,54 @@ scene.add(light);
 const loader = new GLTFLoader();
 
 const objects = [];
-const guitarPromise = new Promise((resolve, reject) => {
+const speakersPromise = new Promise((resolve, reject) => {
     loader.load('assets/krk_classic_5_studio_monitor_speaker.glb', function (glb) {
+        const speakers = [];
         const leftSpeaker = glb.scene;
         leftSpeaker.envMap = environmentMap;
-        leftSpeaker.scale.set(40, 40, 40);
+        leftSpeaker.scale.set(16, 16, 16);
         leftSpeaker.rotateY(-0.5);      
-        leftSpeaker.position.set(50, -5, 50);
+        leftSpeaker.position.set(-4, 50, -20);
         objects.push(leftSpeaker);
+        speakers.push(leftSpeaker);
         scene.add(leftSpeaker);
-        resolve(leftSpeaker);
+
+        const rightSpeaker = leftSpeaker.clone();
+        rightSpeaker.envMap = environmentMap;
+        rightSpeaker.position.x += 130;
+        rightSpeaker.position.z += 120;
+        objects.push(rightSpeaker);
+        speakers.push(rightSpeaker);
+        scene.add(rightSpeaker);
+        resolve(speakers);
     }, undefined, reject)
 });
 
+const carpetPromise = new Promise((resolve, reject) => {
+    loader.load('assets/fine_persian_heriz_carpet.glb', function (glb) {
+        const carpet = glb.scene;
+        carpet.envMap = environmentMap;
+        //carpet.scale.set(0.7, 1, 0.5);
+        carpet.scale.set(50, 50, 60);
+        carpet.position.set(52, -8, 50);
+        carpet.rotateY(Math.PI / 2);
+        objects.push(carpet);
+        scene.add(carpet);
+        resolve(carpet);
+    }, undefined, reject);
+});
+
+const lampPromise = new Promise((resolve, reject) => {
+    loader.load('assets/viokef_ceiling_light.glb', function (glb) {
+        const lamp = glb.scene;
+        lamp.envMap = environmentMap;
+        lamp.scale.set(100, 100, 100);
+        lamp.position.set(50, 197, 50);
+        objects.push(lamp);
+        scene.add(lamp);
+        resolve(lamp);
+    }, undefined, reject);
+});
 
 
 // GEOMETRIES
@@ -122,9 +157,13 @@ const emittedSphereHeightSegments = 12;
 const emittedSphereGeometry = new THREE.SphereGeometry(emittedSphereRadius, emittedSphereWidthSegments, emittedSphereHeightSegments);
 
 const planeGeometry = new THREE.PlaneGeometry(198, 198, 4, 4);
+const speakerStandGeometry = new THREE.PlaneGeometry(50, 50, 4, 4);
 const planes = [
-    makePlane(planeGeometry, 'lightblue', [50, -10, 50]),
-    makePlane(planeGeometry, 'lightblue', [50, 200, 50]),
+    makePlane(planeGeometry, 0x2c2e54, [50, -10, 50]),
+    makePlane(planeGeometry, 0x2c2e54, [50, 200, 50]),
+    // speaker stands
+    makePlane(speakerStandGeometry, 0xbfbc85, [-5, 50, -20]),
+    makePlane(speakerStandGeometry, 0xbfbc85, [126, 50, 100])
 ];
 
 // MESH LISTS
@@ -160,6 +199,9 @@ const lines = [
     makeLine(-50, -50, 200, 200, -50, 150),
     makeLine(150, 150, 200, 200, -50, 150),
 
+    // speaker stands
+    makeLine(-4, -4, -10, 50, -20, -20, 0x3c3e24),
+    makeLine(126, 126, -10, 50, 100, 100, 0x3c3e24),
 ];
 
 // "ADD A MESH" FUNCTIONS
@@ -288,5 +330,7 @@ export {
     lines,
     planes,
     sphereRadius,
-    guitarPromise,
+    speakersPromise,
+    carpetPromise,
+    lampPromise,
 }
