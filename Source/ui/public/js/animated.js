@@ -147,6 +147,29 @@ const lampPromise = new Promise((resolve, reject) => {
     }, undefined, reject);
 });
 
+const panelsPromise = new Promise((resolve, reject) => {
+    loader.load('assets/wall_wood_panels.glb', function (glb) {
+        const panels = [];
+        const rearPanel = glb.scene;
+
+        rearPanel.envMap = environmentMap;
+        rearPanel.scale.set(210, 534, 200);
+        rearPanel.position.set(50, -10, -40);
+        objects.push(rearPanel);
+        panels.push(rearPanel);
+        scene.add(rearPanel);
+
+        const rightSidePanel = rearPanel.clone();
+        rightSidePanel.position.set(140, -10, 50);
+        rightSidePanel.rotateY(-Math.PI / 2);
+        objects.push(rightSidePanel);
+        panels.push(rightSidePanel);
+        scene.add(rightSidePanel);
+
+        resolve(panels);
+    }, undefined, reject);
+})
+
 
 // GEOMETRIES
 const sphereRadius = 3.2;
@@ -334,6 +357,7 @@ export {
     planes,
     sphereRadius,
     speakersPromise,
+    panelsPromise,
     carpetPromise,
     lampPromise,
     pointLight,

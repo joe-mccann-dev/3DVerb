@@ -194,6 +194,16 @@ document.addEventListener("DOMContentLoaded", () => {
             });
         });
 
+        Animated.panelsPromise.then((panels) => {
+            panels.forEach((panel) => {
+                panel.scale.copy(panel.userData.originalScale);
+                panel.scale.multiplyScalar(scale);
+
+                panel.position.copy(panel.userData.originalPosition);
+                panel.position.multiplyScalar(scale);
+            });
+        });
+
         Animated.carpetPromise.then((carpet) => {
             carpet.scale.copy(carpet.userData.originalScale);
             carpet.scale.multiplyScalar(scale);
@@ -285,6 +295,13 @@ document.addEventListener("DOMContentLoaded", () => {
             speaker.userData.originalPosition = speaker.position.clone();
         });
     });
+
+    Animated.panelsPromise.then(panels => {
+        panels.forEach((panel) => {
+            panel.userData.originalScale = panel.scale.clone();
+            panel.userData.originalPosition = panel.position.clone();
+        })
+    })
 
     Animated.carpetPromise.then(carpet => {
         carpet.userData.originalScale = carpet.scale.clone();
