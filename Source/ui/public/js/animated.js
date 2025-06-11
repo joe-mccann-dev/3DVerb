@@ -65,12 +65,12 @@ const height = canvas.height;
 const aspect = width / height;
 const camera = new THREE.PerspectiveCamera(75, aspect, 0.1, 1000);
 
-camera.position.set(32, 120, 720);
+camera.position.set(32, 120, 500);
 camera.lookAt(new THREE.Vector3(50, 0, 50));
 
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.autoRotateSpeed = 0.15;
-controls.autoRotate = true;
+//controls.autoRotate = true;
 controls.update();
 controls.addEventListener('change', () => {
     //console.log('position:', camera.position);
@@ -94,21 +94,21 @@ scene.add(light);
 
 const loader = new GLTFLoader();
 
+const objects = [];
 const guitarPromise = new Promise((resolve, reject) => {
-    loader.load('assets/gibson_es-335_vintage_burst_electric_guitar.glb', function (glb) {
-        const guitar = glb.scene;
-        guitar.envMap = environmentMap;
-        guitar.scale.set(26, 26, 26);
-        guitar.rotateZ(Math.PI / 2);
-        guitar.rotateX(-Math.PI / 4);
-        guitar.rotateY(0.2);
-        guitar.position.set(50, -5, 50);
-        scene.add(guitar);
-        resolve(guitar);
+    loader.load('assets/krk_classic_5_studio_monitor_speaker.glb', function (glb) {
+        const leftSpeaker = glb.scene;
+        leftSpeaker.envMap = environmentMap;
+        leftSpeaker.scale.set(40, 40, 40);
+        leftSpeaker.rotateY(-0.5);      
+        leftSpeaker.position.set(50, -5, 50);
+        objects.push(leftSpeaker);
+        scene.add(leftSpeaker);
+        resolve(leftSpeaker);
     }, undefined, reject)
 });
 
-const objects = [];
+
 
 // GEOMETRIES
 const sphereRadius = 3.2;
@@ -233,25 +233,26 @@ const emittedSphere = new THREE.Mesh(
     emittedSphereGeometry,
     new THREE.MeshStandardMaterial({
         color: 'lightblue',
-        metalness: 0.5,
-        wireframe: true,
+        metalness: 2.2,
+        wireframe: false,
     })
 );
-emittedSphere.metalness = 0.5;
-emittedSphere.wireframe = true;
 
 emitter
     .setRate(new Rate(new Span(2, 5), new Span(0.5, 1)))
     .addInitializers([
         new Mass(1),
-        new Radius(100),
-        new Life(10, 20),
+        new Radius(16),
+        new Life(25, 125),
         new Body(emittedSphere),
         new RadialVelocity(new Span(300, 500), new Vector3D(0, 1, 0), 30),
-        new Position(new PointZone(50, 0, 50)),
     ])
-    .addBehaviours([new Scale(1), new Gravity(3), new Collision(emitter)])
+    .addBehaviours([new Scale(1.5), new Collision(emitter)])
     .emit();
+
+emitter.damping = 0.06;
+emitter.setPosition(new Vector3D(50, 10, 50));
+console.log("emitter: ", emitter);
 
 const system = new ParticleSystem();
 system
