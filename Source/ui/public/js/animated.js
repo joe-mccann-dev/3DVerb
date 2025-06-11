@@ -77,20 +77,22 @@ controls.addEventListener('change', () => {
     console.log('target:', controls.target);
 });
 
-const light = new THREE.DirectionalLight(0xf8f8df, 3.2);
-light.position.set(50, 200, 50);
-light.lookAt(50, -9, 50);
-light.castShadow = true;
+const pointLight = new THREE.PointLight(0xf8f8df, 80000);
+pointLight.position.set(100, 95, 10);
+pointLight.castShadow = true;
+pointLight.shadow.camera.left = -10;
+pointLight.shadow.camera.right = 10;
+pointLight.shadow.camera.top = 10;
+pointLight.shadow.camera.bottom = -10;
+pointLight.shadow.camera.near = 1;
+pointLight.shadow.camera.far = 70;
+pointLight.shadow.mapSize.width = 2048;
+pointLight.shadow.mapSize.height = 2048;
+scene.add(pointLight);
 
-light.shadow.camera.left = -10;
-light.shadow.camera.right = 10;
-light.shadow.camera.top = 10;
-light.shadow.camera.bottom = -10;
-light.shadow.camera.near = 1;
-light.shadow.camera.far = 70;
-light.shadow.mapSize.width = 2048;
-light.shadow.mapSize.height = 2048;
-scene.add(light);
+const sphereSize = 10;
+const pointLightHelper = new THREE.PointLightHelper(pointLight, sphereSize);
+scene.add(pointLightHelper);
 
 const loader = new GLTFLoader();
 
@@ -133,11 +135,12 @@ const carpetPromise = new Promise((resolve, reject) => {
 });
 
 const lampPromise = new Promise((resolve, reject) => {
-    loader.load('assets/viokef_ceiling_light.glb', function (glb) {
+    loader.load('assets/floor_lamp.glb', function (glb) {
         const lamp = glb.scene;
         lamp.envMap = environmentMap;
-        lamp.scale.set(100, 100, 100);
-        lamp.position.set(50, 197, 50);
+        lamp.scale.set(60, 60, 60);
+        lamp.position.set(100, 50, 10);
+        lamp.rotateY(Math.PI / 4)
         objects.push(lamp);
         scene.add(lamp);
         resolve(lamp);
@@ -312,7 +315,7 @@ function animate(time) {
             sphere.rotation.y = rotation;
         });
     }
-    system.update();
+    //system.update();
     controls.update();
     renderer.render(scene, camera);
     requestAnimationFrame(animate);
