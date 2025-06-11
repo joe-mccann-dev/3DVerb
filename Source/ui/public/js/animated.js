@@ -77,7 +77,7 @@ controls.addEventListener('change', () => {
     console.log('target:', controls.target);
 });
 
-const pointLight = new THREE.PointLight(0xf8f8df, 80000);
+const pointLight = new THREE.PointLight(0xf8f8df, 80000);;
 pointLight.position.set(100, 95, 10);
 pointLight.castShadow = true;
 pointLight.shadow.camera.left = -10;
@@ -90,9 +90,9 @@ pointLight.shadow.mapSize.width = 2048;
 pointLight.shadow.mapSize.height = 2048;
 scene.add(pointLight);
 
-const sphereSize = 10;
-const pointLightHelper = new THREE.PointLightHelper(pointLight, sphereSize);
-scene.add(pointLightHelper);
+//const sphereSize = 10;
+//const pointLightHelper = new THREE.PointLightHelper(pointLight, sphereSize);
+//scene.add(pointLightHelper);
 
 const loader = new GLTFLoader();
 
@@ -336,4 +336,5 @@ export {
     speakersPromise,
     carpetPromise,
     lampPromise,
+    pointLight,
 }

@@ -186,6 +186,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
         Animated.speakersPromise.then((speakers) => {
             speakers.forEach((speaker) => {
+                speaker.scale.copy(speaker.userData.originalScale);
+                speaker.scale.multiplyScalar(scale);
+
                 speaker.position.copy(speaker.userData.originalPosition);
                 speaker.position.multiplyScalar(scale);
             });
@@ -207,6 +210,11 @@ document.addEventListener("DOMContentLoaded", () => {
             lamp.position.multiplyScalar(scale);
         });
 
+        Animated.pointLight.position.copy(Animated.pointLight.userData.originalPosition);
+        Animated.pointLight.position.multiplyScalar(scale);
+
+        const exponent = 2.5;
+        Animated.pointLight.intensity = Animated.pointLight.userData.originalIntensity * Math.pow(scale, exponent);
     }, 100);
 
     const coolBlue = new Animated.threeColor(Animated.coolBlue);
@@ -273,6 +281,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     Animated.speakersPromise.then(speakers => {
         speakers.forEach((speaker) => {
+            speaker.userData.originalScale = speaker.scale.clone();
             speaker.userData.originalPosition = speaker.position.clone();
         });
     });
@@ -285,7 +294,10 @@ document.addEventListener("DOMContentLoaded", () => {
     Animated.lampPromise.then(lamp => {
         lamp.userData.originalScale = lamp.scale.clone();
         lamp.userData.originalPosition = lamp.position.clone();
-    })
+    });
+
+    Animated.pointLight.userData.originalPosition = Animated.pointLight.position.clone();
+    Animated.pointLight.userData.originalIntensity = Animated.pointLight.intensity;
 
     window.__JUCE__.backend.addEventListener("roomSizeValue", () => {
         fetch(Juce.getBackendResourceAddress("roomSize.json"))
