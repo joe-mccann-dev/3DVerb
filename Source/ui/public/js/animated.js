@@ -65,8 +65,8 @@ const height = canvas.height;
 const aspect = width / height;
 const camera = new THREE.PerspectiveCamera(75, aspect, 0.1, 1000);
 
-camera.position.set(63, 210, 418);
-camera.lookAt(new THREE.Vector3(50, 0, 50));
+camera.position.set(21, 124, 388);
+camera.lookAt(new THREE.Vector3(50, 0, -50));
 
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.autoRotateSpeed = 0.15;
@@ -256,7 +256,7 @@ const lines = [
     // lines connecting bottom to top
     makeLine(-50, -50, -10, 200, -50, -50),
     makeLine(150, 150, -10, 200, -50, -50),
-    makeLine(-50, -50, -10, 200, 150, 150),
+    //makeLine(-50, -50, -10, 200, 150, 150),
     makeLine(150, 150, -10, 200, 150, 150),
 
     // lines connecting top plane
@@ -354,10 +354,10 @@ emitter
         new Body(emittedSphere),
         new RadialVelocity(new Span(300, 500), new Vector3D(0, 1, 0), 30),
     ])
-    .addBehaviours([new Scale(1.5), new Collision(emitter)])
+    .addBehaviours([new Scale(1.5), new Gravity(1), new Collision(emitter)])
     .emit();
 
-emitter.damping = 0.16;
+emitter.damping = 0.06;
 emitter.setPosition(new Vector3D(-4, 50, -20));
 console.log("emitter: ", emitter);
 
