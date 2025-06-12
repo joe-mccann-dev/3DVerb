@@ -77,7 +77,7 @@ controls.addEventListener('change', () => {
     console.log('target:', controls.target);
 });
 
-const pointLight = new THREE.PointLight(0xf8f8df, 80000);;
+const pointLight = new THREE.PointLight(0xc9c893, 60000);;
 pointLight.position.set(100, 95, 10);
 pointLight.castShadow = true;
 pointLight.shadow.camera.left = -10;
@@ -102,6 +102,7 @@ const speakersPromise = new Promise((resolve, reject) => {
         const speakers = [];
         const leftSpeaker = glb.scene;
         leftSpeaker.envMap = environmentMap;
+        leftSpeaker.receiveShadow = true;
         leftSpeaker.scale.set(16, 16, 16);
         leftSpeaker.rotateY(-0.5);      
         leftSpeaker.position.set(-4, 50, -20);
@@ -124,7 +125,8 @@ const carpetPromise = new Promise((resolve, reject) => {
     loader.load('assets/fine_persian_heriz_carpet.glb', function (glb) {
         const carpet = glb.scene;
         carpet.envMap = environmentMap;
-        //carpet.scale.set(0.7, 1, 0.5);
+        carpet.receiveShadow = true;
+        carpet.castShadow = true;
         carpet.scale.set(50, 50, 60);
         carpet.position.set(52, -8, 50);
         carpet.rotateY(Math.PI / 2);
@@ -138,6 +140,8 @@ const lampPromise = new Promise((resolve, reject) => {
     loader.load('assets/floor_lamp.glb', function (glb) {
         const lamp = glb.scene;
         lamp.envMap = environmentMap;
+        lamp.receiveShadow = true;
+        lamp.castShadow = true;
         lamp.scale.set(60, 60, 60);
         lamp.position.set(100, 50, 10);
         lamp.rotateY(Math.PI / 4)
@@ -151,8 +155,8 @@ const panelsPromise = new Promise((resolve, reject) => {
     loader.load('assets/wall_wood_panels.glb', function (glb) {
         const panels = [];
         const rearPanel = glb.scene;
-
         rearPanel.envMap = environmentMap;
+        rearPanel.receiveShadow = true;
         rearPanel.scale.set(210, 534, 200);
         rearPanel.position.set(50, -10, -40);
         objects.push(rearPanel);
@@ -168,8 +172,21 @@ const panelsPromise = new Promise((resolve, reject) => {
 
         resolve(panels);
     }, undefined, reject);
-})
+});
 
+const plantPromise = new Promise((resolve, reject) => {
+    loader.load('assets/tall_house_plant.glb', function (glb) {
+        const plant = glb.scene;
+        plant.envMap = environmentMap;
+        plant.receiveShadow = true;
+        plant.castShadow = true;
+        plant.scale.set(0.20, 0.20, 0.20);
+        plant.position.set(40, 5, -10);
+        objects.push(plant);
+        scene.add(plant);
+        resolve(plant);
+    }, undefined, reject);
+});
 
 // GEOMETRIES
 const sphereRadius = 3.2;
@@ -237,7 +254,7 @@ function makePlane(geometry, color, positions) {
     plane.rotation.x = -Math.PI / 2;
     plane.position.set(positions[0], positions[1], positions[2]);
     plane.castShadow = true;
-    plane.receiveShadow = true;
+    //plane.receiveShadow = true;
 
     scene.add(plane);
     objects.push(plane);
@@ -359,6 +376,7 @@ export {
     speakersPromise,
     panelsPromise,
     carpetPromise,
+    plantPromise,
     lampPromise,
     pointLight,
 }

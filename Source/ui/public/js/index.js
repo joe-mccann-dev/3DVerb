@@ -220,6 +220,14 @@ document.addEventListener("DOMContentLoaded", () => {
             lamp.position.multiplyScalar(scale);
         });
 
+        Animated.plantPromise.then((plant) => {
+            plant.scale.copy(plant.userData.originalScale);
+            plant.scale.multiplyScalar(scale);
+
+            plant.position.copy(plant.userData.originalPosition);
+            plant.position.multiplyScalar(scale);
+    });
+
         Animated.pointLight.position.copy(Animated.pointLight.userData.originalPosition);
         Animated.pointLight.position.multiplyScalar(scale);
 
@@ -312,6 +320,11 @@ document.addEventListener("DOMContentLoaded", () => {
         lamp.userData.originalScale = lamp.scale.clone();
         lamp.userData.originalPosition = lamp.position.clone();
     });
+
+    Animated.plantPromise.then(plant => {
+        plant.userData.originalScale = plant.scale.clone();
+        plant.userData.originalPosition = plant.position.clone();
+    })
 
     Animated.pointLight.userData.originalPosition = Animated.pointLight.position.clone();
     Animated.pointLight.userData.originalIntensity = Animated.pointLight.intensity;
