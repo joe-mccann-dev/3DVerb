@@ -188,6 +188,29 @@ const plantPromise = new Promise((resolve, reject) => {
     }, undefined, reject);
 });
 
+const soundPanelsPromise = new Promise((resolve, reject) => {
+    loader.load('assets/sound_proof_panel.glb', function (glb) {
+        const panels = [];
+        const panel = glb.scene;
+        panel.envMap = environmentMap;
+        panel.position.set(145, 120, 50);
+        panel.rotateX(Math.PI / 2);
+        panel.rotateZ(Math.PI / 2);
+        panel.scale.set(4, 4, 4);
+        objects.push(panel);
+        panels.push(panel);
+        scene.add(panel);
+
+        const panel2 = glb.scene.clone();
+        panel2.position.set(70, 120, -46);
+        panel2.rotateZ(-Math.PI / 2);
+        objects.push(panel2);
+        panels.push(panel2);
+        scene.add(panel2);
+        resolve(panels);
+    }, undefined, reject);
+})
+
 // GEOMETRIES
 const sphereRadius = 3.2;
 const sphereWidthSegments = 24;
@@ -375,6 +398,7 @@ export {
     sphereRadius,
     speakersPromise,
     panelsPromise,
+    soundPanelsPromise,
     carpetPromise,
     plantPromise,
     lampPromise,

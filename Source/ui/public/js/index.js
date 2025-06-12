@@ -226,7 +226,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
             plant.position.copy(plant.userData.originalPosition);
             plant.position.multiplyScalar(scale);
-    });
+        });
+
+        Animated.soundPanelsPromise.then((panels) => {
+            panels.forEach((panel) => {
+                panel.scale.copy(panel.userData.originalScale);
+                panel.scale.multiplyScalar(scale);
+
+                panel.position.copy(panel.userData.originalPosition);
+                panel.position.multiplyScalar(scale);
+            })
+        })
 
         Animated.pointLight.position.copy(Animated.pointLight.userData.originalPosition);
         Animated.pointLight.position.multiplyScalar(scale);
@@ -324,6 +334,13 @@ document.addEventListener("DOMContentLoaded", () => {
     Animated.plantPromise.then(plant => {
         plant.userData.originalScale = plant.scale.clone();
         plant.userData.originalPosition = plant.position.clone();
+    });
+
+    Animated.soundPanelsPromise.then(panels => {
+        panels.forEach((panel) => {
+            panel.userData.originalScale = panel.scale.clone();
+            panel.userData.originalPosition = panel.position.clone();
+        });
     })
 
     Animated.pointLight.userData.originalPosition = Animated.pointLight.position.clone();
