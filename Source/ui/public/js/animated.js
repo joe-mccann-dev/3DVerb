@@ -265,8 +265,8 @@ const lines = [
     makeLine(150, 150, 200, 200, -50, 150),
 
     // speaker stands
-    makeLine(-4, -4, -10, 50, -20, -20, 0x3c3e24),
-    makeLine(126, 126, -10, 50, 100, 100, 0x3c3e24),
+    makeLine(-4, -4, -10, 50, -20, -20, speakerStandColor),
+    makeLine(126, 126, -10, 50, 100, 100, speakerStandColor),
 ];
 
 // "ADD A MESH" FUNCTIONS
