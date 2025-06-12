@@ -245,11 +245,11 @@ document.addEventListener("DOMContentLoaded", () => {
         Animated.pointLight.intensity = Animated.pointLight.userData.originalIntensity * Math.pow(scale, exponent);
     }, 100);
 
-    const coolBlue = new Animated.threeColor(Animated.coolBlue);
+    const freezeColor = new Animated.threeColor(Animated.freezeColor);
     const freezeThrottleHandler = throttle((frozen) => {
         Animated.spheres.forEach((sphere) => {
             if (frozen) {
-                sphere.material.color.copy(coolBlue);
+                sphere.material.color.copy(freezeColor);
             } else {
                 sphere.material.color.copy(sphere.userData.color);
             }

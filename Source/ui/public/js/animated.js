@@ -24,13 +24,12 @@ import ParticleSystem, {
 import * as UI from './index.js';
 
 // COLORS
-const lightIndigo = 0xBFDBFE;
-const mediumIndigo = 0x6366F1;
-const mediumAmber = 0xFBBF24;
-const mediumDarkAmber = 0xB45309;
-const coolBlue = 0x60A5FA;
-const lightYellow = 0xFDE68A;
-const fuchsia600 = 0xc026d3;
+const freezeColor = 0x2c2e54;
+const sphereColor = 0xd8d8b4;
+const topPlaneColor = 0x2c2e54;
+const sidePlaneColor = 0x888c8f;
+const speakerStandColor = 0xbfbc85;
+const roomFrameColor = 0x919ddc;
 const threeColor = THREE.Color;
 // END COLORS
 
@@ -164,6 +163,11 @@ const panelsPromise = new Promise((resolve, reject) => {
         panels.push(panel);
         scene.add(panel);
 
+        const panel2 = glb.scene.clone();
+        panel2.position.set(60, 10, -40);
+        panel2.rotateY(Math.PI / 2);
+        scene.add(panel2);
+
         resolve(panels);
     }, undefined, reject);
 });
@@ -219,27 +223,27 @@ const emittedSphereGeometry = new THREE.SphereGeometry(emittedSphereRadius, emit
 const planeGeometry = new THREE.PlaneGeometry(210, 210, 4, 4);
 const speakerStandGeometry = new THREE.PlaneGeometry(45, 45, 2, 2);
 const planes = [
-    makePlane(planeGeometry, 0x2c2e54, [50, -10, 50], -Math.PI / 2, 0, 0),
-    makePlane(planeGeometry, 0x2c2e54, [50, 200, 50], -Math.PI / 2, 0, 0),
-    makePlane(planeGeometry, 0x888c8f, [150, 95, 50], 0, Math.PI / 2, 0, -Math.PI / 4),
-    makePlane(planeGeometry, 0x888c8f, [50, 95, -50], -Math.PI, 0, 0),
+    makePlane(planeGeometry, topPlaneColor, [50, -10, 50], -Math.PI / 2, 0, 0),
+    makePlane(planeGeometry, topPlaneColor, [50, 200, 50], -Math.PI / 2, 0, 0),
+    makePlane(planeGeometry, sidePlaneColor, [150, 95, 50], 0, Math.PI / 2, 0, -Math.PI / 4),
+    makePlane(planeGeometry, sidePlaneColor, [50, 95, -50], -Math.PI, 0, 0),
     // speaker stands
-    makePlane(speakerStandGeometry, 0xbfbc85, [-5, 50, -20], -Math.PI / 2, 0, 0),
-    makePlane(speakerStandGeometry, 0xbfbc85, [126, 50, 100], -Math.PI / 2, 0, 0)
+    makePlane(speakerStandGeometry, speakerStandColor, [-5, 50, -20], -Math.PI / 2, 0, 0),
+    makePlane(speakerStandGeometry, speakerStandColor, [126, 50, 100], -Math.PI / 2, 0, 0)
 ];
 
 // MESH LISTS
 const spheres = [
     // left
-    makeSphere(sphereGeometry, 0xd8d8b4, [-50, -10, 150]),
-    makeSphere(sphereGeometry, 0xd8d8b4, [-50, 200, 150]),
-    makeSphere(sphereGeometry, 0xd8d8b4, [-50, -10, -50]),
-    makeSphere(sphereGeometry, 0xd8d8b4, [-50, 200, -50]),
+    makeSphere(sphereGeometry, [-50, -10, 150]),
+    makeSphere(sphereGeometry, [-50, 200, 150]),
+    makeSphere(sphereGeometry, [-50, -10, -50]),
+    makeSphere(sphereGeometry, [-50, 200, -50]),
     //right
-    makeSphere(sphereGeometry, 0xd8d8b4, [150, -10, 150]),
-    makeSphere(sphereGeometry, 0xd8d8b4, [150, 200, 150]),
-    makeSphere(sphereGeometry, 0xd8d8b4, [150, -10, -50]),
-    makeSphere(sphereGeometry, 0xd8d8b4, [150, 200, -50])    
+    makeSphere(sphereGeometry, [150, -10, 150]),
+    makeSphere(sphereGeometry, [150, 200, 150]),
+    makeSphere(sphereGeometry, [150, -10, -50]),
+    makeSphere(sphereGeometry, [150, 200, -50])    
 ];
 
 const lines = [
@@ -252,7 +256,6 @@ const lines = [
     // lines connecting bottom to top
     makeLine(-50, -50, -10, 200, -50, -50),
     makeLine(150, 150, -10, 200, -50, -50),
-    //makeLine(-50, -50, -10, 200, 150, 150),
     makeLine(150, 150, -10, 200, 150, 150),
 
     // lines connecting top plane
@@ -269,7 +272,7 @@ const lines = [
 // "ADD A MESH" FUNCTIONS
 function makePlane(geometry, color, positions, x_rotation, y_rotation, z_rotation) {
     const textureLoader = new THREE.TextureLoader;
-    const alphaMap = textureLoader.load('assets/mountain_grayscale.png');
+    const alphaMap = textureLoader.load('assets/sky_grayscale.png');
     const material = new THREE.MeshStandardMaterial({
         color: color,
         envMap: environmentMap,
@@ -277,14 +280,10 @@ function makePlane(geometry, color, positions, x_rotation, y_rotation, z_rotatio
         transparent: true,
         alphaMap: alphaMap,
     });
-    console.log(material);
     const plane = new THREE.Mesh(geometry, material);
-    plane.rotation.x = x_rotation;
-    plane.rotation.y = y_rotation;
-    plane.rotation.z = z_rotation;
+    plane.rotation.set(x_rotation, y_rotation, z_rotation)
     plane.position.set(positions[0], positions[1], positions[2]);
     plane.castShadow = true;
-    //plane.receiveShadow = true;
 
     scene.add(plane);
     objects.push(plane);
@@ -292,7 +291,7 @@ function makePlane(geometry, color, positions, x_rotation, y_rotation, z_rotatio
     return plane;
 }
 
-function makeSphere(geometry, color, positions = [0, 0, 0]) {
+function makeSphere(geometry, positions, color = sphereColor ) {
     const material = new THREE.MeshStandardMaterial({
         color: color,
         envMap: environmentMap,
@@ -312,7 +311,7 @@ function makeSphere(geometry, color, positions = [0, 0, 0]) {
     return sphere;
 }
 
-function makeLine(src_x, dest_x, src_y, dest_y, src_z, dest_z, color = lightIndigo) {
+function makeLine(src_x, dest_x, src_y, dest_y, src_z, dest_z, color = roomFrameColor) {
     const distance = Math.sqrt(
         (dest_x - src_x) ** 2 +
         (dest_y - src_y) ** 2 +
@@ -400,13 +399,9 @@ function animate(time) {
 }
 
 export {
-    threeColor,
     animate,
-    coolBlue,
-    mediumIndigo,
-    mediumDarkAmber,
-    mediumAmber,
-    lightYellow,
+    freezeColor,
+    threeColor,
     spheres,
     lines,
     planes,
