@@ -217,7 +217,7 @@ const sphereWidthSegments = 24;
 const sphereHeightSegments = 24;
 const sphereGeometry = new THREE.SphereGeometry(sphereRadius, sphereWidthSegments, sphereHeightSegments);
 
-const emittedSphereRadius = 3;
+const emittedSphereRadius = 1;
 const emittedSphereWidthSegments = 12;
 const emittedSphereHeightSegments = 12;
 const emittedSphereGeometry = new THREE.SphereGeometry(emittedSphereRadius, emittedSphereWidthSegments, emittedSphereHeightSegments);
@@ -340,8 +340,7 @@ const emitterRenderer = new MeshRenderer(scene, THREE);
 const emittedSphere = new THREE.Mesh(
     emittedSphereGeometry,
     new THREE.MeshStandardMaterial({
-        color: 'lightblue',
-        metalness: 2.2,
+        color: 0xc6c7b8,
         wireframe: false,
     })
 );
@@ -350,7 +349,7 @@ emitter
     .setRate(new Rate(new Span(2, 5), new Span(0.5, 1)))
     .addInitializers([
         new Mass(1),
-        new Radius(16),
+        new Radius(5),
         new Life(25, 125),
         new Body(emittedSphere),
         new RadialVelocity(new Span(300, 500), new Vector3D(0, 1, 0), 30),
@@ -358,8 +357,8 @@ emitter
     .addBehaviours([new Scale(1.5), new Collision(emitter)])
     .emit();
 
-emitter.damping = 0.06;
-emitter.setPosition(new Vector3D(50, 10, 50));
+emitter.damping = 0.16;
+emitter.setPosition(new Vector3D(-4, 50, -20));
 console.log("emitter: ", emitter);
 
 const system = new ParticleSystem();
@@ -378,7 +377,7 @@ function animate(time) {
             sphere.rotation.y = rotation;
         });
     }
-    //system.update();
+    system.update();
     controls.update();
     renderer.render(scene, camera);
     requestAnimationFrame(animate);
