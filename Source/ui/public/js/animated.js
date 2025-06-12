@@ -65,7 +65,7 @@ const height = canvas.height;
 const aspect = width / height;
 const camera = new THREE.PerspectiveCamera(75, aspect, 0.1, 1000);
 
-camera.position.set(21, 124, 388);
+camera.position.set(-74, 92, 342);
 camera.lookAt(new THREE.Vector3(50, 0, -50));
 
 const controls = new OrbitControls(camera, renderer.domElement);
@@ -77,7 +77,7 @@ controls.addEventListener('change', () => {
     console.log('target:', controls.target);
 });
 
-const pointLight = new THREE.PointLight(0xc9c893, 60000);;
+const pointLight = new THREE.PointLight(0xc9c893, 50000);;
 pointLight.position.set(100, 95, 10);
 pointLight.castShadow = true;
 pointLight.shadow.camera.left = -10;
@@ -154,21 +154,15 @@ const lampPromise = new Promise((resolve, reject) => {
 const panelsPromise = new Promise((resolve, reject) => {
     loader.load('assets/wall_wood_panels.glb', function (glb) {
         const panels = [];
-        const rearPanel = glb.scene;
-        rearPanel.envMap = environmentMap;
-        rearPanel.receiveShadow = true;
-        rearPanel.scale.set(210, 534, 200);
-        rearPanel.position.set(50, -10, -40);
-        objects.push(rearPanel);
-        panels.push(rearPanel);
-        scene.add(rearPanel);
-
-        const rightSidePanel = rearPanel.clone();
-        rightSidePanel.position.set(140, -10, 50);
-        rightSidePanel.rotateY(-Math.PI / 2);
-        objects.push(rightSidePanel);
-        panels.push(rightSidePanel);
-        scene.add(rightSidePanel);
+        const panel = glb.scene;
+        panel.envMap = environmentMap;
+        panel.receiveShadow = true;
+        panel.scale.set(100, 100, 100);
+        panel.position.set(142, 10, 60);
+        panel.rotateY(-Math.PI / 2);
+        objects.push(panel);
+        panels.push(panel);
+        scene.add(panel);
 
         resolve(panels);
     }, undefined, reject);
@@ -193,7 +187,7 @@ const soundPanelsPromise = new Promise((resolve, reject) => {
         const panels = [];
         const panel = glb.scene;
         panel.envMap = environmentMap;
-        panel.position.set(145, 120, 50);
+        panel.position.set(145, 120, 55);
         panel.rotateX(Math.PI / 2);
         panel.rotateZ(Math.PI / 2);
         panel.scale.set(4, 4, 4);
@@ -202,7 +196,7 @@ const soundPanelsPromise = new Promise((resolve, reject) => {
         scene.add(panel);
 
         const panel2 = glb.scene.clone();
-        panel2.position.set(70, 120, -46);
+        panel2.position.set(55, 120, -46);
         panel2.rotateZ(-Math.PI / 2);
         objects.push(panel2);
         panels.push(panel2);
@@ -213,8 +207,8 @@ const soundPanelsPromise = new Promise((resolve, reject) => {
 
 // GEOMETRIES
 const sphereRadius = 3.2;
-const sphereWidthSegments = 24;
-const sphereHeightSegments = 24;
+const sphereWidthSegments = 12;
+const sphereHeightSegments = 12;
 const sphereGeometry = new THREE.SphereGeometry(sphereRadius, sphereWidthSegments, sphereHeightSegments);
 
 const emittedSphereRadius = 1;
@@ -222,28 +216,30 @@ const emittedSphereWidthSegments = 12;
 const emittedSphereHeightSegments = 12;
 const emittedSphereGeometry = new THREE.SphereGeometry(emittedSphereRadius, emittedSphereWidthSegments, emittedSphereHeightSegments);
 
-const planeGeometry = new THREE.PlaneGeometry(198, 198, 4, 4);
-const speakerStandGeometry = new THREE.PlaneGeometry(50, 50, 4, 4);
+const planeGeometry = new THREE.PlaneGeometry(210, 210, 4, 4);
+const speakerStandGeometry = new THREE.PlaneGeometry(45, 45, 2, 2);
 const planes = [
-    makePlane(planeGeometry, 0x2c2e54, [50, -10, 50]),
-    makePlane(planeGeometry, 0x2c2e54, [50, 200, 50]),
+    makePlane(planeGeometry, 0x2c2e54, [50, -10, 50], -Math.PI / 2, 0, 0),
+    makePlane(planeGeometry, 0x2c2e54, [50, 200, 50], -Math.PI / 2, 0, 0),
+    makePlane(planeGeometry, 0x888c8f, [150, 95, 50], 0, Math.PI / 2, 0, -Math.PI / 4),
+    makePlane(planeGeometry, 0x888c8f, [50, 95, -50], -Math.PI, 0, 0),
     // speaker stands
-    makePlane(speakerStandGeometry, 0xbfbc85, [-5, 50, -20]),
-    makePlane(speakerStandGeometry, 0xbfbc85, [126, 50, 100])
+    makePlane(speakerStandGeometry, 0xbfbc85, [-5, 50, -20], -Math.PI / 2, 0, 0),
+    makePlane(speakerStandGeometry, 0xbfbc85, [126, 50, 100], -Math.PI / 2, 0, 0)
 ];
 
 // MESH LISTS
 const spheres = [
     // left
-    makeSphere(sphereGeometry, fuchsia600, [-50, -10, 150]),
-    makeSphere(sphereGeometry, fuchsia600, [-50, 200, 150]),
-    makeSphere(sphereGeometry, mediumIndigo, [-50, -10, -50]),
-    makeSphere(sphereGeometry, mediumIndigo, [-50, 200, -50]),
+    makeSphere(sphereGeometry, 0xd8d8b4, [-50, -10, 150]),
+    makeSphere(sphereGeometry, 0xd8d8b4, [-50, 200, 150]),
+    makeSphere(sphereGeometry, 0xd8d8b4, [-50, -10, -50]),
+    makeSphere(sphereGeometry, 0xd8d8b4, [-50, 200, -50]),
     //right
-    makeSphere(sphereGeometry, mediumDarkAmber, [150, -10, 150]),
-    makeSphere(sphereGeometry, mediumDarkAmber, [150, 200, 150]),
-    makeSphere(sphereGeometry, lightYellow, [150, -10, -50]),
-    makeSphere(sphereGeometry, lightYellow, [150, 200, -50])    
+    makeSphere(sphereGeometry, 0xd8d8b4, [150, -10, 150]),
+    makeSphere(sphereGeometry, 0xd8d8b4, [150, 200, 150]),
+    makeSphere(sphereGeometry, 0xd8d8b4, [150, -10, -50]),
+    makeSphere(sphereGeometry, 0xd8d8b4, [150, 200, -50])    
 ];
 
 const lines = [
@@ -271,10 +267,21 @@ const lines = [
 ];
 
 // "ADD A MESH" FUNCTIONS
-function makePlane(geometry, color, positions) {
-    const material = new THREE.MeshStandardMaterial({ color: color, envMap: environmentMap, side: THREE.DoubleSide });
+function makePlane(geometry, color, positions, x_rotation, y_rotation, z_rotation) {
+    const textureLoader = new THREE.TextureLoader;
+    const alphaMap = textureLoader.load('assets/mountain_grayscale.png');
+    const material = new THREE.MeshStandardMaterial({
+        color: color,
+        envMap: environmentMap,
+        side: THREE.DoubleSide,
+        transparent: true,
+        alphaMap: alphaMap,
+    });
+    console.log(material);
     const plane = new THREE.Mesh(geometry, material);
-    plane.rotation.x = -Math.PI / 2;
+    plane.rotation.x = x_rotation;
+    plane.rotation.y = y_rotation;
+    plane.rotation.z = z_rotation;
     plane.position.set(positions[0], positions[1], positions[2]);
     plane.castShadow = true;
     //plane.receiveShadow = true;
@@ -286,13 +293,18 @@ function makePlane(geometry, color, positions) {
 }
 
 function makeSphere(geometry, color, positions = [0, 0, 0]) {
-    const material = new THREE.MeshStandardMaterial({ color: color, envMap: environmentMap });
+    const material = new THREE.MeshStandardMaterial({
+        color: color,
+        envMap: environmentMap,
+        wireframe: true,
+    });
     const sphere = new THREE.Mesh(geometry, material);
 
     sphere.position.set(positions[0], positions[1], positions[2]);
 
     sphere.castShadow = true;
     sphere.receiveShadow = true;
+    sphere.metalness = 3;
 
     scene.add(sphere);
     objects.push(sphere);
@@ -377,6 +389,10 @@ function animate(time) {
             sphere.rotation.y = rotation;
         });
     }
+    if (UI.bypassCheckbox.checked) {
+        pointLight.intensity = 0;
+    }
+
     system.update();
     controls.update();
     renderer.render(scene, camera);

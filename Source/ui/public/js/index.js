@@ -360,4 +360,5 @@ document.addEventListener("DOMContentLoaded", () => {
 
 export {
     freezeCheckbox,
+    bypassCheckbox,
 }
