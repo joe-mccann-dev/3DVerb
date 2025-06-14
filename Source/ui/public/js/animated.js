@@ -62,9 +62,9 @@ visualizer.appendChild(canvas);
 const width = canvas.width;
 const height = canvas.height;
 const aspect = width / height;
-const camera = new THREE.PerspectiveCamera(75, aspect, 0.1, 1000);
+const camera = new THREE.PerspectiveCamera(75, aspect, 0.1, 800);
 
-camera.position.set(33, 149, 634);
+camera.position.set(14, 105, 545);
 camera.lookAt(new THREE.Vector3(50, 0, -50));
 
 const controls = new OrbitControls(camera, renderer.domElement);
@@ -229,6 +229,9 @@ const bigSphereGeometry = new THREE.SphereGeometry(bigSphereRadius, bigSphereWid
 const bigSphereMaterial = new THREE.MeshStandardMaterial({
     color: topPlaneColor,
     envMap: environmentMap,
+    envMapIntensity: 2.0,
+    metalness: 6.0,
+    roughness: 0.2,
     alphaMap: textureLoader.load('assets/sky_grayscale.png'),
     transparent: true,
     opacity: 1.2,
