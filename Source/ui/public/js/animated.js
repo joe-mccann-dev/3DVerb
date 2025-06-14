@@ -166,6 +166,8 @@ const panelsPromise = new Promise((resolve, reject) => {
         const panel2 = glb.scene.clone();
         panel2.position.set(60, 10, -40);
         panel2.rotateY(Math.PI / 2);
+        objects.push(panel2);
+        panels.push(panel2);
         scene.add(panel2);
 
         resolve(panels);
@@ -365,17 +367,28 @@ emitter
         new Body(emittedSphere),
         new RadialVelocity(new Span(300, 500), new Vector3D(0, 1, 0), 30),
     ])
-    .addBehaviours([new Scale(1.5), new Gravity(1), new Collision(emitter)])
+    .addBehaviours([new Scale(1.5), new Gravity(0.2), new Collision(emitter)])
     .emit();
 
 emitter.damping = 0.06;
 emitter.setPosition(new Vector3D(-4, 50, -20));
-console.log("emitter: ", emitter);
+
+
+const dotMap = new THREE.TextureLoader().load('assets/dot.png');
+const material = new THREE.SpriteMaterial({
+    map: dotMap,
+    color: 0xff0000,
+    blending: THREE.AdditiveBlending,
+    fog: true,
+});
+const sprite = new THREE.Sprite(material);
 
 const system = new ParticleSystem();
 system
     .addEmitter(emitter)
     .addRenderer(emitterRenderer);
+
+
 
 function animate(time) {
     time *= 0.001;
@@ -390,6 +403,14 @@ function animate(time) {
     }
     if (UI.bypassCheckbox.checked) {
         pointLight.intensity = 0;
+        spheres.forEach((sphere) => {
+            sphere.rotation.x = 0;
+            sphere.rotation.y = 0;
+        });
+        emitter.stopEmit();
+    }
+    if (!emitter.isEmitting) {
+        emitter.emit();
     }
 
     system.update();
