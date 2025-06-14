@@ -46,7 +46,7 @@ const environmentMap = cubeTextureLoader.load([
     '../assets/environment_map/mountain/pz.png',
     '../assets/environment_map/mountain/nz.png'
 ]);
-
+const textureLoader = new THREE.TextureLoader;
 
 scene.background = environmentMap;
 scene.environment = environmentMap;
@@ -64,7 +64,7 @@ const height = canvas.height;
 const aspect = width / height;
 const camera = new THREE.PerspectiveCamera(75, aspect, 0.1, 1000);
 
-camera.position.set(-74, 92, 342);
+camera.position.set(33, 149, 634);
 camera.lookAt(new THREE.Vector3(50, 0, -50));
 
 const controls = new OrbitControls(camera, renderer.domElement);
@@ -222,6 +222,23 @@ const emittedSphereWidthSegments = 12;
 const emittedSphereHeightSegments = 12;
 const emittedSphereGeometry = new THREE.SphereGeometry(emittedSphereRadius, emittedSphereWidthSegments, emittedSphereHeightSegments);
 
+const bigSphereRadius = 300;
+const bigSphereWidthSegments = 36;
+const bigSphereHeightSegments = 36;
+const bigSphereGeometry = new THREE.SphereGeometry(bigSphereRadius, bigSphereWidthSegments, bigSphereHeightSegments);
+const bigSphereMaterial = new THREE.MeshStandardMaterial({
+    color: topPlaneColor,
+    envMap: environmentMap,
+    alphaMap: textureLoader.load('assets/sky_grayscale.png'),
+    transparent: true,
+    opacity: 1.2,
+});
+const bigSphere = new THREE.Mesh(bigSphereGeometry, bigSphereMaterial);
+bigSphere.position.set(50, 80, 50);
+objects.push(bigSphere);
+scene.add(bigSphere);
+
+
 const planeGeometry = new THREE.PlaneGeometry(210, 210, 4, 4);
 const speakerStandGeometry = new THREE.PlaneGeometry(45, 45, 2, 2);
 const planes = [
@@ -273,7 +290,6 @@ const lines = [
 
 // "ADD A MESH" FUNCTIONS
 function makePlane(geometry, color, positions, x_rotation, y_rotation, z_rotation) {
-    const textureLoader = new THREE.TextureLoader;
     const alphaMap = textureLoader.load('assets/sky_grayscale.png');
     const material = new THREE.MeshStandardMaterial({
         color: color,
@@ -394,7 +410,7 @@ function animate(time) {
     time *= 0.001;
 
     if (!UI.freezeCheckbox.checked) {
-        spheres.forEach((sphere, index) => {
+        spheres.slice(1, spheres.length).forEach((sphere, index) => {
             const speed = 1 + index * 0.1;
             const rotation = time * speed;
             sphere.rotation.x = rotation;
