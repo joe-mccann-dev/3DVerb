@@ -155,94 +155,98 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const mixThrottleHandler = throttle((mixValue) => {
         Animated.spheres.forEach((sphere) => {
-            const scale = Animated.sphereRadius + mixValue;
-            sphere.scale.set(scale, scale, scale);
+            const min = .6;
+            const scale = Animated.sphereRadius + (mixValue * 1.5);
+            sphere.scale.copy(sphere.userData.originalScale);
+            sphere.scale.multiplyScalar(scale);
         });
     }, 100);
 
     const roomSizeThrottleHandler = throttle((roomSizeValue) => {
-        const min = 0.57;
+        const min = 0.50;
         const scale = min + (1 - min) * roomSizeValue;
-        Animated.spheres.forEach((sphere) => {
-            sphere.position.copy(sphere.userData.originalPosition);
-            sphere.position.multiplyScalar(scale);
-        });
+        Animated.bigSphere.scale.copy(Animated.bigSphere.userData.originalScale);
+        Animated.bigSphere.scale.multiplyScalar(scale);
 
-        Animated.lines.forEach((line) => {
-            line.position.copy(line.userData.originalPosition);
-            line.scale.copy(line.userData.originalScale);
-            line.position.multiplyScalar(scale);
-            line.scale.multiplyScalar(scale);
-        });
+        //Animated.spheres.forEach((sphere) => {
+        //    sphere.position.copy(sphere.userData.originalPosition);
+        //    sphere.position.multiplyScalar(scale);
+        //});
 
-        Animated.planes.forEach((plane) => {
-            plane.scale.copy(plane.userData.originalScale);
-            plane.scale.multiplyScalar(scale);
+        //Animated.lines.forEach((line) => {
+        //    line.position.copy(line.userData.originalPosition);
+        //    line.scale.copy(line.userData.originalScale);
+        //    line.position.multiplyScalar(scale);
+        //    line.scale.multiplyScalar(scale);
+        //});
 
-            plane.position.copy(plane.userData.originalPosition);
-            plane.position.multiplyScalar(scale)
-        });
+        //Animated.planes.forEach((plane) => {
+        //    plane.scale.copy(plane.userData.originalScale);
+        //    plane.scale.multiplyScalar(scale);
+
+        //    plane.position.copy(plane.userData.originalPosition);
+        //    plane.position.multiplyScalar(scale)
+        //});
 
 
-        Animated.speakersPromise.then((speakers) => {
-            speakers.forEach((speaker) => {
-                speaker.scale.copy(speaker.userData.originalScale);
-                speaker.scale.multiplyScalar(scale);
+        //Animated.speakersPromise.then((speakers) => {
+        //    speakers.forEach((speaker) => {
+        //        speaker.scale.copy(speaker.userData.originalScale);
+        //        speaker.scale.multiplyScalar(scale);
 
-                speaker.position.copy(speaker.userData.originalPosition);
-                speaker.position.multiplyScalar(scale);
-            });
-        });
+        //        speaker.position.copy(speaker.userData.originalPosition);
+        //        speaker.position.multiplyScalar(scale);
+        //    });
+        //});
 
-        Animated.panelsPromise.then((panels) => {
-            panels.forEach((panel) => {
-                panel.scale.copy(panel.userData.originalScale);
-                panel.scale.multiplyScalar(scale);
+        //Animated.panelsPromise.then((panels) => {
+        //    panels.forEach((panel) => {
+        //        panel.scale.copy(panel.userData.originalScale);
+        //        panel.scale.multiplyScalar(scale);
 
-                panel.position.copy(panel.userData.originalPosition);
-                panel.position.multiplyScalar(scale);
-            });
-        });
+        //        panel.position.copy(panel.userData.originalPosition);
+        //        panel.position.multiplyScalar(scale);
+        //    });
+        //});
 
-        Animated.carpetPromise.then((carpet) => {
-            carpet.scale.copy(carpet.userData.originalScale);
-            carpet.scale.multiplyScalar(scale);
+        //Animated.carpetPromise.then((carpet) => {
+        //    carpet.scale.copy(carpet.userData.originalScale);
+        //    carpet.scale.multiplyScalar(scale);
 
-            carpet.position.copy(carpet.userData.originalPosition);
-            carpet.position.multiplyScalar(scale);
-        });
+        //    carpet.position.copy(carpet.userData.originalPosition);
+        //    carpet.position.multiplyScalar(scale);
+        //});
 
-        Animated.lampPromise.then((lamp) => {
-            lamp.scale.copy(lamp.userData.originalScale);
-            lamp.scale.multiplyScalar(scale);
+        //Animated.lampPromise.then((lamp) => {
+        //    lamp.scale.copy(lamp.userData.originalScale);
+        //    lamp.scale.multiplyScalar(scale);
 
-            lamp.position.copy(lamp.userData.originalPosition);
-            lamp.position.multiplyScalar(scale);
-        });
+        //    lamp.position.copy(lamp.userData.originalPosition);
+        //    lamp.position.multiplyScalar(scale);
+        //});
 
-        Animated.plantPromise.then((plant) => {
-            plant.scale.copy(plant.userData.originalScale);
-            plant.scale.multiplyScalar(scale);
+        //Animated.plantPromise.then((plant) => {
+        //    plant.scale.copy(plant.userData.originalScale);
+        //    plant.scale.multiplyScalar(scale);
 
-            plant.position.copy(plant.userData.originalPosition);
-            plant.position.multiplyScalar(scale);
-        });
+        //    plant.position.copy(plant.userData.originalPosition);
+        //    plant.position.multiplyScalar(scale);
+        //});
 
-        Animated.soundPanelsPromise.then((panels) => {
-            panels.forEach((panel) => {
-                panel.scale.copy(panel.userData.originalScale);
-                panel.scale.multiplyScalar(scale);
+        //Animated.soundPanelsPromise.then((panels) => {
+        //    panels.forEach((panel) => {
+        //        panel.scale.copy(panel.userData.originalScale);
+        //        panel.scale.multiplyScalar(scale);
 
-                panel.position.copy(panel.userData.originalPosition);
-                panel.position.multiplyScalar(scale);
-            })
-        })
+        //        panel.position.copy(panel.userData.originalPosition);
+        //        panel.position.multiplyScalar(scale);
+        //    })
+        //})
 
-        Animated.pointLight.position.copy(Animated.pointLight.userData.originalPosition);
-        Animated.pointLight.position.multiplyScalar(scale);
+        //Animated.pointLight.position.copy(Animated.pointLight.userData.originalPosition);
+        //Animated.pointLight.position.multiplyScalar(scale);
 
-        const exponent = 2.5;
-        Animated.pointLight.intensity = Animated.pointLight.userData.originalIntensity * Math.pow(scale, exponent);
+        Animated.pointLight.intensity = Animated.pointLight.userData.originalIntensity;
     }, 100);
 
     const freezeColor = new Animated.threeColor(Animated.freezeColor);
@@ -297,6 +301,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // ROOM SIZE EVENT
     Animated.spheres.forEach((sphere) => {
         sphere.userData.originalPosition = sphere.position.clone();
+        sphere.userData.originalScale = sphere.scale.clone();
     });
     Animated.lines.forEach((line) => {
         line.userData.originalScale = line.scale.clone();
@@ -345,6 +350,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     Animated.pointLight.userData.originalPosition = Animated.pointLight.position.clone();
     Animated.pointLight.userData.originalIntensity = Animated.pointLight.intensity;
+
+    Animated.bigSphere.userData.originalScale = Animated.bigSphere.scale.clone();
 
     window.__JUCE__.backend.addEventListener("roomSizeValue", () => {
         fetch(Juce.getBackendResourceAddress("roomSize.json"))

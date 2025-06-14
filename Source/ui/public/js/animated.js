@@ -102,7 +102,7 @@ const speakersPromise = new Promise((resolve, reject) => {
         const leftSpeaker = glb.scene;
         leftSpeaker.envMap = environmentMap;
         leftSpeaker.receiveShadow = true;
-        leftSpeaker.scale.set(16, 16, 16);
+        leftSpeaker.scale.set(20, 20, 20);
         leftSpeaker.rotateY(-0.5);      
         leftSpeaker.position.set(-4, 50, -20);
         objects.push(leftSpeaker);
@@ -141,7 +141,7 @@ const lampPromise = new Promise((resolve, reject) => {
         lamp.envMap = environmentMap;
         lamp.receiveShadow = true;
         lamp.castShadow = true;
-        lamp.scale.set(60, 60, 60);
+        lamp.scale.set(70, 70, 70);
         lamp.position.set(100, 50, 10);
         lamp.rotateY(Math.PI / 4)
         objects.push(lamp);
@@ -180,7 +180,7 @@ const plantPromise = new Promise((resolve, reject) => {
         plant.envMap = environmentMap;
         plant.receiveShadow = true;
         plant.castShadow = true;
-        plant.scale.set(0.20, 0.20, 0.20);
+        plant.scale.set(0.24, 0.24, 0.24);
         plant.position.set(40, 5, -10);
         objects.push(plant);
         scene.add(plant);
@@ -212,7 +212,7 @@ const soundPanelsPromise = new Promise((resolve, reject) => {
 })
 
 // GEOMETRIES
-const sphereRadius = 3.2;
+const sphereRadius = 4;
 const sphereWidthSegments = 12;
 const sphereHeightSegments = 12;
 const sphereGeometry = new THREE.SphereGeometry(sphereRadius, sphereWidthSegments, sphereHeightSegments);
@@ -226,18 +226,20 @@ const bigSphereRadius = 300;
 const bigSphereWidthSegments = 36;
 const bigSphereHeightSegments = 36;
 const bigSphereGeometry = new THREE.SphereGeometry(bigSphereRadius, bigSphereWidthSegments, bigSphereHeightSegments);
+const alphaMap = textureLoader.load('assets/sky_grayscale.png');
 const bigSphereMaterial = new THREE.MeshStandardMaterial({
     color: topPlaneColor,
     envMap: environmentMap,
     envMapIntensity: 2.0,
     metalness: 6.0,
-    roughness: 0.2,
-    alphaMap: textureLoader.load('assets/sky_grayscale.png'),
+    roughness: 0.1,
+    alphaMap: alphaMap,
     transparent: true,
-    opacity: 1.2,
+    opacity: 1,
 });
 const bigSphere = new THREE.Mesh(bigSphereGeometry, bigSphereMaterial);
 bigSphere.position.set(50, 80, 50);
+bigSphere.rotateX(-Math.PI / 3);
 objects.push(bigSphere);
 scene.add(bigSphere);
 
@@ -245,8 +247,8 @@ scene.add(bigSphere);
 const planeGeometry = new THREE.PlaneGeometry(210, 210, 4, 4);
 const speakerStandGeometry = new THREE.PlaneGeometry(45, 45, 2, 2);
 const planes = [
-    makePlane(planeGeometry, topPlaneColor, [50, -10, 50], -Math.PI / 2, 0, 0),
-    makePlane(planeGeometry, topPlaneColor, [50, 200, 50], -Math.PI / 2, 0, 0),
+    makePlane(planeGeometry, sidePlaneColor, [50, -10, 50], -Math.PI / 2, 0, 0),
+    makePlane(planeGeometry, sidePlaneColor, [50, 200, 50], -Math.PI / 2, 0, 0),
     makePlane(planeGeometry, sidePlaneColor, [150, 95, 50], 0, Math.PI / 2, 0, -Math.PI / 4),
     makePlane(planeGeometry, sidePlaneColor, [50, 95, -50], -Math.PI, 0, 0),
     // speaker stands
@@ -293,7 +295,6 @@ const lines = [
 
 // "ADD A MESH" FUNCTIONS
 function makePlane(geometry, color, positions, x_rotation, y_rotation, z_rotation) {
-    const alphaMap = textureLoader.load('assets/sky_grayscale.png');
     const material = new THREE.MeshStandardMaterial({
         color: color,
         envMap: environmentMap,
@@ -413,13 +414,13 @@ function animate(time) {
     time *= 0.001;
 
     if (!UI.freezeCheckbox.checked) {
-        spheres.slice(1, spheres.length).forEach((sphere, index) => {
+        spheres.forEach((sphere, index) => {
             const speed = 1 + index * 0.1;
             const rotation = time * speed;
-            sphere.rotation.x = rotation;
             sphere.rotation.y = rotation;
         });
     }
+
     if (UI.bypassCheckbox.checked) {
         pointLight.intensity = 0;
         spheres.forEach((sphere) => {
@@ -432,6 +433,9 @@ function animate(time) {
         emitter.emit();
     }
 
+    const bigSphereRotationSpeed = 0.15;
+    const rotation = time * bigSphereRotationSpeed;
+    bigSphere.rotation.y = rotation;
     system.update();
     controls.update();
     renderer.render(scene, camera);
@@ -442,6 +446,7 @@ export {
     animate,
     freezeColor,
     threeColor,
+    bigSphere,
     spheres,
     lines,
     planes,
