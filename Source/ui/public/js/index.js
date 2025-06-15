@@ -153,9 +153,11 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
+    Animated.spheres.forEach((sphere) => {
+        sphere.userData.originalScale = sphere.scale.clone();
+    });
     const mixThrottleHandler = throttle((mixValue) => {
         Animated.spheres.forEach((sphere) => {
-            const min = .6;
             const scale = Animated.sphereRadius + (mixValue * 1.5);
             sphere.scale.copy(sphere.userData.originalScale);
             sphere.scale.multiplyScalar(scale);
@@ -163,13 +165,16 @@ document.addEventListener("DOMContentLoaded", () => {
     }, 100);
 
     const roomSizeThrottleHandler = throttle((roomSizeValue) => {
+        onRoomSizeChange(roomSizeValue);
+    }, 100);
+
+    function onRoomSizeChange(roomSizeValue) {
         const min = 0.50;
         const scale = min + (1 - min) * roomSizeValue;
         Animated.bigSphere.scale.copy(Animated.bigSphere.userData.originalScale);
         Animated.bigSphere.scale.multiplyScalar(scale);
-
         Animated.pointLight.intensity = Animated.pointLight.userData.originalIntensity;
-    }, 100);
+    }
 
     const freezeColor = new Animated.threeColor(Animated.freezeColor);
     const freezeThrottleHandler = throttle((frozen) => {

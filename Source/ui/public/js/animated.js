@@ -459,4 +459,5 @@ export {
     plantPromise,
     lampPromise,
     pointLight,
+    emitters,
 }
