@@ -19,7 +19,10 @@ import ParticleSystem, {
     Alpha,
     Scale,
     Color,
-    MeshRenderer,
+    SpriteRenderer,
+    CrossZone,
+    ScreenZone,
+    Force,
 } from 'three-nebula';
 import * as UI from './index.js';
 
@@ -111,8 +114,8 @@ const speakersPromise = new Promise((resolve, reject) => {
 
         const rightSpeaker = leftSpeaker.clone();
         rightSpeaker.envMap = environmentMap;
-        rightSpeaker.position.x += 130;
-        rightSpeaker.position.z += 120;
+        rightSpeaker.position.x += 109;
+        rightSpeaker.position.z += 70;
         objects.push(rightSpeaker);
         speakers.push(rightSpeaker);
         scene.add(rightSpeaker);
@@ -142,7 +145,7 @@ const lampPromise = new Promise((resolve, reject) => {
         lamp.receiveShadow = true;
         lamp.castShadow = true;
         lamp.scale.set(70, 70, 70);
-        lamp.position.set(100, 50, 10);
+        lamp.position.set(85, 60, 10);
         lamp.rotateY(Math.PI / 4)
         objects.push(lamp);
         scene.add(lamp);
@@ -231,7 +234,7 @@ const bigSphereMaterial = new THREE.MeshStandardMaterial({
     color: topPlaneColor,
     envMap: environmentMap,
     envMapIntensity: 2.0,
-    metalness: 6.0,
+    metalness: 0.0,
     roughness: 0.1,
     alphaMap: alphaMap,
     transparent: true,
@@ -253,7 +256,7 @@ const planes = [
     makePlane(planeGeometry, sidePlaneColor, [50, 95, -50], -Math.PI, 0, 0),
     // speaker stands
     makePlane(speakerStandGeometry, speakerStandColor, [-5, 50, -20], -Math.PI / 2, 0, 0),
-    makePlane(speakerStandGeometry, speakerStandColor, [126, 50, 100], -Math.PI / 2, 0, 0)
+    makePlane(speakerStandGeometry, speakerStandColor, [105, 50, 50], -Math.PI / 2, 0, 0)
 ];
 
 // MESH LISTS
@@ -290,7 +293,7 @@ const lines = [
 
     // speaker stands
     makeLine(-4, -4, -10, 50, -20, -20, speakerStandColor),
-    makeLine(126, 126, -10, 50, 100, 100, speakerStandColor),
+    makeLine(105, 105, -10, 50, 50, 50, speakerStandColor),
 ];
 
 // "ADD A MESH" FUNCTIONS
@@ -368,49 +371,44 @@ function makeLine(src_x, dest_x, src_y, dest_y, src_z, dest_z, color = roomFrame
     return line;
 }
 
-const emitter = new Emitter();
-const emitterRenderer = new MeshRenderer(scene, THREE);
-const emittedSphere = new THREE.Mesh(
-    emittedSphereGeometry,
-    new THREE.MeshStandardMaterial({
-        color: 0xc6c7b8,
-        wireframe: false,
-    })
-);
-
-emitter
-    .setRate(new Rate(new Span(2, 5), new Span(0.5, 1)))
-    .addInitializers([
-        new Mass(1),
-        new Radius(5),
-        new Life(25, 125),
-        new Body(emittedSphere),
-        new RadialVelocity(new Span(300, 500), new Vector3D(0, 1, 0), 30),
-    ])
-    .addBehaviours([new Scale(1.5), new Gravity(0.2), new Collision(emitter)])
-    .emit();
-
-emitter.damping = 0.06;
-emitter.setPosition(new Vector3D(-4, 50, -20));
-
-
-const dotMap = new THREE.TextureLoader().load('assets/dot.png');
-const material = new THREE.SpriteMaterial({
-    map: dotMap,
+const spriteMap = new THREE.TextureLoader().load('assets/wave-scaled.png');
+const spriteMaterial = new THREE.SpriteMaterial({
+    map: spriteMap,
     color: 0xff0000,
     blending: THREE.AdditiveBlending,
     fog: true,
 });
-const sprite = new THREE.Sprite(material);
+const sprite = new THREE.Sprite(spriteMaterial);
 
+function createEmitter(colorA, colorB, position) {
+    return new Emitter()
+        .setRate(new Rate(new Span(2, 3), new Span(0.01, 0.05)))
+        .setInitializers([
+            new Mass(2),
+            new Life(2),
+            new Body(sprite),
+            new Radius(20),
+            new RadialVelocity(30, new Vector3D(0, 0, 220), 60)
+        ])
+        .setBehaviours([
+            new Alpha(1, 0),
+            new Color(colorA, colorB),
+            new Scale(1, 0.5),
+            new CrossZone(new ScreenZone(camera, renderer), 'dead'),
+            new Force(0, 0, 1),
+        ])
+}
+
+const emitters = [createEmitter('#c6c7b8', '#c6c7b8'), createEmitter('#c6c7b8', '#6600FF')];
+emitters[0].position.set(-10, 65, -20);
+emitters[1].position.set(105, 65, 50);
 const system = new ParticleSystem();
 system
-    .addEmitter(emitter)
-    .addRenderer(emitterRenderer);
+    .addEmitter(emitters[0])
+    .addEmitter(emitters[1])
+    .addRenderer(new SpriteRenderer(scene, THREE));
 
-
-
-function animate(time) {
+function animate(time, tha) {
     time *= 0.001;
 
     if (!UI.freezeCheckbox.checked) {
@@ -427,15 +425,15 @@ function animate(time) {
             sphere.rotation.x = 0;
             sphere.rotation.y = 0;
         });
-        emitter.stopEmit();
-    }
-    if (!emitter.isEmitting) {
-        emitter.emit();
+        emitters.forEach(emitter => emitter.stopEmit());
+    } else {
+        emitters.forEach(emitter => emitter.emit());
     }
 
     const bigSphereRotationSpeed = 0.15;
     const rotation = time * bigSphereRotationSpeed;
     bigSphere.rotation.y = rotation;
+    
     system.update();
     controls.update();
     renderer.render(scene, camera);
