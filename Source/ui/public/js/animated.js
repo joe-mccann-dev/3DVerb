@@ -233,9 +233,9 @@ const alphaMap = textureLoader.load('assets/sky_grayscale.png');
 const bigSphereMaterial = new THREE.MeshStandardMaterial({
     color: topPlaneColor,
     envMap: environmentMap,
-    envMapIntensity: 2.0,
-    metalness: 0.0,
-    roughness: 0.1,
+    envMapIntensity: 10.0,
+    metalness: 6.0,
+    roughness: 0.2,
     alphaMap: alphaMap,
     transparent: true,
     opacity: 1,
@@ -378,7 +378,6 @@ const spriteMaterial = new THREE.SpriteMaterial({
     color: 0xff0000,
     blending: THREE.AdditiveBlending,
     fog: true,
-    renderOrder: 999,
 });
 const sprite = new THREE.Sprite(spriteMaterial);
 
@@ -390,19 +389,21 @@ function createEmitter(colorA, colorB, position) {
             new Life(2),
             new Body(sprite),
             new Radius(20),
-            new RadialVelocity(60, new Vector3D(0, 0, 220), 60)
+            new RadialVelocity(100, new Vector3D(0, 0, 220), 60)
         ])
         .setBehaviours([
-            new Alpha(1, 0),
+            new Alpha(2, 0),
             new Color(colorA, colorB),
-            new Scale(1, 0.5),
+            new Scale(1, 0.75),
             new CrossZone(new ScreenZone(camera, renderer), 'dead'),
             new Force(0, 0, 1),
         ])
 }
 
-const emitters = [createEmitter('#c6c7b8', '#c6c7b8'), createEmitter('#c6c7b8', '#6600FF')];
+const emitters = [createEmitter('#424459', '#222349'), createEmitter('#9a9570', '#ddddb9')];
 emitters[0].position.set(-10, 65, -20);
+//emitters[0].damping = 1;
+console.log(emitters[0]);
 emitters[1].position.set(105, 65, 40);
 const system = new ParticleSystem();
 system
