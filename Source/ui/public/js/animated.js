@@ -19,6 +19,7 @@ import ParticleSystem, {
     Alpha,
     Scale,
     Color,
+    ColorSpan,
     SpriteRenderer,
     CrossZone,
     ScreenZone,
@@ -382,28 +383,27 @@ const spriteMaterial = new THREE.SpriteMaterial({
 const sprite = new THREE.Sprite(spriteMaterial);
 
 function createEmitter(colorA, colorB, position) {
-    return new Emitter()
-        .setRate(new Rate(new Span(2, 3), new Span(0.01, 0.05)))
+    const emitter = new Emitter()
+        .setRate(new Rate(new Span(5, 7), new Span(0.01, 0.03)))
         .setInitializers([
-            new Mass(2),
+            new Mass(1),
             new Life(2),
             new Body(sprite),
-            new Radius(20),
-            new RadialVelocity(100, new Vector3D(0, 0, 220), 60)
+            new Radius(4),
+            new RadialVelocity(30, new Vector3D(0, 0, 220), 60)
         ])
         .setBehaviours([
             new Alpha(2, 0),
             new Color(colorA, colorB),
-            new Scale(1, 0.75),
+            new Scale(1, 0.25),
             new CrossZone(new ScreenZone(camera, renderer), 'dead'),
             new Force(0, 0, 1),
-        ])
+        ]);
+    return emitter;
 }
 
 const emitters = [createEmitter('#424459', '#222349'), createEmitter('#9a9570', '#ddddb9')];
 emitters[0].position.set(-10, 65, -20);
-//emitters[0].damping = 1;
-console.log(emitters[0]);
 emitters[1].position.set(105, 65, 40);
 const system = new ParticleSystem();
 system
