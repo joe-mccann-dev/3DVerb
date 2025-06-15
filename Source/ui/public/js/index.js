@@ -157,12 +157,16 @@ document.addEventListener("DOMContentLoaded", () => {
         sphere.userData.originalScale = sphere.scale.clone();
     });
     const mixThrottleHandler = throttle((mixValue) => {
+        onMixChange(mixValue);
+    }, 100);
+
+    function onMixChange(mixValue) {
         Animated.spheres.forEach((sphere) => {
             const scale = Animated.sphereRadius + (mixValue * 1.5);
             sphere.scale.copy(sphere.userData.originalScale);
             sphere.scale.multiplyScalar(scale);
         });
-    }, 100);
+    }
 
     const roomSizeThrottleHandler = throttle((roomSizeValue) => {
         onRoomSizeChange(roomSizeValue);
@@ -178,6 +182,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const freezeColor = new Animated.threeColor(Animated.freezeColor);
     const freezeThrottleHandler = throttle((frozen) => {
+        onFreezeChange(frozen);
+    }, 200);
+
+    function onFreezeChange(frozen) {
         Animated.spheres.forEach((sphere) => {
             if (frozen) {
                 sphere.material.color.copy(freezeColor);
@@ -185,7 +193,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 sphere.material.color.copy(sphere.userData.color);
             }
         });
-    }, 200);
+    }
 
     // OUTPUT LEVEL EVENT
     window.__JUCE__.backend.addEventListener("outputLevel", () => {
