@@ -68,7 +68,7 @@ const aspect = width / height;
 const camera = new THREE.PerspectiveCamera(75, aspect, 0.1, 800);
 
 camera.position.set(14, 105, 545);
-camera.lookAt(new THREE.Vector3(50, 0, -50));
+camera.lookAt(new THREE.Vector3(50, 65, -50));
 
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.autoRotateSpeed = 0.15;
@@ -106,7 +106,7 @@ const speakersPromise = new Promise((resolve, reject) => {
         leftSpeaker.envMap = environmentMap;
         leftSpeaker.receiveShadow = true;
         leftSpeaker.scale.set(20, 20, 20);
-        leftSpeaker.rotateY(-0.5);      
+        leftSpeaker.rotateY(-0.2);      
         leftSpeaker.position.set(-4, 50, -20);
         objects.push(leftSpeaker);
         speakers.push(leftSpeaker);
@@ -239,6 +239,7 @@ const bigSphereMaterial = new THREE.MeshStandardMaterial({
     alphaMap: alphaMap,
     transparent: true,
     opacity: 1,
+    depthWrite: false
 });
 const bigSphere = new THREE.Mesh(bigSphereGeometry, bigSphereMaterial);
 bigSphere.position.set(50, 80, 50);
@@ -377,6 +378,7 @@ const spriteMaterial = new THREE.SpriteMaterial({
     color: 0xff0000,
     blending: THREE.AdditiveBlending,
     fog: true,
+    renderOrder: 999,
 });
 const sprite = new THREE.Sprite(spriteMaterial);
 
@@ -388,7 +390,7 @@ function createEmitter(colorA, colorB, position) {
             new Life(2),
             new Body(sprite),
             new Radius(20),
-            new RadialVelocity(30, new Vector3D(0, 0, 220), 60)
+            new RadialVelocity(60, new Vector3D(0, 0, 220), 60)
         ])
         .setBehaviours([
             new Alpha(1, 0),
@@ -401,14 +403,14 @@ function createEmitter(colorA, colorB, position) {
 
 const emitters = [createEmitter('#c6c7b8', '#c6c7b8'), createEmitter('#c6c7b8', '#6600FF')];
 emitters[0].position.set(-10, 65, -20);
-emitters[1].position.set(105, 65, 50);
+emitters[1].position.set(105, 65, 40);
 const system = new ParticleSystem();
 system
     .addEmitter(emitters[0])
     .addEmitter(emitters[1])
     .addRenderer(new SpriteRenderer(scene, THREE));
 
-function animate(time, tha) {
+function animate(time) {
     time *= 0.001;
 
     if (!UI.freezeCheckbox.checked) {
