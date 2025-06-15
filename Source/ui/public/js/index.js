@@ -220,59 +220,7 @@ document.addEventListener("DOMContentLoaded", () => {
             
     });
 
-    // ROOM SIZE EVENT
-    Animated.spheres.forEach((sphere) => {
-        sphere.userData.originalPosition = sphere.position.clone();
-        sphere.userData.originalScale = sphere.scale.clone();
-    });
-    Animated.lines.forEach((line) => {
-        line.userData.originalScale = line.scale.clone();
-        line.userData.originalPosition = line.position.clone();
-    });
-    Animated.planes.forEach((plane) => {
-        plane.userData.originalScale = plane.scale.clone();
-        plane.userData.originalPosition = plane.position.clone();
-    });
-
-    Animated.speakersPromise.then(speakers => {
-        speakers.forEach((speaker) => {
-            speaker.userData.originalScale = speaker.scale.clone();
-            speaker.userData.originalPosition = speaker.position.clone();
-        });
-    });
-
-    Animated.panelsPromise.then(panels => {
-        panels.forEach((panel) => {
-            panel.userData.originalScale = panel.scale.clone();
-            panel.userData.originalPosition = panel.position.clone();
-        })
-    })
-
-    Animated.carpetPromise.then(carpet => {
-        carpet.userData.originalScale = carpet.scale.clone();
-        carpet.userData.originalPosition = carpet.position.clone();
-    });
-
-    Animated.lampPromise.then(lamp => {
-        lamp.userData.originalScale = lamp.scale.clone();
-        lamp.userData.originalPosition = lamp.position.clone();
-    });
-
-    Animated.plantPromise.then(plant => {
-        plant.userData.originalScale = plant.scale.clone();
-        plant.userData.originalPosition = plant.position.clone();
-    });
-
-    Animated.soundPanelsPromise.then(panels => {
-        panels.forEach((panel) => {
-            panel.userData.originalScale = panel.scale.clone();
-            panel.userData.originalPosition = panel.position.clone();
-        });
-    })
-
-    Animated.pointLight.userData.originalPosition = Animated.pointLight.position.clone();
     Animated.pointLight.userData.originalIntensity = Animated.pointLight.intensity;
-
     Animated.bigSphere.userData.originalScale = Animated.bigSphere.scale.clone();
 
     window.__JUCE__.backend.addEventListener("roomSizeValue", () => {
