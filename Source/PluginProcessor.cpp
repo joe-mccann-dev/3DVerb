@@ -245,6 +245,7 @@ namespace webview_plugin
         isFrozen = params.freezeMode > 0.5f;
         mixValue = params.wetLevel;
         roomSizeValue = params.roomSize;
+        widthValue = params.width;
     }
 
     //==============================================================================

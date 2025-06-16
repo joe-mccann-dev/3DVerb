@@ -61,6 +61,7 @@ namespace webview_plugin
         bool isFrozen;
         juce::var mixValue;
         juce::var roomSizeValue;
+        juce::var widthValue;
 
     private:
         //==============================================================================

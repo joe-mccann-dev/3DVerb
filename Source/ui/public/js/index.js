@@ -170,6 +170,34 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+    const widthThrottleHandler = throttle((widthValue) => {
+        onWidthChange(widthValue);
+    }, 100);
+
+    function onWidthChange(widthValue) {
+        const leftMin = 150;
+        const leftMax = -600;
+        const rightMin = -150;
+        const rightMax = 600;
+        const leftAxisScale = leftMin + (leftMax - leftMin) * widthValue;
+        const rightAxisScale = rightMin + (rightMax - rightMin) * widthValue;
+        const length = Animated.emitters.length;
+        for (let i = 0; i < length / 2; ++i) {
+            Animated.emitters[i].setInitializers(Animated.getStandardInitializers(
+                {
+                    radialVelocity: { axis: new Animated.Vector3D(leftAxisScale, 0, 10) }
+                }
+            ));
+        }
+        for (let i = 2; i < length; ++i) {
+            Animated.emitters[i].setInitializers(Animated.getStandardInitializers(
+                {
+                    radialVelocity: { axis: new Animated.Vector3D(rightAxisScale, 0, 10) }
+                }
+            ));
+        }
+    }
+
     const roomSizeThrottleHandler = throttle((roomSizeValue) => {
         onRoomSizeChange(roomSizeValue);
     }, 100);
@@ -196,6 +224,7 @@ document.addEventListener("DOMContentLoaded", () => {
             Animated.emitters[i].setInitializers(Animated.getStandardInitializers(
                 {
                     life: lifeScale,
+                    // prevent from returning to default leftEmitterRadVelocityAxis option
                     radialVelocity: { axis: Animated.rightEmitterRadVelocityAxis()}
                 }
             ));
@@ -257,6 +286,20 @@ document.addEventListener("DOMContentLoaded", () => {
             })
             .catch(console.error);
             
+    });
+
+    // WIDTH EVENT
+    let currentWidth;
+    window.__JUCE__.backend.addEventListener("widthValue", () => {
+        fetch(Juce.getBackendResourceAddress("width.json"))
+            .then((response) => response.json())
+            .then((widthData) => {
+                if (currentWidth != widthData.width) {
+                    widthThrottleHandler(widthData.width);
+                }
+                currentWidth = widthData.width;
+            })
+            .catch(console.error);
     });
 
     Animated.pointLight.userData.originalIntensity = Animated.pointLight.intensity;

@@ -497,6 +497,7 @@ export {
     getStandardInitializers,
     leftEmitterRadVelocityAxis,
     rightEmitterRadVelocityAxis,
+    Vector3D,
     Span,
     sprite,
 }
