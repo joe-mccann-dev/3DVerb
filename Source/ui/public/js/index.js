@@ -184,15 +184,22 @@ document.addEventListener("DOMContentLoaded", () => {
         const minLife = 2.2;
         const maxLife = 4.2;
         const lifeScale = minLife + (maxLife - minLife) * roomSizeValue;
-        Animated.emitters.forEach((emitter) => {
-            console.log(emitter.initializers);
-            console.log("changing emitter initializers.")
-            emitter.setInitializers(
-                Animated.getStandardInitializers(
-                    {life: lifeScale}
-                )
-            );
-        });
+        const length = Animated.emitters.length;
+        for (let i = 0; i < length / 2; ++i) {
+            Animated.emitters[i].setInitializers(Animated.getStandardInitializers(
+                {
+                    life: lifeScale,
+                }
+            ));
+        }
+        for (let i = 2; i < length; ++i) {
+            Animated.emitters[i].setInitializers(Animated.getStandardInitializers(
+                {
+                    life: lifeScale,
+                    radialVelocity: { axis: Animated.rightEmitterRadVelocityAxis()}
+                }
+            ));
+        }
     }
 
     const freezeColor = new Animated.threeColor(Animated.freezeColor);

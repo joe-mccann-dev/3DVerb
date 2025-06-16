@@ -81,7 +81,7 @@ controls.addEventListener('change', () => {
 });
 
 const pointLight = new THREE.PointLight(0xc9c893, 50000);;
-pointLight.position.set(100, 95, 10);
+pointLight.position.set(25, 120, -10);
 pointLight.castShadow = true;
 pointLight.shadow.camera.left = -10;
 pointLight.shadow.camera.right = 10;
@@ -93,9 +93,9 @@ pointLight.shadow.mapSize.width = 2048;
 pointLight.shadow.mapSize.height = 2048;
 scene.add(pointLight);
 
-//const sphereSize = 10;
-//const pointLightHelper = new THREE.PointLightHelper(pointLight, sphereSize);
-//scene.add(pointLightHelper);
+const sphereSize = 10;
+const pointLightHelper = new THREE.PointLightHelper(pointLight, sphereSize);
+scene.add(pointLightHelper);
 
 const loader = new GLTFLoader();
 
@@ -107,16 +107,16 @@ const speakersPromise = new Promise((resolve, reject) => {
         leftSpeaker.envMap = environmentMap;
         leftSpeaker.receiveShadow = true;
         leftSpeaker.scale.set(20, 20, 20);
-        leftSpeaker.rotateY(-0.2);      
-        leftSpeaker.position.set(-4, 50, -20);
+        //leftSpeaker.rotateY(-0.2);      
+        leftSpeaker.position.set(-20, 50, -20);
         objects.push(leftSpeaker);
         speakers.push(leftSpeaker);
         scene.add(leftSpeaker);
 
         const rightSpeaker = leftSpeaker.clone();
         rightSpeaker.envMap = environmentMap;
-        rightSpeaker.position.x += 109;
-        rightSpeaker.position.z += 70;
+        rightSpeaker.position.x += 140;
+        //rightSpeaker.position.z += 70;
         objects.push(rightSpeaker);
         speakers.push(rightSpeaker);
         scene.add(rightSpeaker);
@@ -146,7 +146,7 @@ const lampPromise = new Promise((resolve, reject) => {
         lamp.receiveShadow = true;
         lamp.castShadow = true;
         lamp.scale.set(70, 70, 70);
-        lamp.position.set(85, 60, 10);
+        lamp.position.set(25, 60, -10);
         lamp.rotateY(Math.PI / 4)
         objects.push(lamp);
         scene.add(lamp);
@@ -161,18 +161,17 @@ const panelsPromise = new Promise((resolve, reject) => {
         panel.envMap = environmentMap;
         panel.receiveShadow = true;
         panel.scale.set(100, 100, 100);
-        panel.position.set(142, 10, 60);
-        panel.rotateY(-Math.PI / 2);
+        panel.position.set(60, 10, -40);
         objects.push(panel);
         panels.push(panel);
         scene.add(panel);
 
-        const panel2 = glb.scene.clone();
-        panel2.position.set(60, 10, -40);
-        panel2.rotateY(Math.PI / 2);
-        objects.push(panel2);
-        panels.push(panel2);
-        scene.add(panel2);
+        //const panel2 = glb.scene.clone();
+        //panel2.position.set(60, 10, -40);
+        //panel2.rotateY(Math.PI / 2);
+        //objects.push(panel2);
+        //panels.push(panel2);
+        //scene.add(panel2);
 
         resolve(panels);
     }, undefined, reject);
@@ -185,7 +184,7 @@ const plantPromise = new Promise((resolve, reject) => {
         plant.receiveShadow = true;
         plant.castShadow = true;
         plant.scale.set(0.24, 0.24, 0.24);
-        plant.position.set(40, 5, -10);
+        plant.position.set(80, 5, 10);
         objects.push(plant);
         scene.add(plant);
         resolve(plant);
@@ -197,20 +196,20 @@ const soundPanelsPromise = new Promise((resolve, reject) => {
         const panels = [];
         const panel = glb.scene;
         panel.envMap = environmentMap;
-        panel.position.set(145, 120, 55);
+        panel.position.set(80, 140, -46);
         panel.rotateX(Math.PI / 2);
-        panel.rotateZ(Math.PI / 2);
+        //panel.rotateZ(Math.PI / 2);
         panel.scale.set(4, 4, 4);
         objects.push(panel);
         panels.push(panel);
         scene.add(panel);
 
-        const panel2 = glb.scene.clone();
-        panel2.position.set(55, 120, -46);
-        panel2.rotateZ(-Math.PI / 2);
-        objects.push(panel2);
-        panels.push(panel2);
-        scene.add(panel2);
+        //const panel2 = glb.scene.clone();
+        //panel2.position.set(55, 120, -46);
+        //panel2.rotateZ(-Math.PI / 2);
+        //objects.push(panel2);
+        //panels.push(panel2);
+        //scene.add(panel2);
         resolve(panels);
     }, undefined, reject);
 })
@@ -226,7 +225,7 @@ const emittedSphereWidthSegments = 12;
 const emittedSphereHeightSegments = 12;
 const emittedSphereGeometry = new THREE.SphereGeometry(emittedSphereRadius, emittedSphereWidthSegments, emittedSphereHeightSegments);
 
-const bigSphereRadius = 300;
+const bigSphereRadius = 400;
 const bigSphereWidthSegments = 36;
 const bigSphereHeightSegments = 36;
 const bigSphereGeometry = new THREE.SphereGeometry(bigSphereRadius, bigSphereWidthSegments, bigSphereHeightSegments);
@@ -254,11 +253,11 @@ const speakerStandGeometry = new THREE.PlaneGeometry(45, 45, 2, 2);
 const planes = [
     makePlane(planeGeometry, sidePlaneColor, [50, -10, 50], -Math.PI / 2, 0, 0),
     makePlane(planeGeometry, sidePlaneColor, [50, 200, 50], -Math.PI / 2, 0, 0),
-    makePlane(planeGeometry, sidePlaneColor, [150, 95, 50], 0, Math.PI / 2, 0, -Math.PI / 4),
+    //makePlane(planeGeometry, sidePlaneColor, [150, 95, 50], 0, Math.PI / 2, 0, -Math.PI / 4),
     makePlane(planeGeometry, sidePlaneColor, [50, 95, -50], -Math.PI, 0, 0),
     // speaker stands
-    makePlane(speakerStandGeometry, speakerStandColor, [-5, 50, -20], -Math.PI / 2, 0, 0),
-    makePlane(speakerStandGeometry, speakerStandColor, [105, 50, 50], -Math.PI / 2, 0, 0)
+    makePlane(speakerStandGeometry, speakerStandColor, [-20, 50, -20], -Math.PI / 2, 0, 0),
+    makePlane(speakerStandGeometry, speakerStandColor, [120, 50, -20], -Math.PI / 2, 0, 0)
 ];
 
 // MESH LISTS
@@ -285,7 +284,7 @@ const lines = [
     // lines connecting bottom to top
     makeLine(-50, -50, -10, 200, -50, -50),
     makeLine(150, 150, -10, 200, -50, -50),
-    makeLine(150, 150, -10, 200, 150, 150),
+    //makeLine(150, 150, -10, 200, 150, 150),
 
     // lines connecting top plane
     makeLine(-50, 150, 200, 200, 150, 150),
@@ -294,8 +293,8 @@ const lines = [
     makeLine(150, 150, 200, 200, -50, 150),
 
     // speaker stands
-    makeLine(-4, -4, -10, 50, -20, -20, speakerStandColor),
-    makeLine(105, 105, -10, 50, 50, 50, speakerStandColor),
+    makeLine(-20, -20, -10, 50, -20, -20, speakerStandColor),
+    makeLine(120, 120, -10, 50, -20, -20, speakerStandColor),
 ];
 
 // "ADD A MESH" FUNCTIONS
@@ -396,6 +395,13 @@ function createEmitter(colorA, colorB, options = {}) {
     return emitter;
 }
 
+const leftEmitterRadVelocityAxis = () => {
+    return new Vector3D(-200, 0, 10);
+}
+const rightEmitterRadVelocityAxis = () => {
+    return new Vector3D(200, 0, 10);
+}
+
 function getStandardInitializers(options = {}) {
     return [
         new Mass(options.mass ?? 1.4),
@@ -404,7 +410,7 @@ function getStandardInitializers(options = {}) {
         new Radius(options.radius ?? 8),
         new RadialVelocity(
             options.radialVelocity?.speed ?? 50,
-            options.radialVelocity?.axis ?? new Vector3D(-200, 0, 10),
+            options.radialVelocity?.axis ?? leftEmitterRadVelocityAxis(),
             options.radialVelocity?.theta ?? 0
         )
     ]
@@ -413,12 +419,12 @@ function getStandardInitializers(options = {}) {
 const emitters = [];
 const emitterLeft0 = createEmitter('#4F1500', '#0029FF');
 const emitterLeft1 = createEmitter('#004CFE', '#6600FF');
-const emitterRight0 = createEmitter('#4F1500', '#0029FF');
-const emitterRight1 = createEmitter('#004CFE', '#6600FF');
-emitterLeft0.position.set(-10, 65, 0);
-emitterLeft1.position.set(-10, 65, 0);
-emitterRight0.position.set(110, 65, 60);
-emitterRight1.position.set(110, 65, 60);
+const emitterRight0 = createEmitter('#4F1500', '#0029FF', { radialVelocity: {axis: new Vector3D(200, 0, 10)}});
+const emitterRight1 = createEmitter('#004CFE', '#6600FF', { radialVelocity: {axis: new Vector3D(200, 0, 10)}});
+emitterLeft0.position.set(-20, 70, 0);
+emitterLeft1.position.set(-20, 70, 0);
+emitterRight0.position.set(120, 70, 0);
+emitterRight1.position.set(120, 70, 0);
 emitters.push(emitterLeft0);
 emitters.push(emitterLeft1);
 emitters.push(emitterRight0);
@@ -448,15 +454,15 @@ function animate(time, theta = 0, emitterRadius = 10) {
             }
         })
         theta += 0.09;
-        emitterLeft0.position.x = -10 + emitterRadius * Math.cos(theta);
-        emitterLeft0.position.y = 65 + emitterRadius * Math.sin(theta);
-        emitterLeft1.position.x = -10 + emitterRadius * Math.cos(theta + Math.PI / 2);
-        emitterLeft1.position.y = 65 + emitterRadius * Math.cos(theta + Math.PI / 2);
+        emitterLeft0.position.x = -20 + emitterRadius * Math.cos(theta);
+        emitterLeft0.position.y = 70 + emitterRadius * Math.sin(theta);
+        emitterLeft1.position.x = -20 + emitterRadius * Math.cos(theta + Math.PI / 2);
+        emitterLeft1.position.y = 70 + emitterRadius * Math.cos(theta + Math.PI / 2);
 
-        emitterRight0.position.x = 110 + emitterRadius * Math.cos(theta);
-        emitterRight0.position.y = 65 + emitterRadius * Math.sin(theta);
-        emitterRight1.position.x = 110 + emitterRadius * Math.cos(theta + Math.PI / 2);
-        emitterRight1.position.y = 65 + emitterRadius * Math.cos(theta + Math.PI / 2);
+        emitterRight0.position.x = 120 + emitterRadius * Math.cos(theta);
+        emitterRight0.position.y = 70 + emitterRadius * Math.sin(theta);
+        emitterRight1.position.x = 120 + emitterRadius * Math.cos(theta + Math.PI / 2);
+        emitterRight1.position.y = 70 + emitterRadius * Math.cos(theta + Math.PI / 2);
     }
     if (!UI.freezeCheckbox.checked && !UI.bypassCheckbox.checked) {
         spheres.forEach((sphere, index) => {
@@ -489,6 +495,8 @@ export {
     pointLight,
     emitters,
     getStandardInitializers,
+    leftEmitterRadVelocityAxis,
+    rightEmitterRadVelocityAxis,
     Span,
     sprite,
 }
