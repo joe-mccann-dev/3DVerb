@@ -178,6 +178,20 @@ document.addEventListener("DOMContentLoaded", () => {
         Animated.bigSphere.scale.copy(Animated.bigSphere.userData.originalScale);
         Animated.bigSphere.scale.multiplyScalar(scale);
         Animated.pointLight.intensity = Animated.pointLight.userData.originalIntensity;
+
+        const minLife = 2;
+        const maxLife = 4;
+        const lifeScale = minLife + (maxLife - minLife) * roomSizeValue;
+        Animated.emitters.forEach((emitter) => {
+            console.log(emitter.initializers);
+            console.log("changing emitter initializers.")
+            emitter.setInitializers(
+                Animated.getStandardInitializers(
+                    {life: lifeScale}
+                )
+            );
+            console.log("lifeScale: ", lifeScale);
+        });
     }
 
     const freezeColor = new Animated.threeColor(Animated.freezeColor);
@@ -236,11 +250,16 @@ document.addEventListener("DOMContentLoaded", () => {
     Animated.pointLight.userData.originalIntensity = Animated.pointLight.intensity;
     Animated.bigSphere.userData.originalScale = Animated.bigSphere.scale.clone();
 
+    let current;
     window.__JUCE__.backend.addEventListener("roomSizeValue", () => {
         fetch(Juce.getBackendResourceAddress("roomSize.json"))
             .then((response) => response.json())
             .then((roomSizeData) => {
-                roomSizeThrottleHandler(roomSizeData.roomSize);
+                if (current != roomSizeData.roomSize) {
+                    roomSizeThrottleHandler(roomSizeData.roomSize);
+                    console.log('room size is different')
+                }
+                current = roomSizeData.roomSize;
             })
             .catch(console.error);
     });

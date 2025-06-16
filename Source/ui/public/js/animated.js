@@ -385,13 +385,7 @@ const sprite = new THREE.Sprite(spriteMaterial);
 function createEmitter(colorA, colorB, position) {
     const emitter = new Emitter()
         .setRate(new Rate(new Span(5, 7), new Span(0.01, 0.03)))
-        .setInitializers([
-            new Mass(1),
-            new Life(2),
-            new Body(sprite),
-            new Radius(4),
-            new RadialVelocity(30, new Vector3D(0, 0, 220), 60)
-        ])
+        .setInitializers(getStandardInitializers())
         .setBehaviours([
             new Alpha(2, 0),
             new Color(colorA, colorB),
@@ -400,6 +394,20 @@ function createEmitter(colorA, colorB, position) {
             new Force(0, 0, 1),
         ]);
     return emitter;
+}
+
+function getStandardInitializers(options = {}) {
+    return [
+        new Mass(options.mass ?? 1),
+        new Life(options.life ?? 2),
+        new Body(sprite),
+        new Radius(options.radius ?? 4),
+        new RadialVelocity(
+            options.radialVelocity?.speed ?? 30,
+            options.radialVelocity?.axis ?? new Vector3D(0, 0, 220),
+            options.radialVelocity?.theta ?? 60
+        )
+    ]
 }
 
 const emitters = [createEmitter('#424459', '#222349'), createEmitter('#9a9570', '#ddddb9')];
@@ -452,12 +460,9 @@ export {
     lines,
     planes,
     sphereRadius,
-    speakersPromise,
-    panelsPromise,
-    soundPanelsPromise,
-    carpetPromise,
-    plantPromise,
-    lampPromise,
     pointLight,
     emitters,
+    getStandardInitializers,
+    Span,
+    sprite,
 }
