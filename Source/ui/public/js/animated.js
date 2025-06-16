@@ -382,10 +382,10 @@ const spriteMaterial = new THREE.SpriteMaterial({
 });
 const sprite = new THREE.Sprite(spriteMaterial);
 
-function createEmitter(colorA, colorB) {
+function createEmitter(colorA, colorB, options = {}) {
     const emitter = new Emitter()
         .setRate(new Rate(new Span(2, 4), new Span(0.01, 0.03)))
-        .setInitializers(getStandardInitializers())
+        .setInitializers(getStandardInitializers(options))
         .setBehaviours([
             new Alpha(0.5, 0),
             new Color(colorA, colorB),
@@ -401,7 +401,7 @@ function getStandardInitializers(options = {}) {
         new Mass(options.mass ?? 1.4),
         new Life(options.life ?? 2.2),
         new Body(sprite),
-        new Radius(options.radius ?? 6),
+        new Radius(options.radius ?? 8),
         new RadialVelocity(
             options.radialVelocity?.speed ?? 50,
             options.radialVelocity?.axis ?? new Vector3D(-200, 0, 10),
@@ -412,15 +412,23 @@ function getStandardInitializers(options = {}) {
 
 const emitters = [];
 const emitterLeft0 = createEmitter('#4F1500', '#0029FF');
-const emitterLeft1 = createEmitter('#004CFE', '#6600FF')
+const emitterLeft1 = createEmitter('#004CFE', '#6600FF');
+const emitterRight0 = createEmitter('#4F1500', '#0029FF');
+const emitterRight1 = createEmitter('#004CFE', '#6600FF');
 emitterLeft0.position.set(-10, 65, 0);
 emitterLeft1.position.set(-10, 65, 0);
+emitterRight0.position.set(110, 65, 60);
+emitterRight1.position.set(110, 65, 60);
 emitters.push(emitterLeft0);
 emitters.push(emitterLeft1);
+emitters.push(emitterRight0);
+emitters.push(emitterRight1);
 const system = new ParticleSystem();
 system
-    .addEmitter(emitters[0])
-    .addEmitter(emitters[1])
+    .addEmitter(emitterLeft0)
+    .addEmitter(emitterLeft1)
+    .addEmitter(emitterRight0)
+    .addEmitter(emitterRight1)
     .addRenderer(new SpriteRenderer(scene, THREE));
 
 function animate(time, theta = 0, emitterRadius = 10) {
@@ -444,6 +452,11 @@ function animate(time, theta = 0, emitterRadius = 10) {
         emitterLeft0.position.y = 65 + emitterRadius * Math.sin(theta);
         emitterLeft1.position.x = -10 + emitterRadius * Math.cos(theta + Math.PI / 2);
         emitterLeft1.position.y = 65 + emitterRadius * Math.cos(theta + Math.PI / 2);
+
+        emitterRight0.position.x = 110 + emitterRadius * Math.cos(theta);
+        emitterRight0.position.y = 65 + emitterRadius * Math.sin(theta);
+        emitterRight1.position.x = 110 + emitterRadius * Math.cos(theta + Math.PI / 2);
+        emitterRight1.position.y = 65 + emitterRadius * Math.cos(theta + Math.PI / 2);
     }
     if (!UI.freezeCheckbox.checked && !UI.bypassCheckbox.checked) {
         spheres.forEach((sphere, index) => {
