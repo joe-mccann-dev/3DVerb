@@ -161,6 +161,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }, 100);
 
     function onMixChange(mixValue) {
+        console.log("mix value: ", mixValue);
         Animated.spheres.forEach((sphere) => {
             const scale = Animated.sphereRadius + (mixValue * 1.5);
             sphere.scale.copy(sphere.userData.originalScale);
@@ -237,11 +238,15 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     // MIX EVENT
+    let currentMix;
     window.__JUCE__.backend.addEventListener("mixValue", () => {
         fetch(Juce.getBackendResourceAddress("mix.json"))
             .then((response) => response.json())
             .then((mixData) => {
-                mixThrottleHandler(mixData.mix);
+                if (currentMix != mixData.mix) {
+                    mixThrottleHandler(mixData.mix);
+                }
+                currentMix = mixData.mix;
             })
             .catch(console.error);
             
@@ -250,16 +255,16 @@ document.addEventListener("DOMContentLoaded", () => {
     Animated.pointLight.userData.originalIntensity = Animated.pointLight.intensity;
     Animated.bigSphere.userData.originalScale = Animated.bigSphere.scale.clone();
 
-    let current;
+    let currentSize;
     window.__JUCE__.backend.addEventListener("roomSizeValue", () => {
         fetch(Juce.getBackendResourceAddress("roomSize.json"))
             .then((response) => response.json())
             .then((roomSizeData) => {
-                if (current != roomSizeData.roomSize) {
+                if (currentSize != roomSizeData.roomSize) {
                     roomSizeThrottleHandler(roomSizeData.roomSize);
                     console.log('room size is different')
                 }
-                current = roomSizeData.roomSize;
+                currentSize = roomSizeData.roomSize;
             })
             .catch(console.error);
     });
