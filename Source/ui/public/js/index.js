@@ -62,6 +62,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // BYPASS
     bypassCheckbox.oninput = function () {
         bypassToggleState.setValue(this.checked);
+        Animated.pointLight.intensity = Animated.pointLight.userData.originalIntensity;
     }
 
     bypassToggleState.valueChangedEvent.addListener(() => {
@@ -178,10 +179,10 @@ document.addEventListener("DOMContentLoaded", () => {
         const scale = min + (1 - min) * roomSizeValue;
         Animated.bigSphere.scale.copy(Animated.bigSphere.userData.originalScale);
         Animated.bigSphere.scale.multiplyScalar(scale);
-        Animated.pointLight.intensity = Animated.pointLight.userData.originalIntensity;
+       
 
-        const minLife = 2;
-        const maxLife = 4;
+        const minLife = 2.2;
+        const maxLife = 4.2;
         const lifeScale = minLife + (maxLife - minLife) * roomSizeValue;
         Animated.emitters.forEach((emitter) => {
             console.log(emitter.initializers);
@@ -191,7 +192,6 @@ document.addEventListener("DOMContentLoaded", () => {
                     {life: lifeScale}
                 )
             );
-            console.log("lifeScale: ", lifeScale);
         });
     }
 

@@ -234,12 +234,12 @@ const alphaMap = textureLoader.load('assets/sky_grayscale.png');
 const bigSphereMaterial = new THREE.MeshStandardMaterial({
     color: topPlaneColor,
     envMap: environmentMap,
-    envMapIntensity: 10.0,
-    metalness: 6.0,
+    envMapIntensity: 5.0,
+    metalness: 4.0,
     roughness: 0.2,
     alphaMap: alphaMap,
     transparent: true,
-    opacity: 1,
+    opacity: 0.8,
     depthWrite: false
 });
 const bigSphere = new THREE.Mesh(bigSphereGeometry, bigSphereMaterial);
@@ -382,53 +382,49 @@ const spriteMaterial = new THREE.SpriteMaterial({
 });
 const sprite = new THREE.Sprite(spriteMaterial);
 
-function createEmitter(colorA, colorB, position) {
+function createEmitter(colorA, colorB) {
     const emitter = new Emitter()
-        .setRate(new Rate(new Span(5, 7), new Span(0.01, 0.03)))
+        .setRate(new Rate(new Span(2, 4), new Span(0.01, 0.03)))
         .setInitializers(getStandardInitializers())
         .setBehaviours([
-            new Alpha(2, 0),
+            new Alpha(0.5, 0),
             new Color(colorA, colorB),
-            new Scale(1, 0.25),
+            new Scale(1, 0.5),
             new CrossZone(new ScreenZone(camera, renderer), 'dead'),
-            new Force(0, 0, 1),
+            new Force(0, 0, 2),
         ]);
     return emitter;
 }
 
 function getStandardInitializers(options = {}) {
     return [
-        new Mass(options.mass ?? 1),
-        new Life(options.life ?? 2),
+        new Mass(options.mass ?? 1.4),
+        new Life(options.life ?? 2.2),
         new Body(sprite),
-        new Radius(options.radius ?? 4),
+        new Radius(options.radius ?? 6),
         new RadialVelocity(
-            options.radialVelocity?.speed ?? 30,
-            options.radialVelocity?.axis ?? new Vector3D(0, 0, 220),
-            options.radialVelocity?.theta ?? 60
+            options.radialVelocity?.speed ?? 50,
+            options.radialVelocity?.axis ?? new Vector3D(-200, 0, 10),
+            options.radialVelocity?.theta ?? 0
         )
     ]
 }
 
-const emitters = [createEmitter('#424459', '#222349'), createEmitter('#9a9570', '#ddddb9')];
-emitters[0].position.set(-10, 65, -20);
-emitters[1].position.set(105, 65, 40);
+const emitters = [];
+const emitterLeft0 = createEmitter('#4F1500', '#0029FF');
+const emitterLeft1 = createEmitter('#004CFE', '#6600FF')
+emitterLeft0.position.set(-10, 65, 0);
+emitterLeft1.position.set(-10, 65, 0);
+emitters.push(emitterLeft0);
+emitters.push(emitterLeft1);
 const system = new ParticleSystem();
 system
     .addEmitter(emitters[0])
     .addEmitter(emitters[1])
     .addRenderer(new SpriteRenderer(scene, THREE));
 
-function animate(time) {
+function animate(time, theta = 0, emitterRadius = 10) {
     time *= 0.001;
-
-    if (!UI.freezeCheckbox.checked) {
-        spheres.forEach((sphere, index) => {
-            const speed = 1 + index * 0.1;
-            const rotation = time * speed;
-            sphere.rotation.y = rotation;
-        });
-    }
 
     if (UI.bypassCheckbox.checked) {
         pointLight.intensity = 0;
@@ -438,17 +434,34 @@ function animate(time) {
         });
         emitters.forEach(emitter => emitter.stopEmit());
     } else {
-        emitters.forEach(emitter => emitter.emit());
+        emitters.forEach((emitter) => {
+            if (!emitter.isEmitting) {
+                emitter.emit();
+            }
+        })
+        theta += 0.09;
+        emitterLeft0.position.x = -10 + emitterRadius * Math.cos(theta);
+        emitterLeft0.position.y = 65 + emitterRadius * Math.sin(theta);
+        emitterLeft1.position.x = -10 + emitterRadius * Math.cos(theta + Math.PI / 2);
+        emitterLeft1.position.y = 65 + emitterRadius * Math.cos(theta + Math.PI / 2);
+    }
+    if (!UI.freezeCheckbox.checked && !UI.bypassCheckbox.checked) {
+        spheres.forEach((sphere, index) => {
+            const speed = 1 + index * 0.1;
+            const rotation = time * speed;
+            sphere.rotation.y = rotation;
+        });
     }
 
     const bigSphereRotationSpeed = 0.15;
     const rotation = time * bigSphereRotationSpeed;
     bigSphere.rotation.y = rotation;
-    
+
     system.update();
     controls.update();
     renderer.render(scene, camera);
-    requestAnimationFrame(animate);
+
+    requestAnimationFrame((time) => animate(time, theta, emitterRadius));
 }
 
 export {
