@@ -174,28 +174,46 @@ document.addEventListener("DOMContentLoaded", () => {
         onWidthChange(widthValue);
     }, 100);
 
+    let leftAxis;
+    let rightAxis;
     function onWidthChange(widthValue) {
         const leftMin = 150;
         const leftMax = -600;
         const rightMin = -150;
         const rightMax = 600;
-        const leftAxisScale = leftMin + (leftMax - leftMin) * widthValue;
-        const rightAxisScale = rightMin + (rightMax - rightMin) * widthValue;
+        // using log for less sensitive scale slider
+        const logOfWidthFactor = Math.log(widthValue + 1) / Math.log(5);
+        const leftAxisScale = leftMin + (leftMax - leftMin) * logOfWidthFactor;
+        const rightAxisScale = rightMin + (rightMax - rightMin) * logOfWidthFactor;
         const length = Animated.emitters.length;
+        const lAxis = new Animated.Vector3D(leftAxisScale, 0, 10);
+        const rAxis = new Animated.Vector3D(rightAxisScale, 0, 10);
         for (let i = 0; i < length / 2; ++i) {
+            console.log("leftAxisScale: ", leftAxisScale);
+            console.log("rightAxisScale: ", rightAxisScale);
+            
             Animated.emitters[i].setInitializers(Animated.getStandardInitializers(
                 {
-                    radialVelocity: { axis: new Animated.Vector3D(leftAxisScale, 0, 10) }
+                    radialVelocity: { axis:  lAxis }
                 }
             ));
         }
         for (let i = 2; i < length; ++i) {
             Animated.emitters[i].setInitializers(Animated.getStandardInitializers(
                 {
-                    radialVelocity: { axis: new Animated.Vector3D(rightAxisScale, 0, 10) }
+                    radialVelocity: { axis: rAxis }
                 }
             ));
         }
+        setLAxis(lAxis);
+        setRAxis(rAxis);
+    }
+
+    function setLAxis(axis) {
+        leftAxis = axis
+    }
+    function setRAxis(axis) {
+        rightAxis = axis;
     }
 
     const roomSizeThrottleHandler = throttle((roomSizeValue) => {
@@ -217,6 +235,7 @@ document.addEventListener("DOMContentLoaded", () => {
             Animated.emitters[i].setInitializers(Animated.getStandardInitializers(
                 {
                     life: lifeScale,
+                    radialVelocity: { axis: leftAxis ?? Animated.leftEmitterRadVelocityAxis()}
                 }
             ));
         }
@@ -225,7 +244,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 {
                     life: lifeScale,
                     // prevent from returning to default leftEmitterRadVelocityAxis option
-                    radialVelocity: { axis: Animated.rightEmitterRadVelocityAxis()}
+                    radialVelocity: { axis: rightAxis ?? Animated.rightEmitterRadVelocityAxis()}
                 }
             ));
         }

@@ -68,7 +68,7 @@ const height = canvas.height;
 const aspect = width / height;
 const camera = new THREE.PerspectiveCamera(75, aspect, 0.1, 800);
 
-camera.position.set(14, 105, 545);
+camera.position.set(28, 220, 548);
 camera.lookAt(new THREE.Vector3(50, 65, -50));
 
 const controls = new OrbitControls(camera, renderer.domElement);
@@ -106,7 +106,7 @@ const speakersPromise = new Promise((resolve, reject) => {
         const leftSpeaker = glb.scene;
         leftSpeaker.envMap = environmentMap;
         leftSpeaker.receiveShadow = true;
-        leftSpeaker.scale.set(20, 20, 20);
+        leftSpeaker.scale.set(26, 26, 26);
         //leftSpeaker.rotateY(-0.2);      
         leftSpeaker.position.set(-20, 50, -20);
         objects.push(leftSpeaker);
@@ -196,7 +196,7 @@ const soundPanelsPromise = new Promise((resolve, reject) => {
         const panels = [];
         const panel = glb.scene;
         panel.envMap = environmentMap;
-        panel.position.set(80, 140, -46);
+        panel.position.set(70, 145, -46);
         panel.rotateX(Math.PI / 2);
         //panel.rotateZ(Math.PI / 2);
         panel.scale.set(4, 4, 4);
@@ -234,8 +234,8 @@ const bigSphereMaterial = new THREE.MeshStandardMaterial({
     color: topPlaneColor,
     envMap: environmentMap,
     envMapIntensity: 5.0,
-    metalness: 4.0,
-    roughness: 0.2,
+    metalness: 6.0,
+    roughness: 0.5,
     alphaMap: alphaMap,
     transparent: true,
     opacity: 0.8,
