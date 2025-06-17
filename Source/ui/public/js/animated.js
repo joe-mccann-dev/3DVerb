@@ -407,7 +407,7 @@ function getStandardInitializers(options = {}) {
         new Mass(options.mass ?? 1.4),
         new Life(options.life ?? 2.2),
         new Body(sprite),
-        new Radius(options.radius ?? 8),
+        new Radius(options.radius ?? 20),
         new RadialVelocity(
             options.radialVelocity?.speed ?? 50,
             options.radialVelocity?.axis ?? leftEmitterRadVelocityAxis(),
