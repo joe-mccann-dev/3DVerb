@@ -1,31 +1,28 @@
 
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import ParticleSystem, {
     Emitter,
     Rate,
     Span,
     Body,
-    Gravity,
-    Collision,
-    Position,
     Mass,
     Radius,
     Life,
     RadialVelocity,
-    PointZone,
     Vector3D,
     Alpha,
     Scale,
     Color,
-    ColorSpan,
     SpriteRenderer,
     CrossZone,
     ScreenZone,
     Force,
 } from 'three-nebula';
+
 import * as UI from './index.js';
+import * as promises from './threeDModels.js';
+import * as particleWave from './particle_wave.js'
 import Stats from 'three/addons/libs/stats.module.js';
 
 // COLORS
@@ -101,122 +98,7 @@ const sphereSize = 10;
 const pointLightHelper = new THREE.PointLightHelper(pointLight, sphereSize);
 scene.add(pointLightHelper);
 
-const loader = new GLTFLoader();
-
 const objects = [];
-const speakersPromise = new Promise((resolve, reject) => {
-    loader.load('assets/krk_classic_5_studio_monitor_speaker.glb', function (glb) {
-        const speakers = [];
-        const leftSpeaker = glb.scene;
-        leftSpeaker.envMap = environmentMap;
-        leftSpeaker.receiveShadow = true;
-        leftSpeaker.scale.set(26, 26, 26);
-        //leftSpeaker.rotateY(-0.2);      
-        leftSpeaker.position.set(-20, 50, -20);
-        objects.push(leftSpeaker);
-        speakers.push(leftSpeaker);
-        scene.add(leftSpeaker);
-
-        const rightSpeaker = leftSpeaker.clone();
-        rightSpeaker.envMap = environmentMap;
-        rightSpeaker.position.x += 140;
-        //rightSpeaker.position.z += 70;
-        objects.push(rightSpeaker);
-        speakers.push(rightSpeaker);
-        scene.add(rightSpeaker);
-        resolve(speakers);
-    }, undefined, reject)
-});
-
-const carpetPromise = new Promise((resolve, reject) => {
-    loader.load('assets/fine_persian_heriz_carpet.glb', function (glb) {
-        const carpet = glb.scene;
-        carpet.envMap = environmentMap;
-        carpet.receiveShadow = true;
-        carpet.castShadow = true;
-        carpet.scale.set(50, 50, 60);
-        carpet.position.set(52, -8, 50);
-        carpet.rotateY(Math.PI / 2);
-        objects.push(carpet);
-        scene.add(carpet);
-        resolve(carpet);
-    }, undefined, reject);
-});
-
-const lampPromise = new Promise((resolve, reject) => {
-    loader.load('assets/floor_lamp.glb', function (glb) {
-        const lamp = glb.scene;
-        lamp.envMap = environmentMap;
-        lamp.receiveShadow = true;
-        lamp.castShadow = true;
-        lamp.scale.set(70, 70, 70);
-        lamp.position.set(25, 60, -10);
-        lamp.rotateY(Math.PI / 4)
-        objects.push(lamp);
-        scene.add(lamp);
-        resolve(lamp);
-    }, undefined, reject);
-});
-
-const panelsPromise = new Promise((resolve, reject) => {
-    loader.load('assets/wall_wood_panels.glb', function (glb) {
-        const panels = [];
-        const panel = glb.scene;
-        panel.envMap = environmentMap;
-        panel.receiveShadow = true;
-        panel.scale.set(100, 100, 100);
-        panel.position.set(60, 10, -40);
-        objects.push(panel);
-        panels.push(panel);
-        scene.add(panel);
-
-        //const panel2 = glb.scene.clone();
-        //panel2.position.set(60, 10, -40);
-        //panel2.rotateY(Math.PI / 2);
-        //objects.push(panel2);
-        //panels.push(panel2);
-        //scene.add(panel2);
-
-        resolve(panels);
-    }, undefined, reject);
-});
-
-const plantPromise = new Promise((resolve, reject) => {
-    loader.load('assets/tall_house_plant.glb', function (glb) {
-        const plant = glb.scene;
-        plant.envMap = environmentMap;
-        plant.receiveShadow = true;
-        plant.castShadow = true;
-        plant.scale.set(0.24, 0.24, 0.24);
-        plant.position.set(80, 5, 10);
-        objects.push(plant);
-        scene.add(plant);
-        resolve(plant);
-    }, undefined, reject);
-});
-
-const soundPanelsPromise = new Promise((resolve, reject) => {
-    loader.load('assets/sound_proof_panel.glb', function (glb) {
-        const panels = [];
-        const panel = glb.scene;
-        panel.envMap = environmentMap;
-        panel.position.set(70, 145, -46);
-        panel.rotateX(Math.PI / 2);
-        //panel.rotateZ(Math.PI / 2);
-        panel.scale.set(4, 4, 4);
-        objects.push(panel);
-        panels.push(panel);
-        scene.add(panel);
-
-        //const panel2 = glb.scene.clone();
-        //panel2.position.set(55, 120, -46);
-        //panel2.rotateZ(-Math.PI / 2);
-        //objects.push(panel2);
-        //panels.push(panel2);
-        //scene.add(panel2);
-        resolve(panels);
-    }, undefined, reject);
-})
 
 // GEOMETRIES
 const sphereRadius = 4;
@@ -441,77 +323,9 @@ system
     .addEmitter(emitterRight1)
     .addRenderer(new SpriteRenderer(scene, THREE));
 
-// testing example code: https://github.com/mrdoob/three.js/blob/master/examples/webgl_points_waves.html
-const SEPARATION = 10, AMOUNTX = 20, AMOUNTY = 15;
-const WAVE_X_POS = 50, WAVE_Y_POS = 255, WAVE_Z_POS = 50;
-let particles, count = 0;
-const numParticles = AMOUNTX * AMOUNTY;
-const positions = new Float32Array(numParticles * 3);
-const scales = new Float32Array(numParticles);
+scene.add(particleWave.particles);
 
-let i = 0, j = 0;
-
-for (let ix = 0; ix < AMOUNTX; ix++) {
-
-    for (let iy = 0; iy < AMOUNTY; iy++) {
-
-        positions[i] = WAVE_X_POS + ix * SEPARATION - ((AMOUNTX * SEPARATION) / 2); // x
-        positions[i + 1] = WAVE_Y_POS; // y
-        positions[i + 2] = WAVE_Z_POS + iy * SEPARATION - ((AMOUNTY * SEPARATION) / 2); // z
-
-        scales[j] = 1;
-
-        i += 3;
-        j++;
-
-    }
-
-}
-
-const buffGeometry = new THREE.BufferGeometry();
-buffGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-buffGeometry.setAttribute('scale', new THREE.BufferAttribute(scales, 1));
-
-const shaderMaterial = new THREE.ShaderMaterial({
-    uniforms: {
-        color: { value: new THREE.Color(0xfafaf0) },
-        size: { value: 0.12 }
-    },
-    vertexShader: document.getElementById('vertexshader').textContent,
-    fragmentShader: document.getElementById('fragmentshader').textContent,
-})
-
-particles = new THREE.Points(buffGeometry, shaderMaterial);
-scene.add(particles);
-
-
-function animateParticles() {
-    const positions = particles.geometry.attributes.position.array;
-    const scales = particles.geometry.attributes.scale.array;
-
-    let i = 0, j = 0;
-
-    for (let ix = 0; ix < AMOUNTX; ix++) {
-
-        for (let iy = 0; iy < AMOUNTY; iy++) {
-
-            positions[i + 1] = WAVE_Y_POS + (Math.sin((ix + count) * 0.3) * 50) +
-                (Math.sin((iy + count) * 0.5) * 50);
-
-            scales[j] = (Math.sin((ix + count) * 0.3) + 1) * 20 +
-                (Math.sin((iy + count) * 0.5) + 1) * 20;
-
-            i += 3;
-            j++;
-
-        }
-
-    }
-    particles.geometry.attributes.position.needsUpdate = true;
-    particles.geometry.attributes.scale.needsUpdate = true;
-}
-
-// end testing example code
+let count = 0;
 function animate(time, theta = 0, emitterRadius = 10) {
     time *= 0.001;
 
@@ -551,13 +365,12 @@ function animate(time, theta = 0, emitterRadius = 10) {
     const rotation = time * bigSphereRotationSpeed;
     bigSphere.rotation.y = rotation;
 
-    animateParticles();
+    particleWave.animateParticles(count += 0.1);
 
     stats.update();
     system.update();
     controls.update();
     renderer.render(scene, camera);
-    count += 0.1;
     requestAnimationFrame((time) => animate(time, theta, emitterRadius));
 }
 
@@ -578,4 +391,8 @@ export {
     Vector3D,
     Span,
     sprite,
+    THREE,
+    scene,
+    environmentMap,
+    objects,
 }
