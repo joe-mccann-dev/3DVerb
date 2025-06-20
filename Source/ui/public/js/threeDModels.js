@@ -93,7 +93,7 @@ const soundPanelsPromise = new Promise((resolve, reject) => {
     }, undefined, reject);
 });
 
-function addModelsToScene() {
+export function addModelsToScene() {
     speakersPromise.then((speakers) => {
         speakers.forEach((speaker) => {
             scene.add(speaker);
@@ -126,4 +126,3 @@ function addModelsToScene() {
     });
 }
 
-addModelsToScene();

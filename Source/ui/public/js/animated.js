@@ -98,6 +98,7 @@ const pointLightHelper = new THREE.PointLightHelper(pointLight, sphereSize);
 scene.add(pointLightHelper);
 
 const objects = [];
+promises.addModelsToScene();
 
 // GEOMETRIES
 const sphereRadius = 4;
