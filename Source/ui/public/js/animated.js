@@ -1,5 +1,6 @@
 
 import * as THREE from 'three';
+import * as promises from './threeDModels.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import ParticleSystem, {
     Emitter,
