@@ -21,7 +21,6 @@ import ParticleSystem, {
 } from 'three-nebula';
 
 import * as UI from './index.js';
-import * as promises from './threeDModels.js';
 import * as particleWave from './particle_wave.js'
 import Stats from 'three/addons/libs/stats.module.js';
 
