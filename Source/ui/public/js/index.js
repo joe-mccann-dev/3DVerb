@@ -162,9 +162,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }, 100);
 
     function onMixChange(mixValue) {
-        console.log("mix value: ", mixValue);
         Animated.spheres.forEach((sphere) => {
-            const scale = Animated.sphereRadius + (mixValue * 1.5);
+            const scale = Animated.sphereRadius + (mixValue * 4);
             sphere.scale.copy(sphere.userData.originalScale);
             sphere.scale.multiplyScalar(scale);
         });
@@ -185,22 +184,23 @@ document.addEventListener("DOMContentLoaded", () => {
         const logOfWidthFactor = Math.log(widthValue + 1) / Math.log(5);
         const leftAxisScale = leftMin + (leftMax - leftMin) * logOfWidthFactor;
         const rightAxisScale = rightMin + (rightMax - rightMin) * logOfWidthFactor;
-        const length = Animated.emitters.length;
         const lAxis = new Animated.Vector3D(leftAxisScale, 0, 10);
         const rAxis = new Animated.Vector3D(rightAxisScale, 0, 10);
-        for (let i = 0; i < length / 2; ++i) {
+        for (let i = 0; i < Animated.nebula.emitters.length / 2; ++i) {
             console.log("leftAxisScale: ", leftAxisScale);
             console.log("rightAxisScale: ", rightAxisScale);
             
-            Animated.emitters[i].setInitializers(Animated.getStandardInitializers(
+            Animated.nebula.emitters[i].setInitializers(Animated.getStandardInitializers(
                 {
+                    life: lifeScale,
                     radialVelocity: { axis:  lAxis }
                 }
             ));
         }
-        for (let i = 2; i < length; ++i) {
-            Animated.emitters[i].setInitializers(Animated.getStandardInitializers(
+        for (let i = 2; i < Animated.nebula.emitters.length; ++i) {
+            Animated.nebula.emitters[i].setInitializers(Animated.getStandardInitializers(
                 {
+                    life: lifeScale,
                     radialVelocity: { axis: rAxis }
                 }
             ));
@@ -209,17 +209,11 @@ document.addEventListener("DOMContentLoaded", () => {
         setRAxis(rAxis);
     }
 
-    function setLAxis(axis) {
-        leftAxis = axis
-    }
-    function setRAxis(axis) {
-        rightAxis = axis;
-    }
-
     const roomSizeThrottleHandler = throttle((roomSizeValue) => {
         onRoomSizeChange(roomSizeValue);
     }, 100);
 
+    let lifeScale;
     function onRoomSizeChange(roomSizeValue) {
         const min = 0.50;
         const scale = min + (1 - min) * roomSizeValue;
@@ -229,18 +223,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const minLife = 2.2;
         const maxLife = 4.2;
-        const lifeScale = minLife + (maxLife - minLife) * roomSizeValue;
-        const length = Animated.emitters.length;
-        for (let i = 0; i < length / 2; ++i) {
-            Animated.emitters[i].setInitializers(Animated.getStandardInitializers(
+        lifeScale = minLife + (maxLife - minLife) * roomSizeValue;
+        for (let i = 0; i < Animated.nebula.emitters.length / 2; i++) {
+            Animated.nebula.emitters[i].setInitializers(Animated.getStandardInitializers(
                 {
                     life: lifeScale,
                     radialVelocity: { axis: leftAxis ?? Animated.leftEmitterRadVelocityAxis()}
                 }
             ));
         }
-        for (let i = 2; i < length; ++i) {
-            Animated.emitters[i].setInitializers(Animated.getStandardInitializers(
+        for (let i = 2; i < Animated.nebula.emitters.length; i++) {
+            Animated.nebula.emitters[i].setInitializers(Animated.getStandardInitializers(
                 {
                     life: lifeScale,
                     // prevent from returning to default leftEmitterRadVelocityAxis option
@@ -248,6 +241,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             ));
         }
+        // set life here so no jumps in life on width change when room size doesn't change.
+        setLife(lifeScale);
     }
 
     const freezeColor = new Animated.threeColor(Animated.freezeColor);
@@ -263,6 +258,17 @@ document.addEventListener("DOMContentLoaded", () => {
                 sphere.material.color.copy(sphere.userData.color);
             }
         });
+    }
+
+    function setLAxis(axis) {
+        leftAxis = axis
+    }
+    function setRAxis(axis) {
+        rightAxis = axis;
+    }
+
+    function setLife(lScale) {
+        lifeScale = lScale;
     }
 
     // OUTPUT LEVEL EVENT
@@ -324,6 +330,7 @@ document.addEventListener("DOMContentLoaded", () => {
     Animated.pointLight.userData.originalIntensity = Animated.pointLight.intensity;
     Animated.bigSphere.userData.originalScale = Animated.bigSphere.scale.clone();
 
+    // ROOM SIZE
     let currentSize;
     window.__JUCE__.backend.addEventListener("roomSizeValue", () => {
         fetch(Juce.getBackendResourceAddress("roomSize.json"))
@@ -331,7 +338,6 @@ document.addEventListener("DOMContentLoaded", () => {
             .then((roomSizeData) => {
                 if (currentSize != roomSizeData.roomSize) {
                     roomSizeThrottleHandler(roomSizeData.roomSize);
-                    console.log('room size is different')
                 }
                 currentSize = roomSizeData.roomSize;
             })

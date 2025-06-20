@@ -26,20 +26,16 @@ import * as particleWave from './particle_wave.js'
 import Stats from 'three/addons/libs/stats.module.js';
 
 // COLORS
-const freezeColor = 0x2c2e54;
 const sphereColor = 0xd8d8b4;
 const topPlaneColor = 0x2c2e54;
 const sidePlaneColor = 0x888c8f;
 const speakerStandColor = 0xbfbc85;
 const roomFrameColor = 0x919ddc;
 const threeColor = THREE.Color;
-// END COLORS
 
-// THREE JS CODE
+// SCENE
 const scene = new THREE.Scene();
-const renderer = new THREE.WebGLRenderer({ antialias: true });
-
-const cubeTextureLoader = new THREE.CubeTextureLoader()
+const cubeTextureLoader = new THREE.CubeTextureLoader();
 const environmentMap = cubeTextureLoader.load([
     '../assets/environment_map/mountain/px.png',
     '../assets/environment_map/mountain/nx.png',
@@ -48,22 +44,23 @@ const environmentMap = cubeTextureLoader.load([
     '../assets/environment_map/mountain/pz.png',
     '../assets/environment_map/mountain/nz.png'
 ]);
-const textureLoader = new THREE.TextureLoader;
-
 scene.background = environmentMap;
 scene.environment = environmentMap;
+const textureLoader = new THREE.TextureLoader;
+const alphaMap = textureLoader.load('assets/sky_grayscale.png');
 
+// RENDERER
 const visualizer = document.getElementById("visualizer");
 const visualizerStyle = getComputedStyle(visualizer);
-
+const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(parseInt(visualizerStyle.width), parseInt(visualizerStyle.height));
 renderer.shadowMap.enabled = true;
 const canvas = renderer.domElement;
 visualizer.appendChild(canvas);
-
-let stats = new Stats();
+const stats = new Stats();
 visualizer.appendChild(stats.dom)
 
+// CAMERA
 const width = canvas.width;
 const height = canvas.height;
 const aspect = width / height;
@@ -71,14 +68,10 @@ const camera = new THREE.PerspectiveCamera(75, aspect, 0.1, 800);
 
 camera.position.set(28, 220, 548);
 camera.lookAt(new THREE.Vector3(50, 65, -50));
-
 const controls = new OrbitControls(camera, renderer.domElement);
-controls.autoRotateSpeed = 0.15;
-//controls.autoRotate = true;
-controls.update();
 controls.addEventListener('change', () => {
-    console.log('position:', camera.position);
-    console.log('target:', controls.target);
+    //console.log('position:', camera.position);
+    //console.log('target:', controls.target);
 });
 
 const pointLight = new THREE.PointLight(0xc9c893, 50000);;
@@ -94,71 +87,50 @@ pointLight.shadow.mapSize.width = 2048;
 pointLight.shadow.mapSize.height = 2048;
 scene.add(pointLight);
 
-const sphereSize = 10;
-const pointLightHelper = new THREE.PointLightHelper(pointLight, sphereSize);
+const pointLightSphereSize = 10;
+const pointLightHelper = new THREE.PointLightHelper(pointLight, pointLightSphereSize);
 scene.add(pointLightHelper);
 
 const objects = [];
-promises.addModelsToScene();
 
 // GEOMETRIES
-const sphereRadius = 4;
+const sphereRadius = 3;
 const sphereWidthSegments = 12;
 const sphereHeightSegments = 12;
 const sphereGeometry = new THREE.SphereGeometry(sphereRadius, sphereWidthSegments, sphereHeightSegments);
-
-const emittedSphereRadius = 1;
-const emittedSphereWidthSegments = 12;
-const emittedSphereHeightSegments = 12;
-const emittedSphereGeometry = new THREE.SphereGeometry(emittedSphereRadius, emittedSphereWidthSegments, emittedSphereHeightSegments);
 
 const bigSphereRadius = 400;
 const bigSphereWidthSegments = 36;
 const bigSphereHeightSegments = 36;
 const bigSphereGeometry = new THREE.SphereGeometry(bigSphereRadius, bigSphereWidthSegments, bigSphereHeightSegments);
-const alphaMap = textureLoader.load('assets/sky_grayscale.png');
-const bigSphereMaterial = new THREE.MeshStandardMaterial({
-    color: topPlaneColor,
-    envMap: environmentMap,
-    envMapIntensity: 5.0,
-    metalness: 6.0,
-    roughness: 0.5,
-    alphaMap: alphaMap,
-    transparent: true,
-    opacity: 0.8,
-    depthWrite: false
-});
-const bigSphere = new THREE.Mesh(bigSphereGeometry, bigSphereMaterial);
-bigSphere.position.set(50, 80, 50);
-bigSphere.rotateX(-Math.PI / 3);
-objects.push(bigSphere);
-scene.add(bigSphere);
 
+const bigSphere = makeBigSphere(bigSphereGeometry, new THREE.Vector3(50, 80, 50));
 
 const planeGeometry = new THREE.PlaneGeometry(210, 210, 4, 4);
 const speakerStandGeometry = new THREE.PlaneGeometry(45, 45, 2, 2);
+const horizontalPlaneRotation = new THREE.Vector3(-Math.PI / 2, 0, 0);
+const verticalPlaneRotation = new THREE.Vector3(-Math.PI, 0, 0);
 const planes = [
-    makePlane(planeGeometry, sidePlaneColor, [50, -10, 50], -Math.PI / 2, 0, 0),
-    makePlane(planeGeometry, sidePlaneColor, [50, 200, 50], -Math.PI / 2, 0, 0),
-    //makePlane(planeGeometry, sidePlaneColor, [150, 95, 50], 0, Math.PI / 2, 0, -Math.PI / 4),
-    makePlane(planeGeometry, sidePlaneColor, [50, 95, -50], -Math.PI, 0, 0),
+    makePlane(planeGeometry, sidePlaneColor, new THREE.Vector3(50, -10, 50), horizontalPlaneRotation),
+    makePlane(planeGeometry, sidePlaneColor, new THREE.Vector3(50, 200, 50), horizontalPlaneRotation),
+    makePlane(planeGeometry, sidePlaneColor, new THREE.Vector3(50, 95, -50), verticalPlaneRotation),
     // speaker stands
-    makePlane(speakerStandGeometry, speakerStandColor, [-20, 50, -20], -Math.PI / 2, 0, 0),
-    makePlane(speakerStandGeometry, speakerStandColor, [120, 50, -20], -Math.PI / 2, 0, 0)
+    makePlane(speakerStandGeometry, speakerStandColor, new THREE.Vector3(-20, 50, -20), horizontalPlaneRotation),
+    makePlane(speakerStandGeometry, speakerStandColor, new THREE.Vector3(120, 50, -20), horizontalPlaneRotation)
 ];
 
 // MESH LISTS
 const spheres = [
     // left
-    makeSphere(sphereGeometry, [-50, -10, 150]),
-    makeSphere(sphereGeometry, [-50, 200, 150]),
-    makeSphere(sphereGeometry, [-50, -10, -50]),
-    makeSphere(sphereGeometry, [-50, 200, -50]),
+    makeSphere(sphereGeometry, new THREE.Vector3(-50, -10, 150)),
+    makeSphere(sphereGeometry, new THREE.Vector3(-50, 200, 150)),
+    makeSphere(sphereGeometry, new THREE.Vector3(-50, -10, -50)),
+    makeSphere(sphereGeometry, new THREE.Vector3(-50, 200, -50)),
     //right
-    makeSphere(sphereGeometry, [150, -10, 150]),
-    makeSphere(sphereGeometry, [150, 200, 150]),
-    makeSphere(sphereGeometry, [150, -10, -50]),
-    makeSphere(sphereGeometry, [150, 200, -50])    
+    makeSphere(sphereGeometry, new THREE.Vector3(150, -10, 150)),
+    makeSphere(sphereGeometry, new THREE.Vector3(150, 200, 150)),
+    makeSphere(sphereGeometry, new THREE.Vector3(150, -10, -50)),
+    makeSphere(sphereGeometry, new THREE.Vector3(150, 200, -50))    
 ];
 
 const lines = [
@@ -171,7 +143,6 @@ const lines = [
     // lines connecting bottom to top
     makeLine(-50, -50, -10, 200, -50, -50),
     makeLine(150, 150, -10, 200, -50, -50),
-    //makeLine(150, 150, -10, 200, 150, 150),
 
     // lines connecting top plane
     makeLine(-50, 150, 200, 200, 150, 150),
@@ -184,8 +155,14 @@ const lines = [
     makeLine(120, 120, -10, 50, -20, -20, speakerStandColor),
 ];
 
+const nebula = {};
+configNebula();
+scene.add(particleWave.particles);
+promises.addModelsToScene();
+let count = 0;
+
 // "ADD A MESH" FUNCTIONS
-function makePlane(geometry, color, positions, x_rotation, y_rotation, z_rotation) {
+function makePlane(geometry, color, position, rotation) {
     const material = new THREE.MeshStandardMaterial({
         color: color,
         envMap: environmentMap,
@@ -194,33 +171,27 @@ function makePlane(geometry, color, positions, x_rotation, y_rotation, z_rotatio
         alphaMap: alphaMap,
     });
     const plane = new THREE.Mesh(geometry, material);
-    plane.rotation.set(x_rotation, y_rotation, z_rotation)
-    plane.position.set(positions[0], positions[1], positions[2]);
+    plane.rotation.set(rotation.x, rotation.y, rotation.z)
+    plane.position.set(position.x, position.y, position.z);
     plane.castShadow = true;
 
-    scene.add(plane);
-    objects.push(plane);
-
+    addToSceneAndObjects(plane);
     return plane;
 }
 
-function makeSphere(geometry, positions, color = sphereColor ) {
+function makeSphere(geometry, position, color = sphereColor) {
     const material = new THREE.MeshStandardMaterial({
         color: color,
         envMap: environmentMap,
         wireframe: true,
     });
     const sphere = new THREE.Mesh(geometry, material);
-
-    sphere.position.set(positions[0], positions[1], positions[2]);
-
+    sphere.position.set(position.x, position.y, position.z);
     sphere.castShadow = true;
     sphere.receiveShadow = true;
     sphere.metalness = 3;
 
-    scene.add(sphere);
-    objects.push(sphere);
-
+    addToSceneAndObjects(sphere);
     return sphere;
 }
 
@@ -241,32 +212,80 @@ function makeLine(src_x, dest_x, src_y, dest_y, src_z, dest_z, color = roomFrame
     });
 
     const line = new THREE.Mesh(geometry, material);
-
     line.position.set(
         (src_x + dest_x) / 2,
         (src_y + dest_y) / 2,
         (src_z + dest_z) / 2
     );
-
     line.lookAt(new THREE.Vector3(dest_x, dest_y, dest_z));
-
     line.castShadow = true;
     line.receiveShadow = true;
-    
-    scene.add(line);
-    objects.push(line);
 
+    addToSceneAndObjects(line);
     return line;
 }
 
-const spriteMap = new THREE.TextureLoader().load('assets/wave-scaled.png');
-const spriteMaterial = new THREE.SpriteMaterial({
-    map: spriteMap,
-    color: 0xff0000,
-    blending: THREE.AdditiveBlending,
-    fog: true,
-});
-const sprite = new THREE.Sprite(spriteMaterial);
+function makeBigSphere(geometry, position) {
+
+    const bigSphereMaterial = new THREE.MeshStandardMaterial({
+        color: topPlaneColor,
+        envMap: environmentMap,
+        envMapIntensity: 5.0,
+        metalness: 6.0,
+        roughness: 0.5,
+        alphaMap: alphaMap,
+        transparent: true,
+        opacity: 0.8,
+        depthWrite: false
+    });
+    const bigSphere = new THREE.Mesh(geometry, bigSphereMaterial);
+    bigSphere.position.set(position.x, position.y, position.z);
+    bigSphere.rotateX(-Math.PI / 3);
+
+    addToSceneAndObjects(bigSphere);
+    return bigSphere;
+}
+
+function addToSceneAndObjects(objectToAdd) {
+    scene.add(objectToAdd);
+    objects.push(objectToAdd);
+}
+
+function configNebula() {
+    nebula.system = new ParticleSystem();
+    const spriteMap = new THREE.TextureLoader().load('assets/wave-scaled.png');
+    const spriteMaterial = new THREE.SpriteMaterial({
+        map: spriteMap,
+        color: 0xff0000,
+        blending: THREE.AdditiveBlending,
+        fog: true,
+    });
+    nebula.sprite = new THREE.Sprite(spriteMaterial);
+
+    createNebulaEmitters();
+    nebula.emitters.forEach((emitter) => {
+        nebula.system.addEmitter(emitter);
+    });
+    nebula.system.addRenderer(new SpriteRenderer(scene, THREE));
+}
+
+function createNebulaEmitters() {
+    nebula.emitters = [];
+    nebula.emitterLeft0 = createEmitter('#4F1500', '#0029FF');
+    nebula.emitterLeft1 = createEmitter('#004CFE', '#6600FF');
+    nebula.emitterRight0 = createEmitter('#4F1500', '#0029FF', { radialVelocity: { axis: new Vector3D(200, 0, 10) } });
+    nebula.emitterRight1 = createEmitter('#004CFE', '#6600FF', { radialVelocity: { axis: new Vector3D(200, 0, 10) } });
+
+    nebula.emitterLeft0.position.set(-20, 70, 0);
+    nebula.emitterLeft1.position.set(-20, 70, 0);
+    nebula.emitterRight0.position.set(120, 70, 0);
+    nebula.emitterRight1.position.set(120, 70, 0);
+
+    nebula.emitters.push(nebula.emitterLeft0);
+    nebula.emitters.push(nebula.emitterLeft1);
+    nebula.emitters.push(nebula.emitterRight0);
+    nebula.emitters.push(nebula.emitterRight1);
+}
 
 function createEmitter(colorA, colorB, options = {}) {
     const emitter = new Emitter()
@@ -282,18 +301,11 @@ function createEmitter(colorA, colorB, options = {}) {
     return emitter;
 }
 
-const leftEmitterRadVelocityAxis = () => {
-    return new Vector3D(-200, 0, 10);
-}
-const rightEmitterRadVelocityAxis = () => {
-    return new Vector3D(200, 0, 10);
-}
-
 function getStandardInitializers(options = {}) {
     return [
         new Mass(options.mass ?? 1.4),
         new Life(options.life ?? 2.2),
-        new Body(sprite),
+        new Body(nebula.sprite),
         new Radius(options.radius ?? 20),
         new RadialVelocity(
             options.radialVelocity?.speed ?? 50,
@@ -303,56 +315,39 @@ function getStandardInitializers(options = {}) {
     ]
 }
 
-const emitters = [];
-const emitterLeft0 = createEmitter('#4F1500', '#0029FF');
-const emitterLeft1 = createEmitter('#004CFE', '#6600FF');
-const emitterRight0 = createEmitter('#4F1500', '#0029FF', { radialVelocity: {axis: new Vector3D(200, 0, 10)}});
-const emitterRight1 = createEmitter('#004CFE', '#6600FF', { radialVelocity: {axis: new Vector3D(200, 0, 10)}});
-emitterLeft0.position.set(-20, 70, 0);
-emitterLeft1.position.set(-20, 70, 0);
-emitterRight0.position.set(120, 70, 0);
-emitterRight1.position.set(120, 70, 0);
-emitters.push(emitterLeft0);
-emitters.push(emitterLeft1);
-emitters.push(emitterRight0);
-emitters.push(emitterRight1);
-const system = new ParticleSystem();
-system
-    .addEmitter(emitterLeft0)
-    .addEmitter(emitterLeft1)
-    .addEmitter(emitterRight0)
-    .addEmitter(emitterRight1)
-    .addRenderer(new SpriteRenderer(scene, THREE));
+function leftEmitterRadVelocityAxis() {
+    return new Vector3D(-200, 0, 10);
+}
+function rightEmitterRadVelocityAxis() {
+    return new Vector3D(200, 0, 10);
+}
 
-scene.add(particleWave.particles);
+function animateNebulaEmitterPositions(theta, emitterRadius) {
+    nebula.emitterLeft0.position.x = -20 + emitterRadius * Math.cos(theta);
+    nebula.emitterLeft0.position.y = 70 + emitterRadius * Math.sin(theta);
+    nebula.emitterLeft1.position.x = -20 + emitterRadius * Math.cos(theta + Math.PI / 2);
+    nebula.emitterLeft1.position.y = 70 + emitterRadius * Math.cos(theta + Math.PI / 2);
 
-let count = 0;
-function animate(time, theta = 0, emitterRadius = 10) {
-    time *= 0.001;
+    nebula.emitterRight0.position.x = 120 + emitterRadius * Math.cos(theta);
+    nebula.emitterRight0.position.y = 70 + emitterRadius * Math.sin(theta);
+    nebula.emitterRight1.position.x = 120 + emitterRadius * Math.cos(theta + Math.PI / 2);
+    nebula.emitterRight1.position.y = 70 + emitterRadius * Math.cos(theta + Math.PI / 2);
+}
 
+function handleBypassOrFreezeChecked(time) {
     if (UI.bypassCheckbox.checked) {
         pointLight.intensity = 0;
         spheres.forEach((sphere) => {
             sphere.rotation.x = 0;
             sphere.rotation.y = 0;
         });
-        emitters.forEach(emitter => emitter.stopEmit());
+        nebula.emitters.forEach(emitter => emitter.stopEmit());
     } else {
-        emitters.forEach((emitter) => {
+        nebula.emitters.forEach((emitter) => {
             if (!emitter.isEmitting) {
                 emitter.emit();
             }
-        })
-        theta += 0.09;
-        emitterLeft0.position.x = -20 + emitterRadius * Math.cos(theta);
-        emitterLeft0.position.y = 70 + emitterRadius * Math.sin(theta);
-        emitterLeft1.position.x = -20 + emitterRadius * Math.cos(theta + Math.PI / 2);
-        emitterLeft1.position.y = 70 + emitterRadius * Math.cos(theta + Math.PI / 2);
-
-        emitterRight0.position.x = 120 + emitterRadius * Math.cos(theta);
-        emitterRight0.position.y = 70 + emitterRadius * Math.sin(theta);
-        emitterRight1.position.x = 120 + emitterRadius * Math.cos(theta + Math.PI / 2);
-        emitterRight1.position.y = 70 + emitterRadius * Math.cos(theta + Math.PI / 2);
+        });
     }
     if (!UI.freezeCheckbox.checked && !UI.bypassCheckbox.checked) {
         spheres.forEach((sphere, index) => {
@@ -361,15 +356,24 @@ function animate(time, theta = 0, emitterRadius = 10) {
             sphere.rotation.y = rotation;
         });
     }
+}
 
+function rotateBigSphere(time) {
     const bigSphereRotationSpeed = 0.15;
     const rotation = time * bigSphereRotationSpeed;
     bigSphere.rotation.y = rotation;
+}
 
+function animate(time, theta = 0, emitterRadius = 10) {
+    time *= 0.001;
+
+    rotateBigSphere(time);
+    handleBypassOrFreezeChecked(time);
+    animateNebulaEmitterPositions(theta += 0.13, emitterRadius);
     particleWave.animateParticles(count += 0.1);
 
     stats.update();
-    system.update();
+    nebula.system.update();
     controls.update();
     renderer.render(scene, camera);
     requestAnimationFrame((time) => animate(time, theta, emitterRadius));
@@ -377,23 +381,17 @@ function animate(time, theta = 0, emitterRadius = 10) {
 
 export {
     animate,
-    freezeColor,
-    threeColor,
-    bigSphere,
-    spheres,
-    lines,
-    planes,
-    sphereRadius,
+    nebula,
+    Vector3D,
+    scene,
+    environmentMap,
     pointLight,
-    emitters,
+    threeColor,
+    spheres,
+    sphereRadius,
+    bigSphere,
     getStandardInitializers,
     leftEmitterRadVelocityAxis,
     rightEmitterRadVelocityAxis,
-    Vector3D,
-    Span,
-    sprite,
-    THREE,
-    scene,
-    environmentMap,
     objects,
 }
