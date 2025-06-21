@@ -121,9 +121,9 @@ function addPointLight() {
 }
 
 function addSpheres() {
-    sphereRadius = 3;
-    const sphereWidthSegments = 12;
-    const sphereHeightSegments = 12;
+    sphereRadius = 3.2;
+    const sphereWidthSegments = 6;
+    const sphereHeightSegments = 8;
     const sphereGeometry = new THREE.SphereGeometry(sphereRadius, sphereWidthSegments, sphereHeightSegments);
 
     const bigSphereRadius = 400;
@@ -156,7 +156,7 @@ function makeSphere(geometry, position, color = COLORS.sphereColor) {
     sphere.position.set(position.x, position.y, position.z);
     sphere.castShadow = true;
     sphere.receiveShadow = true;
-    sphere.metalness = 3;
+    sphere.metalness = 40;
 
     addToSceneAndObjects(sphere);
     return sphere;
