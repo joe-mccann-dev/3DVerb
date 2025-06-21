@@ -421,4 +421,5 @@ export {
     leftEmitterRadVelocityAxis,
     rightEmitterRadVelocityAxis,
     objects,
+    addToSceneAndObjects,
 }
