@@ -187,8 +187,8 @@ document.addEventListener("DOMContentLoaded", () => {
         const lAxis = new Animated.Vector3D(leftAxisScale, 0, 10);
         const rAxis = new Animated.Vector3D(rightAxisScale, 0, 10);
         for (let i = 0; i < Animated.nebula.emitters.length / 2; ++i) {
-            console.log("leftAxisScale: ", leftAxisScale);
-            console.log("rightAxisScale: ", rightAxisScale);
+            //console.log("leftAxisScale: ", leftAxisScale);
+            //console.log("rightAxisScale: ", rightAxisScale);
             
             Animated.nebula.emitters[i].setInitializers(Animated.getStandardInitializers(
                 {
@@ -344,7 +344,6 @@ document.addEventListener("DOMContentLoaded", () => {
             .catch(console.error);
     });
 
-    requestAnimationFrame(Animated.animate);
 });
 
 export {
