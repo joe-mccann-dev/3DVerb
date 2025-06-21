@@ -43,127 +43,27 @@ let currentMix;
 let currentSize;
 let lifeScale;
 
-setUserData();
+let roomSizeThrottleHandler, mixThrottleHandler, widthThrottleHandler, freezeThrottleHandler;
+const THROTTLE_TIME = 100;
+const DEFAULT_STEP_VALUE = 0.01;
 
 document.addEventListener("DOMContentLoaded", () => {
-    setupEventListeners();
+    setUserData();
+    setupDOMEventListeners();
+    initThrottleHandlers();
+    setupBackendEventListeners();
+});
 
-    const roomSizeThrottleHandler = throttle((roomSizeValue) => {
-        onRoomSizeChange(roomSizeValue);
-    }, 100);
-
-    const mixThrottleHandler = throttle((mixValue) => {
-        onMixChange(mixValue);
-    }, 100);
-
-    const widthThrottleHandler = throttle((widthValue) => {
-        onWidthChange(widthValue);
-    }, 100);
-
-    // TODO: place here dampThrottleHandler
-
-    const freezeThrottleHandler = throttle((frozen) => {
-        onFreezeChange(frozen);
-    }, 200);
-
-    function onRoomSizeChange(roomSizeValue) {
-        const min = 0.50;
-        const scale = min + (1 - min) * roomSizeValue;
-        Animated.bigSphere.scale.copy(Animated.bigSphere.userData.originalScale);
-        Animated.bigSphere.scale.multiplyScalar(scale);
-
-
-        const minLife = 2.2;
-        const maxLife = 4.2;
-        lifeScale = minLife + (maxLife - minLife) * roomSizeValue;
-        for (let i = 0; i < Animated.nebula.emitters.length / 2; i++) {
-            Animated.nebula.emitters[i].setInitializers(Animated.getStandardInitializers(
-                {
-                    life: lifeScale,
-                    radialVelocity: { axis: leftAxis ?? Animated.leftEmitterRadVelocityAxis() }
-                }
-            ));
-        }
-        for (let i = 2; i < Animated.nebula.emitters.length; i++) {
-            Animated.nebula.emitters[i].setInitializers(Animated.getStandardInitializers(
-                {
-                    life: lifeScale,
-                    // prevent from returning to default leftEmitterRadVelocityAxis option
-                    radialVelocity: { axis: rightAxis ?? Animated.rightEmitterRadVelocityAxis() }
-                }
-            ));
-        }
-        // set life here so no jumps in life on width change when room size doesn't change.
-        setLife(lifeScale);
-    }
-
-    function onMixChange(mixValue) {
-        Animated.spheres.forEach((sphere) => {
-            const scale = Animated.sphereRadius + (mixValue * 4);
-            sphere.scale.copy(sphere.userData.originalScale);
-            sphere.scale.multiplyScalar(scale);
-        });
-    }
-
-    function onWidthChange(widthValue) {
-        const leftMin = 150;
-        const leftMax = -600;
-        const rightMin = -150;
-        const rightMax = 600;
-        // using log for less sensitive scale slider
-        const logOfWidthFactor = Math.log(widthValue + 1) / Math.log(5);
-        const leftAxisScale = leftMin + (leftMax - leftMin) * logOfWidthFactor;
-        const rightAxisScale = rightMin + (rightMax - rightMin) * logOfWidthFactor;
-        const lAxis = new Animated.Vector3D(leftAxisScale, 0, 10);
-        const rAxis = new Animated.Vector3D(rightAxisScale, 0, 10);
-        for (let i = 0; i < Animated.nebula.emitters.length / 2; ++i) {            
-            Animated.nebula.emitters[i].setInitializers(Animated.getStandardInitializers(
-                {
-                    life: lifeScale,
-                    radialVelocity: { axis:  lAxis }
-                }
-            ));
-        }
-        for (let i = 2; i < Animated.nebula.emitters.length; ++i) {
-            Animated.nebula.emitters[i].setInitializers(Animated.getStandardInitializers(
-                {
-                    life: lifeScale,
-                    radialVelocity: { axis: rAxis }
-                }
-            ));
-        }
-        setLAxis(lAxis);
-        setRAxis(rAxis);
-    }
-
-    function onFreezeChange(frozen) {
-        Animated.spheres.forEach((sphere) => {
-            if (frozen) {
-                sphere.material.color.copy(freezeColor);
-            } else {
-                sphere.material.color.copy(sphere.userData.color);
-            }
-        });
-    }
-
-    // OUTPUT LEVEL EVENT
-    window.__JUCE__.backend.addEventListener("outputLevel", () => {
-        fetch(Juce.getBackendResourceAddress("outputLevel.json"))
+function setupBackendEventListeners() {
+    // ROOM SIZE
+    window.__JUCE__.backend.addEventListener("roomSizeValue", () => {
+        fetch(Juce.getBackendResourceAddress("roomSize.json"))
             .then((response) => response.json())
-            .then((outputLevelData) => {
-                const scaleFactor = outputLevelData.left < -30 ? 1 : ((outputLevelData.left / 60) + 1) * 3.0;
-                //Animated.spheres[Animated.spheres.length - 1].scale.set(scaleFactor, scaleFactor, scaleFactor);
-                
-            })
-            .catch(console.error);
-    });
-
-    // FREEZE EVENT
-    window.__JUCE__.backend.addEventListener("isFrozen", () => {
-        fetch(Juce.getBackendResourceAddress("freeze.json"))
-            .then((response) => response.json())
-            .then((freezeData) => {
-                freezeThrottleHandler(freezeData.freeze);
+            .then((roomSizeData) => {
+                if (currentSize != roomSizeData.roomSize) {
+                    roomSizeThrottleHandler(roomSizeData.roomSize);
+                }
+                currentSize = roomSizeData.roomSize;
             })
             .catch(console.error);
     });
@@ -179,7 +79,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 currentMix = mixData.mix;
             })
             .catch(console.error);
-            
+
     });
 
     // WIDTH EVENT
@@ -195,22 +95,167 @@ document.addEventListener("DOMContentLoaded", () => {
             .catch(console.error);
     });
 
-    // ROOM SIZE
-    window.__JUCE__.backend.addEventListener("roomSizeValue", () => {
-        fetch(Juce.getBackendResourceAddress("roomSize.json"))
+    // FREEZE EVENT
+    window.__JUCE__.backend.addEventListener("isFrozen", () => {
+        fetch(Juce.getBackendResourceAddress("freeze.json"))
             .then((response) => response.json())
-            .then((roomSizeData) => {
-                if (currentSize != roomSizeData.roomSize) {
-                    roomSizeThrottleHandler(roomSizeData.roomSize);
-                }
-                currentSize = roomSizeData.roomSize;
+            .then((freezeData) => {
+                freezeThrottleHandler(freezeData.freeze);
             })
             .catch(console.error);
     });
 
-});
+    // OUTPUT LEVEL EVENT
+    window.__JUCE__.backend.addEventListener("outputLevel", () => {
+        fetch(Juce.getBackendResourceAddress("outputLevel.json"))
+            .then((response) => response.json())
+            .then((outputLevelData) => {
+                const scaleFactor = outputLevelData.left < -30 ? 1 : ((outputLevelData.left / 60) + 1) * 3.0;
+                //Animated.spheres[Animated.spheres.length - 1].scale.set(scaleFactor, scaleFactor, scaleFactor);
 
-function setupEventListeners() {
+            })
+            .catch(console.error);
+    });
+}
+
+function onRoomSizeChange(roomSizeValue) {
+    const min = 0.50;
+    const scale = min + (1 - min) * roomSizeValue;
+    Animated.bigSphere.scale.copy(Animated.bigSphere.userData.originalScale);
+    Animated.bigSphere.scale.multiplyScalar(scale);
+
+
+    const minLife = 2.2;
+    const maxLife = 4.2;
+    lifeScale = minLife + (maxLife - minLife) * roomSizeValue;
+    for (let i = 0; i < Animated.nebula.emitters.length / 2; i++) {
+        Animated.nebula.emitters[i].setInitializers(Animated.getStandardInitializers(
+            {
+                life: lifeScale,
+                radialVelocity: { axis: leftAxis ?? Animated.leftEmitterRadVelocityAxis() }
+            }
+        ));
+    }
+    for (let i = 2; i < Animated.nebula.emitters.length; i++) {
+        Animated.nebula.emitters[i].setInitializers(Animated.getStandardInitializers(
+            {
+                life: lifeScale,
+                // prevent from returning to default leftEmitterRadVelocityAxis option
+                radialVelocity: { axis: rightAxis ?? Animated.rightEmitterRadVelocityAxis() }
+            }
+        ));
+    }
+    // set life here so no jumps in life on width change when room size doesn't change.
+    setLife(lifeScale);
+}
+
+function onMixChange(mixValue) {
+    Animated.spheres.forEach((sphere) => {
+        const scale = Animated.sphereRadius + (mixValue * 4);
+        sphere.scale.copy(sphere.userData.originalScale);
+        sphere.scale.multiplyScalar(scale);
+    });
+}
+
+function onWidthChange(widthValue) {
+    const leftMin = 150;
+    const leftMax = -600;
+    const rightMin = -150;
+    const rightMax = 600;
+    // using log for less sensitive scale slider
+    const logOfWidthFactor = Math.log(widthValue + 1) / Math.log(5);
+    const leftAxisScale = leftMin + (leftMax - leftMin) * logOfWidthFactor;
+    const rightAxisScale = rightMin + (rightMax - rightMin) * logOfWidthFactor;
+    const lAxis = new Animated.Vector3D(leftAxisScale, 0, 10);
+    const rAxis = new Animated.Vector3D(rightAxisScale, 0, 10);
+    for (let i = 0; i < Animated.nebula.emitters.length / 2; ++i) {
+        Animated.nebula.emitters[i].setInitializers(Animated.getStandardInitializers(
+            {
+                life: lifeScale,
+                radialVelocity: { axis: lAxis }
+            }
+        ));
+    }
+    for (let i = 2; i < Animated.nebula.emitters.length; ++i) {
+        Animated.nebula.emitters[i].setInitializers(Animated.getStandardInitializers(
+            {
+                life: lifeScale,
+                radialVelocity: { axis: rAxis }
+            }
+        ));
+    }
+    setLAxis(lAxis);
+    setRAxis(rAxis);
+}
+
+function onFreezeChange(frozen) {
+    Animated.spheres.forEach((sphere) => {
+        frozen ?
+            sphere.material.color.copy(freezeColor) :
+            sphere.material.color.copy(sphere.userData.color);
+    });
+}
+
+function setLAxis(axis) {
+    leftAxis = axis
+}
+function setRAxis(axis) {
+    rightAxis = axis;
+}
+
+function setLife(lScale) {
+    lifeScale = lScale;
+}
+
+function setUserData() {
+    Animated.spheres.forEach((sphere) => {
+        if (!sphere.userData.color) {
+            sphere.userData.color = sphere.material.color.clone();
+        }
+    });
+
+    Animated.spheres.forEach((sphere) => {
+        sphere.userData.originalScale = sphere.scale.clone();
+    });
+
+    Animated.pointLight.userData.originalIntensity = Animated.pointLight.intensity;
+    Animated.bigSphere.userData.originalScale = Animated.bigSphere.scale.clone();
+}
+
+//https://www.freecodecamp.org/news/throttling-in-javascript/
+function throttle(func, delay) {
+    let timeout = null;
+    return (...args) => {
+        if (!timeout) {
+            func(...args);
+            timeout = setTimeout(() => {
+                timeout = null;
+            }, delay);
+        }
+    }
+}
+
+function initThrottleHandlers() {
+    roomSizeThrottleHandler = throttle((roomSizeValue) => {
+        onRoomSizeChange(roomSizeValue);
+    }, THROTTLE_TIME);
+
+    mixThrottleHandler = throttle((mixValue) => {
+        onMixChange(mixValue);
+    }, THROTTLE_TIME);
+
+    widthThrottleHandler = throttle((widthValue) => {
+        onWidthChange(widthValue);
+    }, THROTTLE_TIME);
+
+    // TODO: place here dampThrottleHandler
+
+    freezeThrottleHandler = throttle((frozen) => {
+        onFreezeChange(frozen);
+    }, THROTTLE_TIME + 100);
+}
+
+function setupDOMEventListeners() {
     document.addEventListener('keydown', (event) => {
         // calls PluginEditor::webUndoRedo()
         if (event.ctrlKey && event.key === 'y') {
@@ -248,19 +293,19 @@ function setupEventListeners() {
     });
 
     // GAIN
-    const gainSliderStepValue = 0.01;
+    const gainSliderStepValue = DEFAULT_STEP_VALUE;
     updateSliderDOMObjectAndSliderState(gainSlider, gainSliderState, gainSliderStepValue);
     // ROOM SIZE
-    const roomSizeSliderStepValue = 0.01;
+    const roomSizeSliderStepValue = DEFAULT_STEP_VALUE;
     updateSliderDOMObjectAndSliderState(roomSizeSlider, roomSizeSliderState, roomSizeSliderStepValue);
     // MIX
-    const mixSliderStepValue = 0.01;
+    const mixSliderStepValue = DEFAULT_STEP_VALUE;
     updateSliderDOMObjectAndSliderState(mixSlider, mixSliderState, mixSliderStepValue);
     // WIDTH
-    const widthSliderStepValue = 0.01;
+    const widthSliderStepValue = DEFAULT_STEP_VALUE;
     updateSliderDOMObjectAndSliderState(widthSlider, widthSliderState, widthSliderStepValue);
     // DAMP
-    const dampSliderStepValue = 0.01;
+    const dampSliderStepValue = DEFAULT_STEP_VALUE;
     updateSliderDOMObjectAndSliderState(dampSlider, dampSliderState, dampSliderStepValue);
     // FREEZE
     // toggle cpp backend float value based on html checked value
@@ -272,16 +317,7 @@ function setupEventListeners() {
     freezeToggleState.valueChangedEvent.addListener(() => {
         freezeCheckbox.checked = freezeToggleState.getNormalisedValue() >= 0.5;
         const label = document.getElementById("freezeLabel");
-        label.style["color"] = freezeCheckbox.checked ? COLORS.freezeColorHash : COLORS.lightBlueUI;
-        label.style["border"] = freezeCheckbox.checked ? `solid 1px ${COLORS.freezeColorHash}` : "none";
-        if (freezeCheckbox.checked) {
-            label.style["color"] = COLORS.freezeColorHash;
-            label.style["border"] = `solid 1px ${COLORS.freezeColorHash}`;
-        }
-        else {
-            label.style["color"] = COLORS.lightBlueUI;
-            label.style["border"] = "none";
-        }
+        setFreezeLabelColor(freezeBox.checked, label);
     });
 }
 
@@ -307,43 +343,15 @@ function updateValueElement(sliderDOMObject, value) {
     valueElement.textContent = value;
 }
 
-function setUserData() {
-    Animated.spheres.forEach((sphere) => {
-        if (!sphere.userData.color) {
-            sphere.userData.color = sphere.material.color.clone();
-        }
-    });
-
-    Animated.spheres.forEach((sphere) => {
-        sphere.userData.originalScale = sphere.scale.clone();
-    });
-
-    Animated.pointLight.userData.originalIntensity = Animated.pointLight.intensity;
-    Animated.bigSphere.userData.originalScale = Animated.bigSphere.scale.clone();
-}
-
-//https://www.freecodecamp.org/news/throttling-in-javascript/
-function throttle(func, delay) {
-    let timeout = null;
-    return (...args) => {
-        if (!timeout) {
-            func(...args);
-            timeout = setTimeout(() => {
-                timeout = null;
-            }, delay);
-        }
+function setFreezeLabelColor(checked, label) {
+    if (checked) {
+        label.style["color"] = COLORS.freezeColorHash;
+        label.style["border"] = `solid 1px ${COLORS.freezeColorHash}`;
     }
-}
-
-function setLAxis(axis) {
-    leftAxis = axis
-}
-function setRAxis(axis) {
-    rightAxis = axis;
-}
-
-function setLife(lScale) {
-    lifeScale = lScale;
+    else {
+        label.style["color"] = COLORS.lightBlueUI;
+        label.style["border"] = "none";
+    }
 }
 
 export {
