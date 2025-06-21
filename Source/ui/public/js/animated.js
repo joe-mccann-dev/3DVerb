@@ -49,8 +49,8 @@ const planes = [];
 const lines = [];
 
 const nebula = {};
-const nebulaEmitterLeftX = -20, nebulaEmitterLeftY = 70;
-const nebulaEmitterRightX = 120, nebulaEmitterRightY = 70;
+const emitterLeftX = -20, emitterLeftY = 70;
+const emitterRightX = 120, emitterRightY = 70;
 let count = 0; // for particle wave animation
 
 init();
@@ -330,15 +330,15 @@ function createNebulaEmitters() {
 }
 
 function animateNebulaEmitterPositions(theta, emitterRadius) {
-    nebula.emitterLeft0.position.x = nebulaEmitterLeftX + emitterRadius * Math.cos(theta);
-    nebula.emitterLeft0.position.y = nebulaEmitterLeftY + emitterRadius * Math.sin(theta);
-    nebula.emitterLeft1.position.x = nebulaEmitterLeftX + emitterRadius * Math.cos(theta + Math.PI / 2);
-    nebula.emitterLeft1.position.y = nebulaEmitterLeftY + emitterRadius * Math.cos(theta + Math.PI / 2);
+    nebula.emitterLeft0.position.x = emitterLeftX + emitterRadius * Math.cos(theta);
+    nebula.emitterLeft0.position.y = emitterLeftY + emitterRadius * Math.sin(theta);
+    nebula.emitterLeft1.position.x = emitterLeftX + emitterRadius * Math.cos(theta + Math.PI / 2);
+    nebula.emitterLeft1.position.y = emitterLeftY + emitterRadius * Math.cos(theta + Math.PI / 2);
 
-    nebula.emitterRight0.position.x = nebulaEmitterRightX + emitterRadius * Math.cos(theta);
-    nebula.emitterRight0.position.y = nebulaEmitterRightY + emitterRadius * Math.sin(theta);
-    nebula.emitterRight1.position.x = nebulaEmitterRightX + emitterRadius * Math.cos(theta + Math.PI / 2);
-    nebula.emitterRight1.position.y = nebulaEmitterRightY + emitterRadius * Math.cos(theta + Math.PI / 2);
+    nebula.emitterRight0.position.x = emitterRightX + emitterRadius * Math.cos(theta);
+    nebula.emitterRight0.position.y = emitterRightY + emitterRadius * Math.sin(theta);
+    nebula.emitterRight1.position.x = emitterRightX + emitterRadius * Math.cos(theta + Math.PI / 2);
+    nebula.emitterRight1.position.y = emitterRightY + emitterRadius * Math.cos(theta + Math.PI / 2);
 }
 
 function createEmitter(colorA, colorB, options = {}) {
