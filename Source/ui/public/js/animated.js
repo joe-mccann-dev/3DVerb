@@ -25,12 +25,7 @@ import * as UI from './index.js';
 import * as particleWave from './particle_wave.js'
 import Stats from 'three/addons/libs/stats.module.js';
 
-// COLORS
-const sphereColor = 0xd8d8b4;
-const topPlaneColor = 0x2c2e54;
-const sidePlaneColor = 0x888c8f;
-const speakerStandColor = 0xbfbc85;
-const roomFrameColor = 0x919ddc;
+import * as COLORS from './colors.js';
 const threeColor = THREE.Color;
 
 let camera, scene, renderer;
@@ -64,7 +59,7 @@ function init() {
     addPlanes();
     addLines();
     configNebula();
-    scene.add(particleWave.particles);
+    //scene.add(particleWave.particles);
     promises.addModelsToScene();
     requestAnimationFrame(animate);
 }
@@ -151,7 +146,7 @@ function addSpheres() {
     bigSphere = makeBigSphere(bigSphereGeometry, new THREE.Vector3(50, 80, 50));
 }
 
-function makeSphere(geometry, position, color = sphereColor) {
+function makeSphere(geometry, position, color = COLORS.sphereColor) {
     const material = new THREE.MeshStandardMaterial({
         color: color,
         envMap: environmentMap,
@@ -169,7 +164,7 @@ function makeSphere(geometry, position, color = sphereColor) {
 
 function makeBigSphere(geometry, position) {
     const bigSphereMaterial = new THREE.MeshStandardMaterial({
-        color: topPlaneColor,
+        color: COLORS.topPlaneColor,
         envMap: environmentMap,
         envMapIntensity: 5.0,
         metalness: 6.0,
@@ -193,12 +188,12 @@ function addPlanes() {
     const horizontalPlaneRotation = new THREE.Vector3(-Math.PI / 2, 0, 0);
     const verticalPlaneRotation = new THREE.Vector3(-Math.PI, 0, 0);
     planes.push(
-        makePlane(planeGeometry, sidePlaneColor, new THREE.Vector3(50, -10, 50), horizontalPlaneRotation),
-        makePlane(planeGeometry, sidePlaneColor, new THREE.Vector3(50, 200, 50), horizontalPlaneRotation),
-        makePlane(planeGeometry, sidePlaneColor, new THREE.Vector3(50, 95, -50), verticalPlaneRotation),
+        makePlane(planeGeometry, COLORS.sidePlaneColor, new THREE.Vector3(50, -10, 50), horizontalPlaneRotation),
+        makePlane(planeGeometry, COLORS.sidePlaneColor, new THREE.Vector3(50, 200, 50), horizontalPlaneRotation),
+        makePlane(planeGeometry, COLORS.sidePlaneColor, new THREE.Vector3(50, 95, -50), verticalPlaneRotation),
         // speaker stands
-        makePlane(speakerStandGeometry, speakerStandColor, new THREE.Vector3(-20, 50, -20), horizontalPlaneRotation),
-        makePlane(speakerStandGeometry, speakerStandColor, new THREE.Vector3(120, 50, -20), horizontalPlaneRotation)
+        makePlane(speakerStandGeometry, COLORS.speakerStandColor, new THREE.Vector3(-20, 50, -20), horizontalPlaneRotation),
+        makePlane(speakerStandGeometry, COLORS.speakerStandColor, new THREE.Vector3(120, 50, -20), horizontalPlaneRotation)
     );
 }
 
@@ -238,12 +233,12 @@ function addLines() {
         makeLine(150, 150, 200, 200, -50, 150),
 
         // speaker stands
-        makeLine(-20, -20, -10, 50, -20, -20, speakerStandColor),
-        makeLine(120, 120, -10, 50, -20, -20, speakerStandColor),
+        makeLine(-20, -20, -10, 50, -20, -20, COLORS.speakerStandColor),
+        makeLine(120, 120, -10, 50, -20, -20, COLORS.speakerStandColor),
     );
 }
 
-function makeLine(src_x, dest_x, src_y, dest_y, src_z, dest_z, color = roomFrameColor) {
+function makeLine(src_x, dest_x, src_y, dest_y, src_z, dest_z, color = COLORS.roomFrameColor) {
     const distance = Math.sqrt(
         (dest_x - src_x) ** 2 +
         (dest_y - src_y) ** 2 +
@@ -298,7 +293,7 @@ function configNebula() {
     const spriteMap = new THREE.TextureLoader().load('assets/wave-scaled.png');
     const spriteMaterial = new THREE.SpriteMaterial({
         map: spriteMap,
-        color: 0xff0000,
+        color: COLORS.spriteColor,
         blending: THREE.AdditiveBlending,
         fog: true,
     });
@@ -313,10 +308,10 @@ function configNebula() {
 
 function createNebulaEmitters() {
     nebula.emitters = [];
-    nebula.emitterLeft0 = createEmitter('#4F1500', '#0029FF');
-    nebula.emitterLeft1 = createEmitter('#004CFE', '#6600FF');
-    nebula.emitterRight0 = createEmitter('#4F1500', '#0029FF', { radialVelocity: { axis: new Vector3D(200, 0, 10) } });
-    nebula.emitterRight1 = createEmitter('#004CFE', '#6600FF', { radialVelocity: { axis: new Vector3D(200, 0, 10) } });
+    nebula.emitterLeft0 = createEmitter(COLORS.darkGreen, COLORS.skyBlue);
+    nebula.emitterLeft1 = createEmitter(COLORS.skyBlue, COLORS.darkGreen);
+    nebula.emitterRight0 = createEmitter(COLORS.darkBlue, COLORS.grayGreen, { radialVelocity: { axis: new Vector3D(200, 0, 10) } });
+    nebula.emitterRight1 = createEmitter(COLORS.grayGreen, COLORS.darkBlue, { radialVelocity: { axis: new Vector3D(200, 0, 10) } });
 
     nebula.emitterLeft0.position.set(-20, 70, 0);
     nebula.emitterLeft1.position.set(-20, 70, 0);
