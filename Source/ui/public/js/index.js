@@ -19,7 +19,7 @@ let currentMix;
 let currentSize;
 let lifeScale;
 
-let roomSizeThrottleHandler, mixThrottleHandler, widthThrottleHandler, freezeThrottleHandler;
+let roomSizeThrottleHandler, mixThrottleHandler, widthThrottleHandler, freezeThrottleHandler, magsThrottleHandler;
 const THROTTLE_TIME = 100;
 const DEFAULT_STEP_VALUE = 0.01;
 
@@ -136,6 +136,15 @@ function setupBackendEventListeners() {
             })
             .catch(console.error);
     });
+
+     //MAGNITUDES EVENT
+    window.__JUCE__.backend.addEventListener("magnitudes", () => {
+        fetch(Juce.getBackendResourceAddress("magnitudes.json"))
+            .then((response) => response.json())
+            .then((magnitudesData) => {
+                magsThrottleHandler(magnitudesData.mags);
+            });
+    })
 }
 
 function onRoomSizeChange(roomSizeValue) {
@@ -272,7 +281,11 @@ function initThrottleHandlers() {
 
     freezeThrottleHandler = throttle((frozen) => {
         onFreezeChange(frozen);
-    }, THROTTLE_TIME + 100);
+    }, THROTTLE_TIME * 2);
+
+    magsThrottleHandler = throttle((mags) => {
+        console.log(mags);
+    }, THROTTLE_TIME * 5);
 }
 
 function setupDOMEventListeners() {

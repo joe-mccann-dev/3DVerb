@@ -62,7 +62,11 @@ namespace webview_plugin
         juce::var mixValue;
         juce::var roomSizeValue;
         juce::var widthValue;
+        juce::Array<juce::var> mags;
 
+        static constexpr size_t getMagsSize() { return magsSize; };
+        juce::CriticalSection magsLock;
+        
     private:
         //==============================================================================
         std::atomic<float>* gain{ nullptr };
@@ -85,14 +89,15 @@ namespace webview_plugin
         void updateReverb();
         void setEnvFollowerParams(juce::dsp::BallisticsFilter<float> envFollower);
 
-        // https://juce.com/tutorials/tutorial_simple_fft/
         static constexpr auto fftOrder{ 10 };
         static constexpr auto fftSize{ 1 << fftOrder };
-
+        static constexpr auto fftDataSize{ fftSize * 2 };
+        static constexpr auto magsSize{ fftSize / 2 + 1 };
+        // https://juce.com/tutorials/tutorial_simple_fft/
         juce::dsp::FFT forwardFFT;
         std::array<float, fftSize> fifo; // for holding samples
         std::array<float, fftSize * 2> fftData; // for holding transformed sample data
-        std::array<float, fftSize / 2 + 1> magnitudes; // for storing magnitues output by fftData
+        std::array<float, magsSize> magnitudes; // for storing magnitues output by fftData
         int fifoIndex{ 0 };
       
         juce::UndoManager undoManager;
@@ -107,7 +112,14 @@ namespace webview_plugin
                 forwardFFT.performFrequencyOnlyForwardTransform(fftData.data(), true);
                 // copy magnitudes into output array
                 std::copy_n(fftData.begin(), magnitudes.size(), magnitudes.begin());
+                
                 fifoIndex = 0;
+                
+                // for thread-safety. scopedlock automatically unlocks at end of block using RAII
+                juce::ScopedLock lock(magsLock);
+                mags.clearQuick();
+                for (auto mag : magnitudes) mags.add(mag);
+                
             }
             fifo[(size_t)fifoIndex++] = sample;
         }
