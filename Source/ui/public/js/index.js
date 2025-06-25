@@ -12,30 +12,6 @@ const undoButton = document.getElementById("undoButton");
 const redoButton = document.getElementById("redoButton");
 const undoRedoCtrl = Juce.getNativeFunction("webUndoRedo");
 
-const bypassCheckbox = document.getElementById("bypassCheckbox");
-const bypassToggleState = Juce.getToggleState("BYPASS");
-
-const monoCheckbox = document.getElementById("monoCheckbox");
-const monoToggleState = Juce.getToggleState("MONO");
-
-const gainSlider = document.getElementById("gainSlider");
-const gainSliderState = Juce.getSliderState("GAIN");
-
-const roomSizeSlider = document.getElementById("roomSizeSlider");
-const roomSizeSliderState = Juce.getSliderState("SIZE");
-
-const mixSlider = document.getElementById("mixSlider");
-const mixSliderState = Juce.getSliderState("MIX");
-
-const widthSlider = document.getElementById("widthSlider");
-const widthSliderState = Juce.getSliderState("WIDTH");
-
-const dampSlider = document.getElementById("dampSlider");
-const dampSliderState = Juce.getSliderState("DAMP");
-
-const freezeCheckbox = document.getElementById("freezeCheckbox");
-const freezeToggleState = Juce.getSliderState("FREEZE");
-
 const freezeColor = new Animated.threeColor(COLORS.freezeColor);
 let leftAxis, rightAxis;
 let currentWidth;
@@ -46,6 +22,50 @@ let lifeScale;
 let roomSizeThrottleHandler, mixThrottleHandler, widthThrottleHandler, freezeThrottleHandler;
 const THROTTLE_TIME = 100;
 const DEFAULT_STEP_VALUE = 0.01;
+
+const bypassAndMono = {
+    bypass: {
+        element: document.getElementById("bypassCheckbox"),
+        state: Juce.getToggleState("BYPASS")
+    },
+    mono: {
+        element: document.getElementById("monoCheckbox"),
+        state: Juce.getToggleState("MONO")
+    },
+}
+
+const sliderParams = {
+    gain: {
+        element: document.getElementById("gainSlider"),
+        state: Juce.getSliderState("GAIN"),
+        stepValue: DEFAULT_STEP_VALUE,
+    },
+    roomSize: {
+        element: document.getElementById("roomSizeSlider"),
+        state: Juce.getSliderState("SIZE"),
+        stepValue: DEFAULT_STEP_VALUE,
+    },
+    mix: {
+        element: document.getElementById("mixSlider"),
+        state: Juce.getSliderState("MIX"),
+        stepValue: DEFAULT_STEP_VALUE,
+    },
+    width: {
+        element: document.getElementById("widthSlider"),
+        state: Juce.getSliderState("WIDTH"),
+        stepValue: DEFAULT_STEP_VALUE,
+    },
+    damp: {
+        element: document.getElementById("dampSlider"),
+        state: Juce.getSliderState("DAMP"),
+        stepValue: DEFAULT_STEP_VALUE,
+    },
+}
+
+const freeze = {
+    element: document.getElementById("freezeCheckbox"),
+    state: Juce.getSliderState("FREEZE")
+}
 
 document.addEventListener("DOMContentLoaded", () => {
     setUserData();
@@ -277,47 +297,36 @@ function setupDOMEventListeners() {
         window.__JUCE__.backend.emitEvent("redoRequest", null);
     })
     // BYPASS
-    bypassCheckbox.oninput = function () {
-        bypassToggleState.setValue(this.checked);
+    bypassAndMono.bypass.element.oninput = function () {
+        bypassAndMono.bypass.state.setValue(this.checked);
         Animated.pointLight.intensity = Animated.pointLight.userData.originalIntensity;
     }
-    bypassToggleState.valueChangedEvent.addListener(() => {
-        bypassCheckbox.checked = bypassToggleState.getValue();
-    });
+    bypassAndMono.bypass.state.valueChangedEvent.addListener(() => {
+        bypassAndMono.bypass.element.checked = bypassToggleState.getValue();
+    })
+
     // MONO
-    monoCheckbox.oninput = function () {
-        monoToggleState.setValue(this.checked);
+    bypassAndMono.mono.element.oninput = function () {
+        bypassAndMono.mono.state.setValue(this.checked);
     }
-    monoToggleState.valueChangedEvent.addListener(() => {
-        monoCheckbox.checked = monoToggleState.getValue();
+    bypassAndMono.mono.state.valueChangedEvent.addListener(() => {
+        bypassAndMono.mono.element.checked = bypassAndMono.mono.state.getValue();
     });
 
-    // GAIN
-    const gainSliderStepValue = DEFAULT_STEP_VALUE;
-    updateSliderDOMObjectAndSliderState(gainSlider, gainSliderState, gainSliderStepValue);
-    // ROOM SIZE
-    const roomSizeSliderStepValue = DEFAULT_STEP_VALUE;
-    updateSliderDOMObjectAndSliderState(roomSizeSlider, roomSizeSliderState, roomSizeSliderStepValue);
-    // MIX
-    const mixSliderStepValue = DEFAULT_STEP_VALUE;
-    updateSliderDOMObjectAndSliderState(mixSlider, mixSliderState, mixSliderStepValue);
-    // WIDTH
-    const widthSliderStepValue = DEFAULT_STEP_VALUE;
-    updateSliderDOMObjectAndSliderState(widthSlider, widthSliderState, widthSliderStepValue);
-    // DAMP
-    const dampSliderStepValue = DEFAULT_STEP_VALUE;
-    updateSliderDOMObjectAndSliderState(dampSlider, dampSliderState, dampSliderStepValue);
+    for (const param of Object.values(sliderParams)) {
+        updateSliderDOMObjectAndSliderState(param.element, param.state, param.stepValue);
+    }
     // FREEZE
     // toggle cpp backend float value based on html checked value
     // value > 0.5 == freeze mode; value < 0.5 == normal mode
     freezeCheckbox.oninput = function () {
-        freezeToggleState.setNormalisedValue(this.checked ? 1.0 : 0.0);
+        freeze.state.setNormalisedValue(this.checked ? 1.0 : 0.0);
     };
     // box is checked if backend value is greater than or equal to 0.5
-    freezeToggleState.valueChangedEvent.addListener(() => {
-        freezeCheckbox.checked = freezeToggleState.getNormalisedValue() >= 0.5;
+    freeze.state.valueChangedEvent.addListener(() => {
+        freeze.element.checked = freeze.state.getNormalisedValue() >= 0.5;
         const label = document.getElementById("freezeLabel");
-        setFreezeLabelColor(freezeBox.checked, label);
+        setFreezeLabelColor(freeze.element.checked, label);
     });
 }
 
@@ -355,6 +364,6 @@ function setFreezeLabelColor(checked, label) {
 }
 
 export {
-    freezeCheckbox,
-    bypassCheckbox,
+    freeze,
+    bypassAndMono,
 }

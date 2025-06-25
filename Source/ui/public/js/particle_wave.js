@@ -1,7 +1,7 @@
 import {BufferGeometry, BufferAttribute, Color, Points, ShaderMaterial}  from 'three'
 // testing example code: https://github.com/mrdoob/three.js/blob/master/examples/webgl_points_waves.html
-const SEPARATION = 10, AMOUNTX = 20, AMOUNTY = 15;
-const WAVE_X_POS = 50, WAVE_Y_POS = 255, WAVE_Z_POS = 50;
+const SEPARATION = 10, AMOUNTX = 12, AMOUNTY = 16;
+const WAVE_X_POS = 50, WAVE_Y_POS = 100, WAVE_Z_POS = 120;
 
 export let particles;
 const numParticles = AMOUNTX * AMOUNTY;
@@ -34,13 +34,17 @@ buffGeometry.setAttribute('scale', new BufferAttribute(scales, 1));
 const shaderMaterial = new ShaderMaterial({
     uniforms: {
         color: { value: new Color(0xfafaf0) },
-        size: { value: 0.12 }
+        size: { value: 0.05 }
     },
     vertexShader: document.getElementById('vertexshader').textContent,
     fragmentShader: document.getElementById('fragmentshader').textContent,
 })
 
 particles = new Points(buffGeometry, shaderMaterial);
+particles.geometry.rotateX(Math.PI);
+particles.geometry.rotateY(Math.PI);
+particles.geometry.rotateZ(Math.PI);
+
 export function animateParticles(count = 0) {
     const positions = particles.geometry.attributes.position.array;
     const scales = particles.geometry.attributes.scale.array;

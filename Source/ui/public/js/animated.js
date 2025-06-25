@@ -59,7 +59,7 @@ function init() {
     addPlanes();
     addLines();
     configNebula();
-    //scene.add(particleWave.particles);
+    scene.add(particleWave.particles);
     promises.addModelsToScene();
     requestAnimationFrame(animate);
 }
@@ -277,7 +277,7 @@ function animate(time, theta = 0, emitterRadius = 10) {
     time *= 0.001;
 
     animateNebulaEmitterPositions(theta += 0.13, emitterRadius);
-    particleWave.animateParticles(count += 0.1);
+    particleWave.animateParticles(count += 0.01);
     rotateBigSphere(time);
     handleBypassOrFreezeChecked(time);
 
@@ -372,7 +372,7 @@ function rightEmitterRadVelocityAxis() {
 }
 
 function handleBypassOrFreezeChecked(time) {
-    if (UI.bypassCheckbox.checked) {
+    if (UI.bypassAndMono.bypass.element.checked) {
         pointLight.intensity = 0;
         spheres.forEach((sphere) => {
             sphere.rotation.x = 0;
@@ -386,7 +386,7 @@ function handleBypassOrFreezeChecked(time) {
             }
         });
     }
-    if (!UI.freezeCheckbox.checked && !UI.bypassCheckbox.checked) {
+    if (!UI.freeze.element.checked && !UI.bypassAndMono.bypass.element.checked) {
         spheres.forEach((sphere, index) => {
             const speed = 1 + index * 0.1;
             const rotation = time * speed;

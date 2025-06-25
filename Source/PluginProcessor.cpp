@@ -69,7 +69,8 @@ namespace webview_plugin
         mix{ dynamic_cast<juce::AudioParameterFloat*>(apvts.getParameter(id::MIX.getParamID())) },
         width{ dynamic_cast<juce::AudioParameterFloat*>(apvts.getParameter(id::WIDTH.getParamID())) },
         damp{dynamic_cast<juce::AudioParameterFloat*>(apvts.getParameter(id::DAMP.getParamID()))},
-        freeze{ dynamic_cast<juce::AudioParameterFloat*>(apvts.getParameter(id::FREEZE.getParamID())) }
+        freeze{ dynamic_cast<juce::AudioParameterFloat*>(apvts.getParameter(id::FREEZE.getParamID())) },
+        forwardFFT{fftOrder}
     {
     }
 
@@ -240,8 +241,14 @@ namespace webview_plugin
         juce::dsp::ProcessContextReplacing<float> reverbCtx{block};
         reverb.process(reverbCtx);
 
-        outputLevelLeft = juce::Decibels::gainToDecibels(
-            envOutBlock.getSample(0u, static_cast<int>(envOutBlock.getNumSamples() - 1)));
+        for (auto i = 0; i < block.getNumSamples(); ++i)
+        {
+            // average L + R stereo samples into single sample
+            float monoSample = 0.5f * (block.getChannelPointer(0)[i] + block.getChannelPointer(1)[i]);
+            pushNextSampleIntoFifo(monoSample);
+        }
+        
+        outputLevelLeft = juce::Decibels::gainToDecibels(envOutBlock.getSample(0u, static_cast<int>(envOutBlock.getNumSamples() - 1)));
         isFrozen = params.freezeMode > 0.5f;
         mixValue = params.wetLevel;
         roomSizeValue = params.roomSize;

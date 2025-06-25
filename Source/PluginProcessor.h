@@ -85,7 +85,32 @@ namespace webview_plugin
         void updateReverb();
         void setEnvFollowerParams(juce::dsp::BallisticsFilter<float> envFollower);
 
+        // https://juce.com/tutorials/tutorial_simple_fft/
+        static constexpr auto fftOrder{ 10 };
+        static constexpr auto fftSize{ 1 << fftOrder };
+
+        juce::dsp::FFT forwardFFT;
+        std::array<float, fftSize> fifo; // for holding samples
+        std::array<float, fftSize * 2> fftData; // for holding transformed sample data
+        std::array<float, fftSize / 2 + 1> magnitudes; // for storing magnitues output by fftData
+        int fifoIndex{ 0 };
+      
         juce::UndoManager undoManager;
+
+        void pushNextSampleIntoFifo(float sample) noexcept
+        {
+            if (fifoIndex == fftSize)
+            {
+                // copy fifo sample data into beginning of fftData
+                std::copy(fifo.begin(), fifo.end(), fftData.begin());
+                // perform FFT' on fftData; only calculate non-negative frequencies
+                forwardFFT.performFrequencyOnlyForwardTransform(fftData.data(), true);
+                // copy magnitudes into output array
+                std::copy_n(fftData.begin(), magnitudes.size(), magnitudes.begin());
+                fifoIndex = 0;
+            }
+            fifo[(size_t)fifoIndex++] = sample;
+        }
 
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ReverbulizerAudioProcessor)
     };
