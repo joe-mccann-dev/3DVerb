@@ -76,7 +76,7 @@ namespace webview_plugin
         juce::dsp::BallisticsFilter<float> envelopeFollower;
         juce::AudioBuffer<float> envelopeFollowerOutputBuffer;
 
-        // BEGIN REVERB PARAMS
+        // REVERB PARAMS
         juce::dsp::Reverb reverb;
         juce::dsp::Reverb::Parameters params;
 
@@ -93,6 +93,7 @@ namespace webview_plugin
         static constexpr auto fftSize{ 1 << fftOrder };
         static constexpr auto fftDataSize{ fftSize * 2 };
         static constexpr auto magsSize{ fftSize / 2 + 1 };
+
         // https://juce.com/tutorials/tutorial_simple_fft/
         juce::dsp::FFT forwardFFT;
         std::array<float, fftSize> fifo; // for holding samples
@@ -115,7 +116,7 @@ namespace webview_plugin
                 
                 fifoIndex = 0;
                 
-                // for thread-safety. scopedlock automatically unlocks at end of block using RAII
+                // for thread-safety. ScopedLock automatically unlocks at end of block using RAII
                 juce::ScopedLock lock(magsLock);
                 mags.clearQuick();
                 for (auto mag : magnitudes) mags.add(mag);
