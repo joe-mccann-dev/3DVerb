@@ -70,7 +70,8 @@ namespace webview_plugin
         width{ dynamic_cast<juce::AudioParameterFloat*>(apvts.getParameter(id::WIDTH.getParamID())) },
         damp{dynamic_cast<juce::AudioParameterFloat*>(apvts.getParameter(id::DAMP.getParamID()))},
         freeze{ dynamic_cast<juce::AudioParameterFloat*>(apvts.getParameter(id::FREEZE.getParamID())) },
-        forwardFFT{fftOrder}
+        forwardFFT{fftOrder},
+        window{fftSize, juce::dsp::WindowingFunction<float>::hann}
     {
     }
 

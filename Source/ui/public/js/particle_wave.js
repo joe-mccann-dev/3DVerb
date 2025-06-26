@@ -1,7 +1,8 @@
 import {BufferGeometry, BufferAttribute, Color, Points, ShaderMaterial}  from 'three'
 // testing example code: https://github.com/mrdoob/three.js/blob/master/examples/webgl_points_waves.html
-const SEPARATION = 20, AMOUNTX = 32, AMOUNTY = 16;
-const WAVE_X_POS = -150, WAVE_Y_POS = 70, WAVE_Z_POS = 50;
+const SEPARATION = 12, AMOUNTX = 16, AMOUNTY = 32;
+//camera.lookAt(new THREE.Vector3(50, 65, -50));
+const WAVE_X_POS = 50, WAVE_Y_POS = 65, WAVE_Z_POS = 100;
 
 let particles;
 let magnitudes;
@@ -35,16 +36,16 @@ buffGeometry.setAttribute('scale', new BufferAttribute(scales, 1));
 const shaderMaterial = new ShaderMaterial({
     uniforms: {
         color: { value: new Color(0xfafaf0) },
-        size: { value: 0.1 }
+        size: { value: 1.5 }
     },
     vertexShader: document.getElementById('vertexshader').textContent,
     fragmentShader: document.getElementById('fragmentshader').textContent,
 })
 
 particles = new Points(buffGeometry, shaderMaterial);
-particles.geometry.rotateX(Math.PI);
-particles.geometry.rotateY(Math.PI/2);
-particles.geometry.rotateZ(Math.PI);
+//particles.geometry.rotateX(Math.PI);
+//particles.geometry.rotateY(Math.PI/2);
+//particles.geometry.rotateZ(Math.PI);
 
 function animateParticles(count = 0) {
     const positions = particles.geometry.attributes.position.array;
@@ -56,13 +57,11 @@ function animateParticles(count = 0) {
 
         for (let iy = 0; iy < AMOUNTY; iy++) {
 
-            positions[i + 1] = WAVE_Y_POS + (Math.sin((ix + count) * 0.3) * 50) +
-                (Math.sin((iy + count) * 0.5) * 50);
-
+            positions[i + 1] = WAVE_Y_POS + 100 * magnitudes[j]
             //console.log("Mags at 10:", magnitudes[10]);
-            scales[j] = (Math.sin((ix + count) * (2.3 * magnitudes[j])) + 1) * 20 +
-                (Math.sin((iy + count) * (2.5 * magnitudes[j])) + 1) * 20;
-            //scales[j] = magnitudes[j] * 50
+            //scales[j] = (Math.sin((ix + count) * (2.3 * magnitudes[j])) + 1) * 20 +
+            //    (Math.sin((iy + count) * (2.5 * magnitudes[j])) + 1) * 20;
+            scales[j] = magnitudes[j] * 2
 
             i += 3;
             j++;

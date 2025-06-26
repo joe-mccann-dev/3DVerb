@@ -89,13 +89,14 @@ namespace webview_plugin
         void updateReverb();
         void setEnvFollowerParams(juce::dsp::BallisticsFilter<float> envFollower);
 
-        static constexpr auto fftOrder{ 10 };
+        static constexpr auto fftOrder{ 11 };
         static constexpr auto fftSize{ 1 << fftOrder };
         static constexpr auto fftDataSize{ fftSize * 2 };
         static constexpr auto magsSize{ fftSize / 2 + 1 };
 
         // https://juce.com/tutorials/tutorial_simple_fft/
         juce::dsp::FFT forwardFFT;
+        juce::dsp::WindowingFunction<float> window;
         std::array<float, fftSize> fifo; // for holding samples
         std::array<float, fftSize * 2> fftData; // for holding transformed sample data
         std::array<float, magsSize> magnitudes; // for storing magnitues output by fftData
@@ -109,6 +110,8 @@ namespace webview_plugin
             {
                 // copy fifo sample data into beginning of fftData
                 std::copy(fifo.begin(), fifo.end(), fftData.begin());
+                // reduce spectral leakage by applying windowing function to data
+                window.multiplyWithWindowingTable(fftData.data(), fftSize);
                 // perform FFT' on fftData; only calculate non-negative frequencies
                 forwardFFT.performFrequencyOnlyForwardTransform(fftData.data(), true);
                 // copy magnitudes into output array

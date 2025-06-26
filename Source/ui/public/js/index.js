@@ -227,10 +227,7 @@ function onFreezeChange(frozen) {
 }
 
 function onMagsChange(mags) {
-    //console.log(mags);
-    //for (let i = 1; i < mags.length; i++) {
-
-    //}
+    console.log(mags);
     particleWave.setMagnitudes(mags.slice(1, mags.length));
 }
 
