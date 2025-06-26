@@ -291,7 +291,7 @@ function initThrottleHandlers() {
 
     magsThrottleHandler = throttle((mags) => {
         onMagsChange(mags);
-    }, THROTTLE_TIME);
+    }, THROTTLE_TIME * 0.2);
 }
 
 function setupDOMEventListeners() {
