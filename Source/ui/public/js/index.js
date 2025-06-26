@@ -1,6 +1,7 @@
 import * as Juce from "./juce/index.js";
 import * as Animated from "./animated.js";
 import * as COLORS from './colors.js';
+import * as particleWave from './particle_wave.js'
 
 const data = window.__JUCE__.initialisationData;
 
@@ -225,6 +226,14 @@ function onFreezeChange(frozen) {
     });
 }
 
+function onMagsChange(mags) {
+    //console.log(mags);
+    //for (let i = 1; i < mags.length; i++) {
+
+    //}
+    particleWave.setMagnitudes(mags.slice(1, mags.length));
+}
+
 function setLAxis(axis) {
     leftAxis = axis
 }
@@ -284,8 +293,8 @@ function initThrottleHandlers() {
     }, THROTTLE_TIME * 2);
 
     magsThrottleHandler = throttle((mags) => {
-        console.log(mags);
-    }, THROTTLE_TIME * 5);
+        onMagsChange(mags);
+    }, THROTTLE_TIME);
 }
 
 function setupDOMEventListeners() {

@@ -277,15 +277,15 @@ function animate(time, theta = 0, emitterRadius = 10) {
     time *= 0.001;
 
     animateNebulaEmitterPositions(theta += 0.13, emitterRadius);
-    particleWave.animateParticles(count += 0.01);
     rotateBigSphere(time);
     handleBypassOrFreezeChecked(time);
 
     stats.update();
-    nebula.system.update();
+    //nebula.system.update();
     controls.update();
     renderer.render(scene, camera);
     requestAnimationFrame((time) => animate(time, theta, emitterRadius));
+    particleWave.animateParticles(count += 0.01);
 }
 
 function configNebula() {
