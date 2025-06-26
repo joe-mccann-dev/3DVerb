@@ -245,6 +245,10 @@ namespace webview_plugin
         {
             // average L + R stereo samples into single sample
             float monoSample = 0.5f * (block.getChannelPointer(0)[i] + block.getChannelPointer(1)[i]);
+            // push sample into an array so that a set block of samples 
+            // can be processed by FFT algorithm. FFT transforms time domain to frequency domain.
+            // Frequency data are gathered in "freq bins" that represent magnitudes
+            // of a given freq. over the duration of the block
             pushNextSampleIntoFifo(monoSample);
         }
         

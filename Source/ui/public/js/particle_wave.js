@@ -1,6 +1,6 @@
 import {BufferGeometry, BufferAttribute, Color, Points, ShaderMaterial}  from 'three'
 // testing example code: https://github.com/mrdoob/three.js/blob/master/examples/webgl_points_waves.html
-const SEPARATION = 10, AMOUNTX = 12, AMOUNTY = 16;
+const SEPARATION = 10, AMOUNTX = 32, AMOUNTY = 16;
 const WAVE_X_POS = 50, WAVE_Y_POS = 100, WAVE_Z_POS = 120;
 
 export let particles;
