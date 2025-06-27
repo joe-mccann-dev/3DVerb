@@ -293,10 +293,10 @@ namespace webview_plugin
         {
             juce::Array<juce::var> threadSafeMags;
             {
-                const juce::ScopedLock lock(audioProcessor.magsLock);
-                if (audioProcessor.mags.size() != audioProcessor.getMagsSize())
+                const juce::ScopedLock lock(audioProcessor.levelsLock);
+                if (audioProcessor.levels.size() != audioProcessor.getScopeSize())
                     return {};
-                threadSafeMags = audioProcessor.mags;
+                threadSafeMags = audioProcessor.levels;
             }
             juce::DynamicObject::Ptr data{ new juce::DynamicObject };
             data->setProperty("mags", threadSafeMags);

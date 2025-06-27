@@ -285,7 +285,6 @@ function animate(time, theta = 0, emitterRadius = 10) {
     controls.update();
     renderer.render(scene, camera);
     requestAnimationFrame((time) => animate(time, theta, emitterRadius));
-    particleWave.animateParticles(count += 0.01);
 }
 
 function configNebula() {

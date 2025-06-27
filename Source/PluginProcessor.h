@@ -62,10 +62,11 @@ namespace webview_plugin
         juce::var mixValue;
         juce::var roomSizeValue;
         juce::var widthValue;
-        juce::Array<juce::var> mags;
+        // store normalized levels derived from fftData below
+        juce::Array<juce::var> levels;
 
-        static constexpr size_t getMagsSize() { return magsSize; };
-        juce::CriticalSection magsLock;
+        static constexpr size_t getScopeSize() { return scopeSize; };
+        juce::CriticalSection levelsLock;
         
     private:
         //==============================================================================
@@ -92,14 +93,13 @@ namespace webview_plugin
         static constexpr auto fftOrder{ 11 };
         static constexpr auto fftSize{ 1 << fftOrder };
         static constexpr auto fftDataSize{ fftSize * 2 };
-        static constexpr auto magsSize{ fftSize / 2 + 1 };
+        static constexpr auto scopeSize{ fftSize / 4 };
 
         // https://juce.com/tutorials/tutorial_simple_fft/
         juce::dsp::FFT forwardFFT;
         juce::dsp::WindowingFunction<float> window;
         std::array<float, fftSize> fifo; // for holding samples
-        std::array<float, fftSize * 2> fftData; // for holding transformed sample data
-        std::array<float, magsSize> magnitudes; // for storing magnitues output by fftData
+        std::array<float, fftSize * 2> fftData; // for holding FFT processed sample data
         int fifoIndex{ 0 };
       
         juce::UndoManager undoManager;
@@ -109,21 +109,32 @@ namespace webview_plugin
             if (fifoIndex == fftSize)
             {
                 // copy fifo sample data into beginning of fftData
+                // for intermediate calcs, fftData can hold twice as much data as fifo
                 std::copy(fifo.begin(), fifo.end(), fftData.begin());
-                // reduce spectral leakage by applying windowing function to data
+                // reduce spectral leakage by applying windowing function to data; make more perceptually accurate
                 window.multiplyWithWindowingTable(fftData.data(), fftSize);
-                // perform FFT' on fftData; only calculate non-negative frequencies
-                forwardFFT.performFrequencyOnlyForwardTransform(fftData.data(), true);
-                // copy magnitudes into output array
-                std::copy_n(fftData.begin(), magnitudes.size(), magnitudes.begin());
-                
-                fifoIndex = 0;
-                
+                // perform FFT on fftData; only keep frequency information; only calculate non-negative frequencies;
+                forwardFFT.performFrequencyOnlyForwardTransform(fftData.data(), true);                
                 // for thread-safety. ScopedLock automatically unlocks at end of block using RAII
-                juce::ScopedLock lock(magsLock);
-                mags.clearQuick();
-                for (auto mag : magnitudes) mags.add(mag);
-                
+                juce::ScopedLock lock(levelsLock);
+                levels.clearQuick();
+                // https://juce.com/tutorials/tutorial_spectrum_analyser/
+                auto mindB = -100.0f;
+                auto maxdB = 0.0f;
+                for (int i = 0; i < scopeSize; ++i)
+                {
+                    auto skewedProportionX = 1.0f - std::exp(std::log(1.0f - (float)i / (float)scopeSize) * 0.2f);
+                    auto fftDataIndex = juce::jlimit(0, fftSize / 2, (int)(skewedProportionX * (float)fftSize * 0.5f));
+                    auto decibelsAtIndex = juce::Decibels::gainToDecibels(fftData.at(fftDataIndex));
+                    auto sourceValue = juce::jlimit(mindB, maxdB, decibelsAtIndex) - juce::Decibels::gainToDecibels((float)fftSize);
+                    auto level = juce::jmap(sourceValue, // sourceValue
+                        mindB, // sourceRangeMin
+                        maxdB, // sourceRangeMax
+                        0.0f,  // targetRangeMin
+                        1.0f); // targetRangeMax
+                    levels.add(level);
+                }
+                fifoIndex = 0;
             }
             fifo[(size_t)fifoIndex++] = sample;
         }

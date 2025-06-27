@@ -19,6 +19,7 @@ let currentWidth;
 let currentMix;
 let currentSize;
 let lifeScale;
+let countForParticles = 0;
 
 let roomSizeThrottleHandler, mixThrottleHandler, widthThrottleHandler, freezeThrottleHandler, magsThrottleHandler;
 const THROTTLE_TIME = 100;
@@ -226,9 +227,10 @@ function onFreezeChange(frozen) {
     });
 }
 
-function onMagsChange(mags) {
-    console.log(mags);
-    particleWave.setMagnitudes(mags.slice(1, mags.length));
+function onMagsChange(magnitudes) {
+
+    // send updated magnitudes to particle animation function
+    particleWave.animateParticles(magnitudes.slice(1, magnitudes.length), countForParticles += 0.1);
 }
 
 function setLAxis(axis) {
