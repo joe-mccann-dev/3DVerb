@@ -42,9 +42,10 @@ const shaderMaterial = new ShaderMaterial({
 })
 
 particles = new Points(buffGeometry, shaderMaterial);
+
 particles.geometry.rotateX(Math.PI);
-particles.geometry.rotateY(-Math.PI/2);
-particles.geometry.rotateZ(Math.PI);
+particles.geometry.rotateY(-Math.PI / 2);
+particles.geometry.rotateZ(-Math.PI);
 
 function animateParticles(levels, count = 0) {
     const positions = particles.geometry.attributes.position.array;
@@ -55,8 +56,8 @@ function animateParticles(levels, count = 0) {
 
         for (let iy = 0; iy < AMOUNTY; iy++) {
 
-            positions[i + 1] = WAVE_Y_POS + 20 * levels[j];
-            scales[j] = levels[j] * 5
+            positions[i + 1] = WAVE_Y_POS + 50 * levels[j];
+            scales[j] = 20 * levels[j];
 
             i += 3;
             j++;
