@@ -199,7 +199,7 @@ namespace webview_plugin
        webView.emitEventIfBrowserIsVisible("mixValue", juce::var{});
        webView.emitEventIfBrowserIsVisible("roomSizeValue", juce::var{});
        webView.emitEventIfBrowserIsVisible("widthValue", juce::var{});
-       webView.emitEventIfBrowserIsVisible("magnitudes", juce::var{});
+       webView.emitEventIfBrowserIsVisible("levels", juce::var{});
     }
 
     // ctrl + z == undo; ctrl + y == redo
@@ -289,17 +289,17 @@ namespace webview_plugin
             return juce::WebBrowserComponent::Resource{ streamToVector(stream), juce::String{"application/json"} };
         }
 
-        if (resourceToRetrieve == "magnitudes.json")
+        if (resourceToRetrieve == "levels.json")
         {
-            juce::Array<juce::var> threadSafeMags;
+            juce::Array<juce::var> threadSafeLevels;
             {
                 const juce::ScopedLock lock(audioProcessor.levelsLock);
                 if (audioProcessor.levels.size() != audioProcessor.getScopeSize())
                     return {};
-                threadSafeMags = audioProcessor.levels;
+                threadSafeLevels = audioProcessor.levels;
             }
             juce::DynamicObject::Ptr data{ new juce::DynamicObject };
-            data->setProperty("mags", threadSafeMags);
+            data->setProperty("levels", threadSafeLevels);
             const auto string = juce::JSON::toString(data.get());
             juce::MemoryInputStream stream{ string.getCharPointer(),
                 string.getNumBytesAsUTF8(), false };

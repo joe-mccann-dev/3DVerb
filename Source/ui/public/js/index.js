@@ -21,7 +21,7 @@ let currentSize;
 let lifeScale;
 let countForParticles = 0;
 
-let roomSizeThrottleHandler, mixThrottleHandler, widthThrottleHandler, freezeThrottleHandler, magsThrottleHandler;
+let roomSizeThrottleHandler, mixThrottleHandler, widthThrottleHandler, freezeThrottleHandler, levelsThrottleHandler;
 const THROTTLE_TIME = 100;
 const DEFAULT_STEP_VALUE = 0.01;
 
@@ -139,12 +139,12 @@ function setupBackendEventListeners() {
             .catch(console.error);
     });
 
-     //MAGNITUDES EVENT
-    window.__JUCE__.backend.addEventListener("magnitudes", () => {
-        fetch(Juce.getBackendResourceAddress("magnitudes.json"))
+     // LEVELS EVENT
+    window.__JUCE__.backend.addEventListener("levels", () => {
+        fetch(Juce.getBackendResourceAddress("levels.json"))
             .then((response) => response.json())
-            .then((magnitudesData) => {
-                magsThrottleHandler(magnitudesData.mags);
+            .then((levelsData) => {
+                levelsThrottleHandler(levelsData.levels);
             });
     })
 }
@@ -227,10 +227,10 @@ function onFreezeChange(frozen) {
     });
 }
 
-function onMagsChange(magnitudes) {
+function onLevelsChange(levels) {
 
     // send updated magnitudes to particle animation function
-    particleWave.animateParticles(magnitudes.slice(1, magnitudes.length), countForParticles += 0.1);
+    particleWave.animateParticles(levels.slice(1, levels.length), countForParticles += 0.1);
 }
 
 function setLAxis(axis) {
@@ -291,8 +291,8 @@ function initThrottleHandlers() {
         onFreezeChange(frozen);
     }, THROTTLE_TIME * 2);
 
-    magsThrottleHandler = throttle((mags) => {
-        onMagsChange(mags);
+    levelsThrottleHandler = throttle((levels) => {
+        onLevelsChange(levels);
     }, THROTTLE_TIME * 0.2);
 }
 
