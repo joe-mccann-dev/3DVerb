@@ -59,6 +59,8 @@ function animateParticles(levels, count = 0) {
 
         for (let iy = 0; iy < AMOUNTY; iy++) {
             // animate y_position based on corresponding level
+            //positions[positionIndex + 1] = WAVE_Y_POS + 50 * Math.sin((ix + count) * (1 + Math.sqrt(Math.PI * levels[particleIndex]))) +
+            //    50 * Math.sin((iy + count) * (1 + Math.sqrt(Math.PI * levels[particleIndex])));
             positions[positionIndex + 1] = WAVE_Y_POS + 50 * levels[particleIndex];
             // scale particle based on corresponding level
             scales[particleIndex] = 20 * levels[particleIndex]; 
