@@ -118,25 +118,29 @@ namespace webview_plugin
                 // for thread-safety. ScopedLock automatically unlocks at end of block using RAII
                 juce::ScopedLock lock(levelsLock);
                 levels.clearQuick();
-                // https://juce.com/tutorials/tutorial_spectrum_analyser/
-                auto mindB = -100.0f;
-                auto maxdB = 0.0f;
-                for (int i = 0; i < scopeSize; ++i)
-                {
-                    auto skewedProportionX = 1.0f - std::exp(std::log(1.0f - (float)i / (float)scopeSize) * 0.2f);
-                    auto fftDataIndex = juce::jlimit(0, fftSize / 2, (int)(skewedProportionX * (float)fftSize * 0.5f));
-                    auto decibelsAtIndex = juce::Decibels::gainToDecibels(fftData.at(fftDataIndex));
-                    auto sourceValue = juce::jlimit(mindB, maxdB, decibelsAtIndex) - juce::Decibels::gainToDecibels((float)fftSize);
-                    auto level = juce::jmap(sourceValue, // sourceValue
-                        mindB, // sourceRangeMin
-                        maxdB, // sourceRangeMax
-                        0.0f,  // targetRangeMin
-                        1.0f); // targetRangeMax
-                    levels.add(level);
-                }
+
+                applyLogarithmicFreqMapping();
                 fifoIndex = 0;
             }
             fifo[(size_t)fifoIndex++] = sample;
+        }
+
+        void applyLogarithmicFreqMapping() {
+            auto mindB = -100.0f;
+            auto maxdB = 0.0f;
+            for (int i = 0; i < scopeSize; ++i)
+            {
+                auto skewedProportionX = 1.0f - std::exp(std::log(1.0f - (float)i / (float)scopeSize) * 0.2f);
+                auto fftDataIndex = juce::jlimit(0, fftSize / 2, (int)(skewedProportionX * (float)fftSize * 0.5f));
+                auto decibelsAtIndex = juce::Decibels::gainToDecibels(fftData.at(fftDataIndex));
+                auto sourceValue = juce::jlimit(mindB, maxdB, decibelsAtIndex) - juce::Decibels::gainToDecibels((float)fftSize);
+                auto level = juce::jmap(sourceValue, // sourceValue
+                    mindB, // sourceRangeMin
+                    maxdB, // sourceRangeMax
+                    0.0f,  // targetRangeMin
+                    1.0f); // targetRangeMax
+                levels.add(level);
+            }
         }
 
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ReverbulizerAudioProcessor)
