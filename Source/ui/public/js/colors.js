@@ -5,6 +5,7 @@ const speakerStandColor = 0xbfbc85;
 const roomFrameColor = 0x919ddc;
 const spriteColor = 0xffffff;
 const freezeColor = 0x60a5fa;
+const particleColor = 0xfafaf0;
 
 // emitter colors that expect different format
 const darkGreen = '#1f2300';
@@ -23,6 +24,7 @@ export {
     roomFrameColor,
     spriteColor,
     freezeColor,
+    particleColor,
     // emitter colors
     darkGreen,
     skyBlue,

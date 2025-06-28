@@ -178,7 +178,7 @@ function makeBigSphere(geometry, position) {
     bigSphere.position.set(position.x, position.y, position.z);
     bigSphere.rotateX(-Math.PI / 3);
 
-    addToSceneAndObjects(bigSphere);
+    //addToSceneAndObjects(bigSphere);
     return bigSphere;
 }
 

@@ -1,4 +1,5 @@
-import {BufferGeometry, BufferAttribute, Color, Points, ShaderMaterial}  from 'three'
+import { BufferGeometry, BufferAttribute, Color, Points, ShaderMaterial } from 'three'
+import * as COLORS from './colors.js';
 // testing example code: https://github.com/mrdoob/three.js/blob/master/examples/webgl_points_waves.html
 const SEPARATION = 10, AMOUNTX = 32, AMOUNTY = 16;
 //camera.lookAt(new THREE.Vector3(50, 65, -50));
@@ -34,8 +35,8 @@ buffGeometry.setAttribute('scale', new BufferAttribute(scales, 1));
 
 const shaderMaterial = new ShaderMaterial({
     uniforms: {
-        color: { value: new Color(0xfafaf0) },
-        size: { value: 2.5 }
+        color: { value: new Color(COLORS.particleColor) },
+        size: { value: 1 }
     },
     vertexShader: document.getElementById('vertexshader').textContent,
     fragmentShader: document.getElementById('fragmentshader').textContent,
@@ -50,17 +51,21 @@ particles.geometry.rotateZ(-Math.PI);
 function animateParticles(levels, count = 0) {
     const positions = particles.geometry.attributes.position.array;
     const scales = particles.geometry.attributes.scale.array;
-    let i = 0, j = 0;
+
+    let positionIndex = 0;
+    let particleIndex = 0;
 
     for (let ix = 0; ix < AMOUNTX; ix++) {
 
         for (let iy = 0; iy < AMOUNTY; iy++) {
+            // animate y_position based on corresponding level
+            positions[positionIndex + 1] = WAVE_Y_POS + 50 * levels[particleIndex];
+            // scale particle based on corresponding level
+            scales[particleIndex] = 20 * levels[particleIndex]; 
 
-            positions[i + 1] = WAVE_Y_POS + 50 * levels[j];
-            scales[j] = 20 * levels[j];
-
-            i += 3;
-            j++;
+            // positions held in 1D array; skip to next set of three
+            positionIndex += 3;
+            particleIndex++;
 
         }
 
