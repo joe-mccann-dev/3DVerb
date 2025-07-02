@@ -253,6 +253,10 @@ namespace webview_plugin
             pushNextSampleIntoFifo(monoSample);
         }
         
+        setParamsForFrontend(envOutBlock);
+    }
+
+    void ReverbulizerAudioProcessor::setParamsForFrontend(juce::dsp::AudioBlock<float> envOutBlock) {
         outputLevelLeft = juce::Decibels::gainToDecibels(envOutBlock.getSample(0u, static_cast<int>(envOutBlock.getNumSamples() - 1)));
         isFrozen = params.freezeMode > 0.5f;
         mixValue = params.wetLevel;
