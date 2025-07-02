@@ -21,7 +21,8 @@ let currentSize;
 let lifeScale;
 let countForParticles = 0;
 
-let roomSizeThrottleHandler, mixThrottleHandler, widthThrottleHandler, freezeThrottleHandler, levelsThrottleHandler;
+let roomSizeThrottleHandler, mixThrottleHandler, widthThrottleHandler,
+    freezeThrottleHandler, levelsThrottleHandler, outputThrottleHandler;
 const THROTTLE_TIME = 100;
 const DEFAULT_STEP_VALUE = 0.01;
 
@@ -132,14 +133,13 @@ function setupBackendEventListeners() {
         fetch(Juce.getBackendResourceAddress("outputLevel.json"))
             .then((response) => response.json())
             .then((outputLevelData) => {
-                const scaleFactor = outputLevelData.left < -30 ? 1 : ((outputLevelData.left / 60) + 1) * 3.0;
-                //Animated.spheres[Animated.spheres.length - 1].scale.set(scaleFactor, scaleFactor, scaleFactor);
+                //outputThrottleHandler(outputLevelData.left);
 
             })
             .catch(console.error);
     });
 
-     // LEVELS EVENT
+     // LEVELS EVENT (frequency data mapped to level for visualization)
     window.__JUCE__.backend.addEventListener("levels", () => {
         fetch(Juce.getBackendResourceAddress("levels.json"))
             .then((response) => response.json())
@@ -152,8 +152,8 @@ function setupBackendEventListeners() {
 function onRoomSizeChange(roomSizeValue) {
     const min = 0.50;
     const scale = min + (1 - min) * roomSizeValue;
-    Animated.bigSphere.scale.copy(Animated.bigSphere.userData.originalScale);
-    Animated.bigSphere.scale.multiplyScalar(scale);
+    Animated.surroundingCube.scale.copy(Animated.surroundingCube.userData.originalScale);
+    Animated.surroundingCube.scale.multiplyScalar(scale);
 
 
     const minLife = 2.2;
@@ -228,9 +228,12 @@ function onFreezeChange(frozen) {
 }
 
 function onLevelsChange(levels) {
-
     // send updated magnitudes to particle animation function
     particleWave.animateParticles(levels.slice(1, levels.length), countForParticles += 0.1);
+}
+
+function onOutputChange(output) {
+
 }
 
 function setLAxis(axis) {
@@ -256,7 +259,7 @@ function setUserData() {
     });
 
     Animated.pointLight.userData.originalIntensity = Animated.pointLight.intensity;
-    Animated.bigSphere.userData.originalScale = Animated.bigSphere.scale.clone();
+    Animated.surroundingCube.userData.originalScale = Animated.surroundingCube.scale.clone();
 }
 
 //https://www.freecodecamp.org/news/throttling-in-javascript/
@@ -294,6 +297,9 @@ function initThrottleHandlers() {
     levelsThrottleHandler = throttle((levels) => {
         onLevelsChange(levels);
     }, THROTTLE_TIME * 0.2);
+    outputThrottleHandler = throttle((output) => {
+        onOutputChange(output);
+    }, THROTTLE_TIME * 0.1);
 }
 
 function setupDOMEventListeners() {
