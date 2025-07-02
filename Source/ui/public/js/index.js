@@ -152,7 +152,6 @@ function setupBackendEventListeners() {
 function onRoomSizeChange(roomSizeValue) {
     const floor = 8;
     const separationScaleFactor = floor + (particleWave.SEPARATION * roomSizeValue);
-    //console.log("separationScaleFactor: ", separationScaleFactor);
     particleWave.setInitialValuesForAttrs(separationScaleFactor);
 
     const min = 0.50;

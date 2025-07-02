@@ -22,7 +22,7 @@ import ParticleSystem, {
 } from 'three-nebula';
 
 import * as UI from './index.js';
-import * as particleWave from './particle_wave.js'
+import { particles, setupParticles } from './particle_wave.js'
 import Stats from 'three/addons/libs/stats.module.js';
 
 import * as COLORS from './colors.js';
@@ -59,7 +59,8 @@ function init() {
     addPlanes();
     addLines();
     configNebula();
-    scene.add(particleWave.particles);
+    setupParticles();
+    scene.add(particles);
     promises.addModelsToScene();
     requestAnimationFrame(animate);
 }
@@ -100,8 +101,8 @@ function initCamera() {
     camera.lookAt(new THREE.Vector3(50, 65, -50));
     controls = new OrbitControls(camera, renderer.domElement);
     controls.addEventListener('change', () => {
-        console.log('position:', camera.position);
-        console.log('target:', controls.target);
+        //console.log('position:', camera.position);
+        //console.log('target:', controls.target);
     });
 }
 function addPointLight() {
@@ -409,6 +410,7 @@ export {
     Vector3D,
     scene,
     environmentMap,
+    camera,
     pointLight,
     threeColor,
     spheres,

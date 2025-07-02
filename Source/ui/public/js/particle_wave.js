@@ -1,5 +1,6 @@
-import { BufferGeometry, BufferAttribute, Color, Points, ShaderMaterial } from 'three'
+import { BufferGeometry, BufferAttribute, Color, Points, ShaderMaterial, AdditiveBlending } from 'three'
 import * as COLORS from './colors.js';
+import {environmentMap, camera } from './animated.js'
 
 const SEPARATION = 20, AMOUNTX = 32, AMOUNTY = 16;
 const WAVE_X_POS = 50, WAVE_Y_POS = 240, WAVE_Z_POS = 50;
@@ -9,30 +10,34 @@ const numParticles = AMOUNTX * AMOUNTY;
 const positions = new Float32Array(numParticles * 3);
 const scales = new Float32Array(numParticles);
 const colors = new Float32Array(numParticles * 3);
-
-
-const buffGeometry = new BufferGeometry();
-buffGeometry.setAttribute('position', new BufferAttribute(positions, 3));
-buffGeometry.setAttribute('scale', new BufferAttribute(scales, 1));
-buffGeometry.setAttribute('color', new BufferAttribute(colors, 3));
-
-const shaderMaterial = new ShaderMaterial({
-    uniforms: {
-        color: { value: new Color(COLORS.particleColor) },
-        size: { value: 1.5 }
-    },
-    vertexShader: document.getElementById('vertexshader').textContent,
-    fragmentShader: document.getElementById('fragmentshader').textContent,
-})
-
-particles = new Points(buffGeometry, shaderMaterial);
-
-//particles.geometry.rotateX(Math.PI);
-//particles.geometry.rotateY(-Math.PI / 2);
-//particles.geometry.rotateZ(-Math.PI);
-
 let currentSeparation = SEPARATION;
-setInitialValuesForAttrs(currentSeparation);
+
+function setupParticles() {
+    const buffGeometry = new BufferGeometry();
+    buffGeometry.setAttribute('position', new BufferAttribute(positions, 3));
+    buffGeometry.setAttribute('scale', new BufferAttribute(scales, 1));
+    buffGeometry.setAttribute('color', new BufferAttribute(colors, 3));
+
+    const shaderMaterial = new ShaderMaterial({
+        uniforms: {
+            color: { value: new Color(COLORS.particleColor) },
+            size: { value: 1.5 },
+            envMap: { value: environmentMap },
+            cameraPosition: { value: camera.position }
+        },
+        vertexShader: document.getElementById('vertexshader').textContent,
+        fragmentShader: document.getElementById('fragmentshader').textContent,
+        transparent: true,
+        blending: AdditiveBlending,
+        depthTest: false,
+
+    });
+
+    particles = new Points(buffGeometry, shaderMaterial);
+    setInitialValuesForAttrs(currentSeparation);
+
+    return particles;
+}
 
 function setInitialValuesForAttrs(separation) {
     currentSeparation = separation;
@@ -59,7 +64,17 @@ function setInitialValuesForAttrs(separation) {
         }
 
     }
+
+    //rotatePointsGeometry();
 }
+
+function rotatePointsGeometry() {
+    
+    particles.geometry.rotateX(Math.PI);
+    particles.geometry.rotateY(-Math.PI / 2);
+    particles.geometry.rotateZ(-Math.PI);
+}
+
 
 // sine wave animation taken from https://github.com/mrdoob/three.js/blob/master/examples/webgl_points_waves.html
 function animateParticles(levels, count = 0) {
@@ -83,7 +98,6 @@ function animateParticles(levels, count = 0) {
         }
 
         for (let iy = 0; iy < AMOUNTY; iy++) {
-            console.log("currentSeparation (inside animateParticles()): ", currentSeparation);
             const level = levels[particleIndex];
             // animate y_position based on corresponding level
             positions[positionIndex + 1] = WAVE_Y_POS + (currentSeparation) * Math.sin((ix + count)) +
@@ -108,11 +122,14 @@ function animateParticles(levels, count = 0) {
     particles.geometry.attributes.position.needsUpdate = true;
     particles.geometry.attributes.scale.needsUpdate = true;
     particles.geometry.attributes.color.needsUpdate = true;
+    
 }
 
 
 export {
     particles,
+    setupParticles,
+    rotatePointsGeometry,
     animateParticles,
     setInitialValuesForAttrs,
     SEPARATION,
