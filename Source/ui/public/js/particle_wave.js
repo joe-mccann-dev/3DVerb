@@ -1,9 +1,8 @@
 import { BufferGeometry, BufferAttribute, Color, Points, ShaderMaterial } from 'three'
 import * as COLORS from './colors.js';
-// testing example code: https://github.com/mrdoob/three.js/blob/master/examples/webgl_points_waves.html
-const SEPARATION = 10, AMOUNTX = 32, AMOUNTY = 16;
-//camera.lookAt(new THREE.Vector3(50, 65, -50));
-const WAVE_X_POS = 50, WAVE_Y_POS = 265, WAVE_Z_POS = 50;
+
+const SEPARATION = 20, AMOUNTX = 32, AMOUNTY = 16;
+const WAVE_X_POS = 50, WAVE_Y_POS = 240, WAVE_Z_POS = 50;
 
 let particles;
 const numParticles = AMOUNTX * AMOUNTY;
@@ -11,28 +10,6 @@ const positions = new Float32Array(numParticles * 3);
 const scales = new Float32Array(numParticles);
 const colors = new Float32Array(numParticles * 3);
 
-let i = 0, j = 0;
-
-for (let ix = 0; ix < AMOUNTX; ix++) {
-
-    for (let iy = 0; iy < AMOUNTY; iy++) {
-
-        positions[i] = WAVE_X_POS + ix * SEPARATION - ((AMOUNTX * SEPARATION) / 2); // x
-        positions[i + 1] = WAVE_Y_POS; // y
-        positions[i + 2] = WAVE_Z_POS + iy * SEPARATION - ((AMOUNTY * SEPARATION) / 2); // z
-
-        colors[i] = 1;
-        colors[i + 1] = 1;
-        colors[i + 2] = 1;
-
-        scales[j] = 1;
-
-        i += 3;
-        j++;
-
-    }
-
-}
 
 const buffGeometry = new BufferGeometry();
 buffGeometry.setAttribute('position', new BufferAttribute(positions, 3));
@@ -42,7 +19,7 @@ buffGeometry.setAttribute('color', new BufferAttribute(colors, 3));
 const shaderMaterial = new ShaderMaterial({
     uniforms: {
         color: { value: new Color(COLORS.particleColor) },
-        size: { value: 1 }
+        size: { value: 1.5 }
     },
     vertexShader: document.getElementById('vertexshader').textContent,
     fragmentShader: document.getElementById('fragmentshader').textContent,
@@ -54,6 +31,37 @@ particles = new Points(buffGeometry, shaderMaterial);
 //particles.geometry.rotateY(-Math.PI / 2);
 //particles.geometry.rotateZ(-Math.PI);
 
+let currentSeparation = SEPARATION;
+setInitialValuesForAttrs(currentSeparation);
+
+function setInitialValuesForAttrs(separation) {
+    currentSeparation = separation;
+
+    let i = 0, j = 0;
+
+    for (let ix = 0; ix < AMOUNTX; ix++) {
+
+        for (let iy = 0; iy < AMOUNTY; iy++) {
+
+            positions[i] = WAVE_X_POS + ix * currentSeparation - ((AMOUNTX * currentSeparation) / 2); // x
+            positions[i + 1] = WAVE_Y_POS; // y
+            positions[i + 2] = WAVE_Z_POS + iy * currentSeparation - ((AMOUNTY * currentSeparation) / 2); // z
+
+            colors[i] = 1;
+            colors[i + 1] = 1;
+            colors[i + 2] = 1;
+
+            scales[j] = 1;
+
+            i += 3;
+            j++;
+
+        }
+
+    }
+}
+
+// sine wave animation taken from https://github.com/mrdoob/three.js/blob/master/examples/webgl_points_waves.html
 function animateParticles(levels, count = 0) {
     const positions = particles.geometry.attributes.position.array;
     const scales = particles.geometry.attributes.scale.array;
@@ -75,10 +83,11 @@ function animateParticles(levels, count = 0) {
         }
 
         for (let iy = 0; iy < AMOUNTY; iy++) {
+            console.log("currentSeparation (inside animateParticles()): ", currentSeparation);
             const level = levels[particleIndex];
             // animate y_position based on corresponding level
-            positions[positionIndex + 1] = WAVE_Y_POS + 50 * Math.sin((ix + count)) +
-                50 * Math.sin((iy + count));
+            positions[positionIndex + 1] = WAVE_Y_POS + (currentSeparation) * Math.sin((ix + count)) +
+                (currentSeparation) * Math.sin((iy + count));
             // scale particle based on corresponding level         
             scales[particleIndex] = 2 + (20 * level);
       
@@ -94,8 +103,8 @@ function animateParticles(levels, count = 0) {
             particleIndex++;
 
         }
-
     }
+
     particles.geometry.attributes.position.needsUpdate = true;
     particles.geometry.attributes.scale.needsUpdate = true;
     particles.geometry.attributes.color.needsUpdate = true;
@@ -105,4 +114,6 @@ function animateParticles(levels, count = 0) {
 export {
     particles,
     animateParticles,
+    setInitialValuesForAttrs,
+    SEPARATION,
 }

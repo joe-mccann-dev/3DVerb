@@ -284,7 +284,7 @@ function animate(time, theta = 0, emitterRadius = 10) {
     handleBypassOrFreezeChecked(time);
 
     stats.update();
-    nebula.system.update();
+    //nebula.system.update();
     controls.update();
     renderer.render(scene, camera);
     requestAnimationFrame((time) => animate(time, theta, emitterRadius));
