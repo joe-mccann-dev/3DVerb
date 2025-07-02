@@ -214,19 +214,7 @@ namespace webview_plugin
         }
 
         // TODO: Only perform this check in Standalone Mode 
-        bool monoInputChecked = mono.get();
-        if (monoInputChecked && getTotalNumInputChannels() >= 2)
-        {
-            auto* monoInput = buffer.getReadPointer(0);
-            auto* leftOut = buffer.getWritePointer(0);
-            auto* rightOut = buffer.getWritePointer(1);
-
-            for (int i = 0; i < buffer.getNumSamples(); ++i)
-            {
-                leftOut[i] = monoInput[i];
-                rightOut[i] = monoInput[i];
-            }
-        }
+        sumLeftAndRightChannels(buffer);
 
         if (bypass.get()) { return; }
         // TODO: smooth gain to prevent rapid changes in gain
@@ -242,6 +230,30 @@ namespace webview_plugin
         juce::dsp::ProcessContextReplacing<float> reverbCtx{block};
         reverb.process(reverbCtx);
 
+        prepareForFFT(block);
+        
+        setParamsForFrontend(envOutBlock);
+    }
+
+    void ReverbulizerAudioProcessor::sumLeftAndRightChannels(juce::AudioBuffer<float>& buffer)
+    {
+        bool monoInputChecked = mono.get();
+        if (monoInputChecked && getTotalNumInputChannels() >= 2)
+        {
+            auto* monoInput = buffer.getReadPointer(0);
+            auto* leftOut = buffer.getWritePointer(0);
+            auto* rightOut = buffer.getWritePointer(1);
+
+            for (int i = 0; i < buffer.getNumSamples(); ++i)
+            {
+                leftOut[i] = monoInput[i];
+                rightOut[i] = monoInput[i];
+            }
+        }
+    }
+
+    void ReverbulizerAudioProcessor::prepareForFFT(juce::dsp::AudioBlock<float> block)
+    {
         for (auto i = 0; i < block.getNumSamples(); ++i)
         {
             // average L + R stereo samples into single sample
@@ -252,11 +264,10 @@ namespace webview_plugin
             // of a given freq. over the duration of the block
             pushNextSampleIntoFifo(monoSample);
         }
-        
-        setParamsForFrontend(envOutBlock);
     }
 
-    void ReverbulizerAudioProcessor::setParamsForFrontend(juce::dsp::AudioBlock<float> envOutBlock) {
+    void ReverbulizerAudioProcessor::setParamsForFrontend(juce::dsp::AudioBlock<float> envOutBlock)
+    {
         outputLevelLeft = juce::Decibels::gainToDecibels(envOutBlock.getSample(0u, static_cast<int>(envOutBlock.getNumSamples() - 1)));
         isFrozen = params.freezeMode > 0.5f;
         mixValue = params.wetLevel;

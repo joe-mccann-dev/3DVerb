@@ -90,6 +90,8 @@ namespace webview_plugin
         void updateReverb();
         void setEnvFollowerParams(juce::dsp::BallisticsFilter<float> envFollower);
         void setParamsForFrontend(juce::dsp::AudioBlock<float> envOutBlock);
+        void prepareForFFT(juce::dsp::AudioBlock<float> block);
+        void sumLeftAndRightChannels(juce::AudioBuffer<float>& buffer);
 
         static constexpr auto fftOrder{ 11 };
         static constexpr auto fftSize{ 1 << fftOrder };
