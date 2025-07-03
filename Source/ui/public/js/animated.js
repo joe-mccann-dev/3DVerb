@@ -22,7 +22,7 @@ import ParticleSystem, {
 } from 'three-nebula';
 
 import * as UI from './index.js';
-import { particles, particles2, setupParticles } from './particle_wave.js'
+import { waves, setupParticles } from './particle_wave.js'
 import Stats from 'three/addons/libs/stats.module.js';
 
 import * as COLORS from './colors.js';
@@ -60,8 +60,9 @@ function init() {
     addLines();
     configNebula();
     setupParticles();
-    scene.add(particles);
-    scene.add(particles2);
+    for (const location in waves) {
+        scene.add(waves[location]);
+    }
     promises.addModelsToScene();
     requestAnimationFrame(animate);
 }

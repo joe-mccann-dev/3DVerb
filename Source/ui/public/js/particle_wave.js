@@ -19,16 +19,6 @@ const colors2 = new Float32Array(numParticles * 3);
 let currentSeparation = SEPARATION;
 
 function setupParticles() {
-    const buffGeometry = new BufferGeometry();
-    buffGeometry.setAttribute('position', new BufferAttribute(positions, 3));
-    buffGeometry.setAttribute('scale', new BufferAttribute(scales, 1));
-    buffGeometry.setAttribute('color', new BufferAttribute(colors, 3));
-
-    const buffGeometry2 = new BufferGeometry();
-    buffGeometry2.setAttribute('position', new BufferAttribute(positions2, 3));
-    buffGeometry2.setAttribute('scale', new BufferAttribute(scales, 1));
-    buffGeometry2.setAttribute('color', new BufferAttribute(colors, 3));
-
     const shaderMaterial = new ShaderMaterial({
         uniforms: {
             color: { value: new Color(COLORS.particleColor) },
@@ -44,14 +34,26 @@ function setupParticles() {
 
     });
 
-    particles = new Points(buffGeometry, shaderMaterial);
-    particles2 = new Points(buffGeometry2, shaderMaterial);
-    setInitialValuesForAttrs(currentSeparation);
+    const buffGeometryTop = new BufferGeometry();
+    buffGeometryTop.setAttribute('position', new BufferAttribute(positions, 3));
+    buffGeometryTop.setAttribute('scale', new BufferAttribute(scales, 1));
+    buffGeometryTop.setAttribute('color', new BufferAttribute(colors, 3));
 
+    const buffGeometryBottom = new BufferGeometry();
+    buffGeometryBottom.setAttribute('position', new BufferAttribute(positions2, 3));
+    buffGeometryBottom.setAttribute('scale', buffGeometryTop.attributes.scale); // use same scale
+    buffGeometryBottom.setAttribute('color', buffGeometryTop.attributes.color); // use same colors
+
+    particles = new Points(buffGeometryTop, shaderMaterial);
+    particles2 = new Points(buffGeometryBottom, shaderMaterial);
+    waves.top = particles;
+    waves.bottom = particles2;
+    setInitialValuesForAttrs(currentSeparation, waves.top);
+    setInitialValuesForAttrs(currentSeparation, waves.bottom);
     return particles;
 }
 
-function setInitialValuesForAttrs(separation, position = new Vector3(WAVE_X_POS, WAVE_Y_POS, WAVE_Z_POS) ) {
+function setInitialValuesForAttrs(separation, wave = waves.top, wavePosition = new Vector3(WAVE_X_POS, WAVE_Y_POS, WAVE_Z_POS) ) {
     currentSeparation = separation;
 
     let i = 0, j = 0;
@@ -59,32 +61,25 @@ function setInitialValuesForAttrs(separation, position = new Vector3(WAVE_X_POS,
     for (let ix = 0; ix < AMOUNTX; ix++) {
 
         for (let iy = 0; iy < AMOUNTY; iy++) {
+            const positionArray = wave.geometry.attributes.position.array;
+            const colorArray = wave.geometry.attributes.color.array;
+            const scaleArray = wave.geometry.attributes.scale.array;
 
-            positions[i] = position.x + ix * currentSeparation - ((AMOUNTX * currentSeparation) / 2); // x
-            positions2[i] = position.x+ ix * currentSeparation - ((AMOUNTX * currentSeparation) / 2); // x
-            positions[i + 1] = position.y; // y
-            positions2[i + 1] = WAVE_Y_POS_BOTTOM; // y
-            positions[i + 2] = position.z + iy * currentSeparation - ((AMOUNTY * currentSeparation) / 2); // z
-            positions2[i + 2] = position.z + iy * currentSeparation - ((AMOUNTY * currentSeparation) / 2); // z
+            positionArray[i] = wavePosition.x + ix * currentSeparation - ((AMOUNTX * currentSeparation) / 2); // x
+            positionArray[i + 1] = wavePosition.y; // y
+            positionArray[i + 2] = wavePosition.z + iy * currentSeparation - ((AMOUNTY * currentSeparation) / 2); // z
 
-            colors[i] = 1;
-            colors[i + 1] = 1;
-            colors[i + 2] = 1;
+            colorArray[i] = 1;
+            colorArray[i + 1] = 1;
+            colorArray[i + 2] = 1;
 
-            colors2[i] = 1;
-            colors2[i + 1] = 1;
-            colors2[i + 2] = 1;
-
-            scales[j] = 1;
-            scales2[j] = 1;
+            scaleArray[j] = 1;
 
             i += 3;
             j++;
 
         }
-
     }
-
     //rotatePointsGeometry();
 }
 
@@ -165,8 +160,7 @@ function animateParticles(levels, count = 0) {
 
 
 export {
-    particles,
-    particles2,
+    waves,
     setupParticles,
     rotatePointsGeometry,
     animateParticles,
