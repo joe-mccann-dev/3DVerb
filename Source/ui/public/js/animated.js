@@ -22,7 +22,7 @@ import ParticleSystem, {
 } from 'three-nebula';
 
 import * as UI from './index.js';
-import { particles, setupParticles } from './particle_wave.js'
+import { particles, particles2, setupParticles } from './particle_wave.js'
 import Stats from 'three/addons/libs/stats.module.js';
 
 import * as COLORS from './colors.js';
@@ -61,6 +61,7 @@ function init() {
     configNebula();
     setupParticles();
     scene.add(particles);
+    scene.add(particles2);
     promises.addModelsToScene();
     requestAnimationFrame(animate);
 }
@@ -158,31 +159,31 @@ function makeSphere(geometry, position, color = COLORS.sphereColor) {
 }
 
 function addSurroundingCube() {
-    const cubeWidth = 800;
+    const cubeWidth = 900;
     const cubeHeight= 600;
     const cubeDepth = 800;
     const cubeWidthSegments = 20;
     const cubeHeightSegments = 20; 
     const cubeGeometry = new THREE.BoxGeometry(cubeWidth, cubeHeight, cubeDepth, cubeWidthSegments, cubeHeightSegments);
     surroundingCube = makeSurroundingCube(cubeGeometry, new THREE.Vector3(50, 140, 50));
-    addToSceneAndObjects(surroundingCube);
+    //addToSceneAndObjects(surroundingCube);
 }
 
 function makeSurroundingCube(geometry, position) {
     const cubeMaterial = new THREE.MeshStandardMaterial({
         color: COLORS.topPlaneColor,
         envMap: environmentMap,
-        envMapIntensity: 2.0,
-        metalness: 2.0,
-        roughness: 0.5,
+        envMapIntensity: 8.0,
+        metalness: 0.8,
+        roughness: 0.32,
         alphaMap: alphaMap,
         transparent: true,
-        opacity: 0.5,
+        opacity: 0.3,
         depthWrite: false
     });
     const cube = new THREE.Mesh(geometry, cubeMaterial);
     cube.position.set(position.x, position.y, position.z);
-    cube.rotateY(-Math.PI);
+    //cube.rotateY(-Math.PI);
 
     return cube;
 }
@@ -193,7 +194,7 @@ function addPlanes() {
     const verticalPlaneRotation = new THREE.Vector3(-Math.PI, 0, 0);
     planes.push(
         makePlane(planeGeometry, COLORS.sidePlaneColor, new THREE.Vector3(50, -10, 50), horizontalPlaneRotation),
-        //makePlane(planeGeometry, COLORS.sidePlaneColor, new THREE.Vector3(50, 200, 50), horizontalPlaneRotation),
+        makePlane(planeGeometry, COLORS.sidePlaneColor, new THREE.Vector3(50, 200, 50), horizontalPlaneRotation),
         makePlane(planeGeometry, COLORS.sidePlaneColor, new THREE.Vector3(50, 95, -50), verticalPlaneRotation),
         // speaker stands
         makePlane(speakerStandGeometry, COLORS.speakerStandColor, new THREE.Vector3(-20, 50, -20), horizontalPlaneRotation),

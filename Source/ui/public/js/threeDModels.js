@@ -11,7 +11,6 @@ const speakersPromise = new Promise((resolve, reject) => {
         leftSpeaker.scale.set(26, 26, 26);     
         leftSpeaker.position.set(-20, 50, -20);
         speakers.push(leftSpeaker);
-        scene.add(leftSpeaker);
 
         const rightSpeaker = leftSpeaker.clone();
         rightSpeaker.envMap = environmentMap;

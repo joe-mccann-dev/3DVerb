@@ -53,7 +53,7 @@ namespace webview_plugin
             return "";
         }
 
-        constexpr auto LOCAL_VITE_SERVER = "http://localhost:3000";
+        constexpr auto LOCAL_VITE_SERVER = "http://localhost:5173";
 
     }
 
