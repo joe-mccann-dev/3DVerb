@@ -6,8 +6,6 @@ const SEPARATION = 20, AMOUNTX = 32, AMOUNTY = 16;
 const WAVE_X_POS = 50, WAVE_Y_POS = 240, WAVE_Z_POS = 50;
 const WAVE_Y_POS_BOTTOM = -80;
 
-let particles;
-let particles2;
 const waves = {};
 const numParticles = AMOUNTX * AMOUNTY;
 const positions = new Float32Array(numParticles * 3);
@@ -44,13 +42,13 @@ function setupParticles() {
     buffGeometryBottom.setAttribute('scale', buffGeometryTop.attributes.scale); // use same scale
     buffGeometryBottom.setAttribute('color', buffGeometryTop.attributes.color); // use same colors
 
-    particles = new Points(buffGeometryTop, shaderMaterial);
-    particles2 = new Points(buffGeometryBottom, shaderMaterial);
-    waves.top = particles;
-    waves.bottom = particles2;
+    waves.top = new Points(buffGeometryTop, shaderMaterial);
+    waves.bottom = new Points(buffGeometryBottom, shaderMaterial);
+
     setInitialValuesForAttrs(currentSeparation, waves.top);
     setInitialValuesForAttrs(currentSeparation, waves.bottom);
-    return particles;
+
+    return waves;
 }
 
 function setInitialValuesForAttrs(separation, wave = waves.top, wavePosition = new Vector3(WAVE_X_POS, WAVE_Y_POS, WAVE_Z_POS) ) {
@@ -93,69 +91,65 @@ function rotatePointsGeometry() {
 
 // sine wave animation taken from https://github.com/mrdoob/three.js/blob/master/examples/webgl_points_waves.html
 function animateParticles(levels, count = 0) {
-    const positions = particles.geometry.attributes.position.array;
-    const scales = particles.geometry.attributes.scale.array;
-    const colors = particles.geometry.attributes.color.array;
 
-    const positions2 = particles2.geometry.attributes.position.array;
-    const scales2 = particles2.geometry.attributes.scale.array;
-    const colors2 = particles2.geometry.attributes.color.array;
+    for (const location in waves) {
+        const wave = waves[location];
 
-    let positionIndex = 0;
-    let particleIndex = 0;
+        const positionArray = wave.geometry.attributes.position.array;
+        const colorArray = wave.geometry.attributes.color.array;
+        const scaleArray = wave.geometry.attributes.scale.array;
 
-    for (let ix = 0; ix < AMOUNTX; ix++) {
-        const freqPosition = ix / (AMOUNTX - 1);
+        let positionIndex = 0;
+        let particleIndex = 0;
 
-        let hue;
-        if (freqPosition < 0.3) {
-            hue = 30 * freqPosition / 0.3;
-        } else if (freqPosition < 0.7) {
-            hue = 90 + 90 * (freqPosition - 0.3) / 0.4;
-        } else {
-            hue = 240 + 40 * (freqPosition - 0.7) / 0.3;
+        for (let ix = 0; ix < AMOUNTX; ix++) {
+            const freqPosition = ix / (AMOUNTX - 1);
+
+            let hue;
+            if (freqPosition < 0.3) {
+                hue = 30 * freqPosition / 0.3;
+            } else if (freqPosition < 0.7) {
+                hue = 90 + 90 * (freqPosition - 0.3) / 0.4;
+            } else {
+                hue = 240 + 40 * (freqPosition - 0.7) / 0.3;
+            }
+
+            for (let iy = 0; iy < AMOUNTY; iy++) {
+                const level = levels[particleIndex];
+                // animate y_position based on corresponding level
+                if (location == 'top') {
+                    positionArray[positionIndex + 1] = WAVE_Y_POS + (currentSeparation) * Math.sin((ix + count)) +
+                        (currentSeparation) * Math.sin((iy + count));
+                } else {
+                    positionArray[positionIndex + 1] = WAVE_Y_POS_BOTTOM + (currentSeparation) * Math.sin((ix + count)) +
+                        (currentSeparation) * Math.sin((iy + count));
+                }
+
+
+                // scale particle based on corresponding level         
+                scaleArray[particleIndex] = 2 + (20 * level);
+
+                const lightness = 50 + 50 * level;
+                const color = new Color().setHSL(hue / 360, 1, lightness / 100);
+
+                colorArray[positionIndex] = color.r;
+                colorArray[positionIndex + 1] = color.g;
+                colorArray[positionIndex + 2] = color.b;
+
+                // positions held in 1D array; skip to next set of three
+                positionIndex += 3;
+                particleIndex++;
+
+            }
         }
 
-        for (let iy = 0; iy < AMOUNTY; iy++) {
-            const level = levels[particleIndex];
-            // animate y_position based on corresponding level
-            positions[positionIndex + 1] = WAVE_Y_POS + (currentSeparation) * Math.sin((ix + count)) +
-                (currentSeparation) * Math.sin((iy + count));
-
-            positions2[positionIndex + 1] = WAVE_Y_POS_BOTTOM + (currentSeparation) * Math.sin((ix + count)) +
-                (currentSeparation) * Math.sin((iy + count));
-            // scale particle based on corresponding level         
-            scales[particleIndex] = 2 + (20 * level);
-            scales2[particleIndex] = 2 + (20 * level);
-      
-            const lightness = 50 + 50 * level;
-            const color = new Color().setHSL(hue / 360, 1, lightness / 100);
-
-            colors[positionIndex] = color.r;
-            colors[positionIndex + 1] = color.g;
-            colors[positionIndex + 2] = color.b;
-
-            colors2[positionIndex] = color.r;
-            colors2[positionIndex + 1] = color.g;
-            colors2[positionIndex + 2] = color.b;
-
-            // positions held in 1D array; skip to next set of three
-            positionIndex += 3;
-            particleIndex++;
-
-        }
+        wave.geometry.attributes.position.needsUpdate = true;
+        wave.geometry.attributes.scale.needsUpdate = true;
+        wave.geometry.attributes.color.needsUpdate = true;
     }
 
-    particles.geometry.attributes.position.needsUpdate = true;
-    particles.geometry.attributes.scale.needsUpdate = true;
-    particles.geometry.attributes.color.needsUpdate = true;
-
-    particles2.geometry.attributes.position.needsUpdate = true;
-    particles2.geometry.attributes.scale.needsUpdate = true;
-    particles2.geometry.attributes.color.needsUpdate = true;
 
 
-    
 }
 
 
