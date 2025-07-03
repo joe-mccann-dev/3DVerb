@@ -1,4 +1,4 @@
-import { BufferGeometry, BufferAttribute, Color, Points, ShaderMaterial, AdditiveBlending } from 'three'
+import { BufferGeometry, BufferAttribute, Color, Points, ShaderMaterial, AdditiveBlending, Vector3 } from 'three'
 import * as COLORS from './colors.js';
 import {environmentMap, camera } from './animated.js'
 
@@ -8,6 +8,7 @@ const WAVE_Y_POS_BOTTOM = -80;
 
 let particles;
 let particles2;
+const waves = {};
 const numParticles = AMOUNTX * AMOUNTY;
 const positions = new Float32Array(numParticles * 3);
 const positions2 = new Float32Array(numParticles * 3);
@@ -50,7 +51,7 @@ function setupParticles() {
     return particles;
 }
 
-function setInitialValuesForAttrs(separation) {
+function setInitialValuesForAttrs(separation, position = new Vector3(WAVE_X_POS, WAVE_Y_POS, WAVE_Z_POS) ) {
     currentSeparation = separation;
 
     let i = 0, j = 0;
@@ -59,12 +60,12 @@ function setInitialValuesForAttrs(separation) {
 
         for (let iy = 0; iy < AMOUNTY; iy++) {
 
-            positions[i] = WAVE_X_POS + ix * currentSeparation - ((AMOUNTX * currentSeparation) / 2); // x
-            positions2[i] = WAVE_X_POS + ix * currentSeparation - ((AMOUNTX * currentSeparation) / 2); // x
-            positions[i + 1] = WAVE_Y_POS; // y
+            positions[i] = position.x + ix * currentSeparation - ((AMOUNTX * currentSeparation) / 2); // x
+            positions2[i] = position.x+ ix * currentSeparation - ((AMOUNTX * currentSeparation) / 2); // x
+            positions[i + 1] = position.y; // y
             positions2[i + 1] = WAVE_Y_POS_BOTTOM; // y
-            positions[i + 2] = WAVE_Z_POS + iy * currentSeparation - ((AMOUNTY * currentSeparation) / 2); // z
-            positions2[i + 2] = WAVE_Z_POS + iy * currentSeparation - ((AMOUNTY * currentSeparation) / 2); // z
+            positions[i + 2] = position.z + iy * currentSeparation - ((AMOUNTY * currentSeparation) / 2); // z
+            positions2[i + 2] = position.z + iy * currentSeparation - ((AMOUNTY * currentSeparation) / 2); // z
 
             colors[i] = 1;
             colors[i + 1] = 1;
