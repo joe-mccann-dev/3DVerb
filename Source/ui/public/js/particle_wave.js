@@ -7,6 +7,7 @@ const WAVE_X_POS = 50, WAVE_Y_POS = 240, WAVE_Z_POS = 50;
 const WAVE_Y_POS_BOTTOM = -80;
 
 const waves = {};
+const vectors = {};
 const numParticles = AMOUNTX * AMOUNTY;
 const positions = new Float32Array(numParticles * 3);
 const positions2 = new Float32Array(numParticles * 3);
@@ -45,19 +46,21 @@ function setupParticles() {
     waves.top = new Points(buffGeometryTop, shaderMaterial);
     waves.bottom = new Points(buffGeometryBottom, shaderMaterial);
 
-    setInitialValuesForAttrs(currentSeparation, waves.top);
-    setInitialValuesForAttrs(currentSeparation, waves.bottom);
+    vectors.top = new Vector3(WAVE_X_POS, WAVE_Y_POS, WAVE_Z_POS);
+    vectors.bottom = new Vector3(WAVE_X_POS, WAVE_Y_POS_BOTTOM, WAVE_Z_POS);
+
+    setInitialValuesForAttrs(currentSeparation, vectors.top, waves.top);
+    setInitialValuesForAttrs(currentSeparation, vectors.bottom, waves.bottom);
 
     return waves;
 }
 
-function setInitialValuesForAttrs(separation, wave = waves.top, wavePosition = new Vector3(WAVE_X_POS, WAVE_Y_POS, WAVE_Z_POS) ) {
+function setInitialValuesForAttrs(separation, wavePosition, wave = waves.top) {
     currentSeparation = separation;
 
     let i = 0, j = 0;
 
     for (let ix = 0; ix < AMOUNTX; ix++) {
-
         for (let iy = 0; iy < AMOUNTY; iy++) {
             const positionArray = wave.geometry.attributes.position.array;
             const colorArray = wave.geometry.attributes.color.array;
@@ -117,13 +120,10 @@ function animateParticles(levels, count = 0) {
             for (let iy = 0; iy < AMOUNTY; iy++) {
                 const level = levels[particleIndex];
                 // animate y_position based on corresponding level
-                if (location == 'top') {
-                    positionArray[positionIndex + 1] = WAVE_Y_POS + (currentSeparation) * Math.sin((ix + count)) +
-                        (currentSeparation) * Math.sin((iy + count));
-                } else {
-                    positionArray[positionIndex + 1] = WAVE_Y_POS_BOTTOM + (currentSeparation) * Math.sin((ix + count)) +
-                        (currentSeparation) * Math.sin((iy + count));
-                }
+                const y_pos = vectors[location].y
+                positionArray[positionIndex + 1] = y_pos + (currentSeparation) * Math.sin((ix + count)) +
+                    (currentSeparation) * Math.sin((iy + count));
+                
 
 
                 // scale particle based on corresponding level         
@@ -155,9 +155,11 @@ function animateParticles(levels, count = 0) {
 
 export {
     waves,
+    vectors,
     setupParticles,
     rotatePointsGeometry,
     animateParticles,
     setInitialValuesForAttrs,
     SEPARATION,
+    currentSeparation,
 }
