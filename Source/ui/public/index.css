@@ -5,10 +5,13 @@
     --light-gray: #E5E7EB;
     --medium-amber: #FBBF24;
     --medium-dark-amber: #B45309;
+    --sky-blue: #3f4569;
+    --particle-color: #fafaf0;
+    --light-yellow: #e1e0b1;
 }
 
 body {
-    background-color: var(--dark-gray);
+    background-image: linear-gradient(to right, var(--dark-gray), var(--light-yellow));
     padding: 14px;
 }
 
@@ -29,10 +32,7 @@ main {
 }
 
 .productInfo {
-    border: solid 1px var(--medium-amber);
-    border-radius: 12px;
-    background-color: var(--medium-dark-gray);
-    color: var(---gray);
+    color: var(--gray);
     padding: 2px;
     font-size: 12px;
     height: 24px;
@@ -49,9 +49,28 @@ main {
 }
 
 .slider {
+    -webkit-appearance: none;
+    appearance: none;
     width: 320px;
-    height: 20px;
-    
+    height: 16px;
+    background: var(--sky-blue);
+    outline: none;
+    opacity: 0.7; 
+    -webkit-transition: .3s; 
+    transition: opacity .3s;
+}
+
+.slider:hover {
+    opacity: 1;
+}
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none; 
+  appearance: none;
+  width: 24px;
+  height: 24px;
+  background: var(--light-yellow); 
+  cursor: pointer;
 }
 
 input.checkbox {
@@ -61,8 +80,6 @@ input.checkbox {
 }
 
 .plugin {
-    border: solid 2px var(--medium-dark-amber);
-    border-radius: 12px;
     width: 64%;
     padding: 20px;
     display: flex;
@@ -74,6 +91,7 @@ input.checkbox {
     display: flex;
     justify-content: space-between;
     gap: 4px;
+    margin-left: 12px;
 }
 
 .sliderValue {
@@ -105,5 +123,5 @@ input.checkbox {
 }
 
 canvas {
-    border-radius: 10px;
+
 }

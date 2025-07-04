@@ -93,7 +93,7 @@ function initRenderer() {
     canvas = renderer.domElement;
     visualizer.appendChild(canvas);
     stats = new Stats();
-    visualizer.appendChild(stats.dom)
+    //visualizer.appendChild(stats.dom)
 }
 
 function initCamera() {
