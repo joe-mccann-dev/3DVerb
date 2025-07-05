@@ -5,9 +5,9 @@ import * as particleWave from './particle_wave.js'
 
 const data = window.__JUCE__.initialisationData;
 
-document.getElementById("pluginVendor").textContent = "by " + data.pluginVendor;
-//document.getElementById("pluginName").textContent = data.pluginName;
-document.getElementById("pluginVersion").textContent = data.pluginVersion;
+//document.getElementById("pluginVendor").textContent = "by " + data.pluginVendor;
+////document.getElementById("pluginName").textContent = data.pluginName;
+//document.getElementById("pluginVersion").textContent = data.pluginVersion;
 
 const undoButton = document.getElementById("undoButton");
 const redoButton = document.getElementById("redoButton");
@@ -389,14 +389,7 @@ function updateValueElement(sliderDOMObject, value) {
 }
 
 function setFreezeLabelColor(checked, label) {
-    if (checked) {
-        label.style["color"] = COLORS.freezeColorHash;
-        label.style["border"] = `solid 1px ${COLORS.freezeColorHash}`;
-    }
-    else {
-        label.style["color"] = COLORS.lightBlueUI;
-        label.style["border"] = "none";
-    }
+    label.style["color"] = checked ? COLORS.roomFrameColorUI : COLORS.skyBlue;
 }
 
 export {

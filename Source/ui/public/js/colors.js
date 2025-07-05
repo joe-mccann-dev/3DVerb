@@ -15,6 +15,8 @@ const grayGreen = '#4e5050';
 // UI Colors
 const freezeColorHash = '#60A5FA';
 const lightBlueUI = '#BFDBFE';
+const sphereColorUI = '#c2c289';
+const roomFrameColorUI = '#919ddc';
 
 export {
     sphereColor,
@@ -33,4 +35,6 @@ export {
     // other
     freezeColorHash,
     lightBlueUI,
+    sphereColorUI,
+    roomFrameColorUI
 }

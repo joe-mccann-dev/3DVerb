@@ -6,17 +6,19 @@
     --medium-amber: #FBBF24;
     --medium-dark-amber: #B45309;
     --sky-blue: #3f4569;
+    --dark-blue: #23244b;
     --particle-color: #fafaf0;
     --light-yellow: #e1e0b1;
 }
 
 body {
-    background-image: linear-gradient(to right, var(--dark-gray), var(--light-yellow));
+    background-image: linear-gradient(to right, var(--light-yellow), var(--dark-gray));
     padding: 14px;
+    height: 100%;
 }
 
 main {
-    color: var(--light-gray);
+    color: var(--dark-blue);
     display: flex;
     gap: 10px;
     height: 92vh;
@@ -31,21 +33,30 @@ main {
     border-bottom: solid 1px var(--medium-dark-gray);
 }
 
+.header .title {
+    letter-spacing: 12px;
+}
+
+.header .subtitle {
+    letter-spacing: 4px;
+}
+
 .productInfo {
     color: var(--gray);
     padding: 2px;
     font-size: 12px;
     height: 24px;
+    padding-bottom: 12px;
 }
 
 .bypassAndMono {
-    border-bottom: solid 1px var(--medium-dark-gray);
+    border-bottom: solid 1px var(--dark-gray);
     padding: 20px 0;
 }
 
 .primaryParams {
-    border-bottom: solid 1px var(--medium-dark-gray);
-    padding: 20px 0;
+    border-bottom: solid 1px var(--dark-gray);
+    padding: 16px 0;
 }
 
 .slider {
@@ -79,6 +90,11 @@ input.checkbox {
     height: 20px;
 }
 
+input[type="checkbox"]:focus {
+    outline: 2px solid var(--sky-blue);
+    outline-offset: 2px;
+}
+
 .plugin {
     width: 64%;
     padding: 20px;
@@ -94,18 +110,23 @@ input.checkbox {
     margin-left: 12px;
 }
 
+.freezeLabel {
+    cursor: pointer;
+    padding: 2px;
+}
+
+.freezeLabel label {
+    padding: 4px;
+}
+
 .sliderValue {
     font-size: 12px;
-    color: var(--medium-amber);
+    color: var(--dark-blue);
     margin-left: 2px;
 }
 
-.freezeLabel {
-    padding: 2px;
-    border-radius: 12px;
-}
-
 .undoRedo {
+    height: 40px;
     padding: 24px 0;
 }
 
