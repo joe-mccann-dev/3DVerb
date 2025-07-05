@@ -12,9 +12,7 @@ const numParticles = AMOUNTX * AMOUNTY;
 const positions = new Float32Array(numParticles * 3);
 const positions2 = new Float32Array(numParticles * 3);
 const scales = new Float32Array(numParticles);
-const scales2 = new Float32Array(numParticles);
 const colors = new Float32Array(numParticles * 3);
-const colors2 = new Float32Array(numParticles * 3);
 let currentSeparation = SEPARATION;
 
 function setupParticles() {
@@ -33,15 +31,8 @@ function setupParticles() {
 
     });
 
-    const buffGeometryTop = new BufferGeometry();
-    buffGeometryTop.setAttribute('position', new BufferAttribute(positions, 3));
-    buffGeometryTop.setAttribute('scale', new BufferAttribute(scales, 1));
-    buffGeometryTop.setAttribute('color', new BufferAttribute(colors, 3));
-
-    const buffGeometryBottom = new BufferGeometry();
-    buffGeometryBottom.setAttribute('position', new BufferAttribute(positions2, 3));
-    buffGeometryBottom.setAttribute('scale', buffGeometryTop.attributes.scale); // use same scale
-    buffGeometryBottom.setAttribute('color', buffGeometryTop.attributes.color); // use same colors
+    const buffGeometryTop = createBuffGeometry(positions, scales, colors);
+    const buffGeometryBottom = createBuffGeometry(positions2, scales, colors);
 
     waves.top = new Points(buffGeometryTop, shaderMaterial);
     waves.bottom = new Points(buffGeometryBottom, shaderMaterial);
@@ -53,6 +44,15 @@ function setupParticles() {
     setInitialValuesForAttrs(currentSeparation, vectors.bottom, waves.bottom);
 
     return waves;
+}
+
+function createBuffGeometry(positions, scales, colors) {
+    const geometry = new BufferGeometry();
+    geometry.setAttribute('position', new BufferAttribute(positions, 3));
+    geometry.setAttribute('scale', new BufferAttribute(scales, 1));
+    geometry.setAttribute('color', new BufferAttribute(colors, 3));
+
+    return geometry;
 }
 
 function setInitialValuesForAttrs(separation, wavePosition, wave = waves.top) {

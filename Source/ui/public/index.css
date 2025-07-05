@@ -110,18 +110,22 @@ input[type="checkbox"]:focus {
     margin-left: 12px;
 }
 
+.labelAndParam label {
+    font-weight: bold;
+}
+
 .freezeLabel {
     cursor: pointer;
     padding: 2px;
 }
 
 .freezeLabel label {
-    padding: 4px;
+    padding: 4px 0;
 }
 
 .sliderValue {
-    font-size: 12px;
-    color: var(--dark-blue);
+    font-size: 16px;
+    color: var(--sky-blue);
     margin-left: 2px;
 }
 
