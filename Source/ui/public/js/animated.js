@@ -124,8 +124,8 @@ function addPointLight() {
 
 function addSpheres() {
     sphereRadius = 3.2;
-    const sphereWidthSegments = 6;
-    const sphereHeightSegments = 8;
+    const sphereWidthSegments = 30;
+    const sphereHeightSegments = 30;
     const sphereGeometry = new THREE.SphereGeometry(sphereRadius, sphereWidthSegments, sphereHeightSegments);
 
 
@@ -147,7 +147,9 @@ function makeSphere(geometry, position, color = COLORS.sphereColor) {
     const material = new THREE.MeshStandardMaterial({
         color: color,
         envMap: environmentMap,
-        wireframe: true,
+        alphaMap: alphaMap,
+        transparent: true,
+        envMapIntensity: 10.0,
     });
     const sphere = new THREE.Mesh(geometry, material);
     sphere.position.set(position.x, position.y, position.z);
