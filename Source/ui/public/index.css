@@ -9,6 +9,7 @@
     --dark-blue: #23244b;
     --particle-color: #fafaf0;
     --light-yellow: #e1e0b1;
+    --dark-green-black: #2d3022;
 }
 
 body {
@@ -125,7 +126,7 @@ input[type="checkbox"]:focus {
 
 .sliderValue {
     font-size: 16px;
-    color: var(--sky-blue);
+    color: var(--dark-green-black);
     margin-left: 2px;
 }
 

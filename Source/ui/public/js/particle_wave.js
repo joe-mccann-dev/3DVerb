@@ -9,8 +9,9 @@ const WAVE_Y_POS_BOTTOM = -80;
 const waves = {};
 const vectors = {};
 const numParticles = AMOUNTX * AMOUNTY;
-const positions = new Float32Array(numParticles * 3);
-const positions2 = new Float32Array(numParticles * 3);
+const numPositions = numParticles * 3;
+const positions = new Float32Array(numPositions);
+const positionsBottom = new Float32Array(numPositions);
 const scales = new Float32Array(numParticles);
 const colors = new Float32Array(numParticles * 3);
 let currentSeparation = SEPARATION;
@@ -32,7 +33,7 @@ function setupParticles() {
     });
 
     const buffGeometryTop = createBuffGeometry(positions, scales, colors);
-    const buffGeometryBottom = createBuffGeometry(positions2, scales, colors);
+    const buffGeometryBottom = createBuffGeometry(positionsBottom, scales, colors);
 
     waves.top = new Points(buffGeometryTop, shaderMaterial);
     waves.bottom = new Points(buffGeometryBottom, shaderMaterial);
@@ -81,14 +82,6 @@ function setInitialValuesForAttrs(separation, wavePosition, wave = waves.top) {
 
         }
     }
-    //rotatePointsGeometry();
-}
-
-function rotatePointsGeometry() {
-    
-    particles.geometry.rotateX(Math.PI);
-    particles.geometry.rotateY(-Math.PI / 2);
-    particles.geometry.rotateZ(-Math.PI);
 }
 
 
@@ -120,12 +113,12 @@ function animateParticles(levels, count = 0) {
             for (let iy = 0; iy < AMOUNTY; iy++) {
                 const level = levels[particleIndex];
                 // animate y_position based on corresponding level
-                const y_pos = vectors[location].y
-                positionArray[positionIndex + 1] = y_pos + (currentSeparation) * Math.sin((ix + count)) +
-                    (currentSeparation) * Math.sin((iy + count));
+                const y_pos = vectors[location].y;
+
+                positionArray[positionIndex + 1] = y_pos +
+                                                    ((currentSeparation) * Math.sin((ix + count))) +
+                                                    ((currentSeparation) * Math.sin((iy + count)));
                 
-
-
                 // scale particle based on corresponding level         
                 scaleArray[particleIndex] = 2 + (20 * level);
 
@@ -157,7 +150,6 @@ export {
     waves,
     vectors,
     setupParticles,
-    rotatePointsGeometry,
     animateParticles,
     setInitialValuesForAttrs,
     SEPARATION,
