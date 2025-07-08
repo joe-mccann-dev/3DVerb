@@ -2,7 +2,7 @@ import { BufferGeometry, BufferAttribute, Color, Points, ShaderMaterial, Additiv
 import * as COLORS from './colors.js';
 import {environmentMap, camera } from './animated.js'
 
-const SEPARATION = 20, AMOUNTX = 32, AMOUNTY = 16;
+const SEPARATION = 30, AMOUNTX = 32, AMOUNTY = 16;
 const WAVE_X_POS = 50, WAVE_Y_POS = 240, WAVE_Z_POS = 50;
 const WAVE_Y_POS_BOTTOM = -80;
 
@@ -21,7 +21,7 @@ function setupParticles() {
     const shaderMaterial = new ShaderMaterial({
         uniforms: {
             color: { value: new Color(COLORS.particleColor) },
-            size: { value: 2.5 },
+            size: { value: 1.5 },
             envMap: { value: environmentMap },
             cameraPosition: { value: camera.position }
         },
@@ -86,8 +86,9 @@ function setInitialValuesForAttrs(separation, wavePosition, wave = waves.top) {
 }
 
 function setSineWaveAmplitude(output) {
-    // convert negative decibels to positive; take reciprocal 
-    amplitude = 1 / (output * -1) * 100;
+    // convert negative decibels to positive; take reciprocal
+    const K = 10;
+    amplitude = K * (currentSeparation) * (1 / (output * -1));
 }
 
 
@@ -122,8 +123,8 @@ function animateParticles(levels, count = 0) {
                 const y_pos = vectors[location].y;
 
                 positionArray[positionIndex + 1] = y_pos +
-                                                    ( amplitude * (currentSeparation) * Math.sin((ix + count))) +
-                                                    ( amplitude * (currentSeparation) * Math.sin((iy + count)));
+                                                    ( amplitude * Math.sin((ix + count))) +
+                                                    ( amplitude * Math.sin((iy + count)));
                 
                 // scale particle based on corresponding level         
                 scaleArray[particleIndex] = 2 + (20 * level);
