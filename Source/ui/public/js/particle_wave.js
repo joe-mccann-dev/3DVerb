@@ -15,6 +15,7 @@ const positionsBottom = new Float32Array(numPositions);
 const scales = new Float32Array(numParticles);
 const colors = new Float32Array(numParticles * 3);
 let currentSeparation = SEPARATION;
+let amplitude = -999;
 
 function setupParticles() {
     const shaderMaterial = new ShaderMaterial({
@@ -84,6 +85,11 @@ function setInitialValuesForAttrs(separation, wavePosition, wave = waves.top) {
     }
 }
 
+function setSineWaveAmplitude(output) {
+    // convert negative decibels to positive; take reciprocal 
+    amplitude = 1 / (output * -1) * 100;
+}
+
 
 // sine wave animation taken from https://github.com/mrdoob/three.js/blob/master/examples/webgl_points_waves.html
 function animateParticles(levels, count = 0) {
@@ -116,8 +122,8 @@ function animateParticles(levels, count = 0) {
                 const y_pos = vectors[location].y;
 
                 positionArray[positionIndex + 1] = y_pos +
-                                                    ((currentSeparation) * Math.sin((ix + count))) +
-                                                    ((currentSeparation) * Math.sin((iy + count)));
+                                                    ( amplitude * (currentSeparation) * Math.sin((ix + count))) +
+                                                    ( amplitude * (currentSeparation) * Math.sin((iy + count)));
                 
                 // scale particle based on corresponding level         
                 scaleArray[particleIndex] = 2 + (20 * level);
@@ -140,9 +146,6 @@ function animateParticles(levels, count = 0) {
         wave.geometry.attributes.scale.needsUpdate = true;
         wave.geometry.attributes.color.needsUpdate = true;
     }
-
-
-
 }
 
 
@@ -154,4 +157,5 @@ export {
     setInitialValuesForAttrs,
     SEPARATION,
     currentSeparation,
+    setSineWaveAmplitude,
 }

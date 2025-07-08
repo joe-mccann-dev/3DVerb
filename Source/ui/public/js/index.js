@@ -133,8 +133,7 @@ function setupBackendEventListeners() {
         fetch(Juce.getBackendResourceAddress("outputLevel.json"))
             .then((response) => response.json())
             .then((outputLevelData) => {
-                //outputThrottleHandler(outputLevelData.left);
-
+                outputThrottleHandler(outputLevelData.left);
             })
             .catch(console.error);
     });
@@ -242,7 +241,7 @@ function onLevelsChange(levels) {
 }
 
 function onOutputChange(output) {
-
+    particleWave.setSineWaveAmplitude(output);
 }
 
 function setLAxis(axis) {
@@ -308,7 +307,7 @@ function initThrottleHandlers() {
     }, THROTTLE_TIME * 0.2);
     outputThrottleHandler = throttle((output) => {
         onOutputChange(output);
-    }, THROTTLE_TIME * 0.1);
+    }, THROTTLE_TIME * 0.2);
 }
 
 function setupDOMEventListeners() {
