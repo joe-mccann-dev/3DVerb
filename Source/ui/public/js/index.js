@@ -15,9 +15,7 @@ const undoRedoCtrl = Juce.getNativeFunction("webUndoRedo");
 
 const freezeColor = new Animated.threeColor(COLORS.freezeColor);
 let leftAxis, rightAxis;
-let currentWidth;
-let currentMix;
-let currentSize;
+let currentOutput, currentSize, currentMix, currentWidth, currentDamp;
 let lifeScale;
 let countForParticles = 0;
 
@@ -78,6 +76,19 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 function setupBackendEventListeners() {
+    // OUTPUT LEVEL EVENT
+    window.__JUCE__.backend.addEventListener("outputLevel", () => {
+        fetch(Juce.getBackendResourceAddress("outputLevel.json"))
+            .then((response) => response.json())
+            .then((outputLevelData) => {
+                if (currentOutput != outputLevelData.left) {
+                    outputThrottleHandler(outputLevelData.left);
+                }
+                currentOutput = outputLevelData.left;
+            })
+            .catch(console.error);
+    });
+
     // ROOM SIZE
     window.__JUCE__.backend.addEventListener("roomSizeValue", () => {
         fetch(Juce.getBackendResourceAddress("roomSize.json"))
@@ -128,16 +139,6 @@ function setupBackendEventListeners() {
             .catch(console.error);
     });
 
-    // OUTPUT LEVEL EVENT
-    window.__JUCE__.backend.addEventListener("outputLevel", () => {
-        fetch(Juce.getBackendResourceAddress("outputLevel.json"))
-            .then((response) => response.json())
-            .then((outputLevelData) => {
-                outputThrottleHandler(outputLevelData.left);
-            })
-            .catch(console.error);
-    });
-
      // LEVELS EVENT (frequency data mapped to level for visualization)
     window.__JUCE__.backend.addEventListener("levels", () => {
         fetch(Juce.getBackendResourceAddress("levels.json"))
@@ -146,6 +147,19 @@ function setupBackendEventListeners() {
                 levelsThrottleHandler(levelsData.levels);
             });
     })
+}
+
+function onOutputChange(output) {
+    particleWave.setSineWaveAmplitude(output);
+    const force = particleWave.getAmplitude(output, 16);
+    console.log("force in onOutputChange(): ", force);
+    Animated.nebula.emitters.forEach((emitter) => {
+        emitter.setBehaviours(Animated.getStandardBehaviours(
+            {
+                force: { fz: force },
+            }
+        ));
+    });
 }
 
 function onRoomSizeChange(roomSizeValue) {
@@ -164,7 +178,7 @@ function onRoomSizeChange(roomSizeValue) {
     Animated.surroundingCube.scale.multiplyScalar(scale);
 
 
-    const minLife = 2.2;
+    const minLife = 1.2;
     const maxLife = 4.2;
     lifeScale = minLife + (maxLife - minLife) * roomSizeValue;
     for (let i = 0; i < Animated.nebula.emitters.length / 2; i++) {
@@ -227,6 +241,7 @@ function onWidthChange(widthValue) {
     setRAxis(rAxis);
 }
 
+
 function onFreezeChange(frozen) {
     Animated.spheres.forEach((sphere) => {
         frozen ?
@@ -238,10 +253,6 @@ function onFreezeChange(frozen) {
 function onLevelsChange(levels) {
     // send updated magnitudes to particle animation function
     particleWave.animateParticles(levels.slice(1, levels.length), countForParticles += 0.1);
-}
-
-function onOutputChange(output) {
-    particleWave.setSineWaveAmplitude(output);
 }
 
 function setLAxis(axis) {

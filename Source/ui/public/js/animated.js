@@ -358,13 +358,13 @@ function createEmitter(colorA, colorB, options = {}) {
 function getStandardInitializers(options = {}) {
     return [
         new Mass(options.mass ?? 1.4),
-        new Life(options.life ?? 2.2),
+        new Life(options.life ?? 1.2),
         new Body(nebula.sprite),
-        new Radius(options.radius ?? 20),
+        new Radius(options.radius ?? 30),
         new RadialVelocity(
             options.radialVelocity?.speed ?? new Span(20, 100),
             options.radialVelocity?.axis ?? leftEmitterRadVelocityAxis(),
-            options.radialVelocity?.theta ?? 30,
+            options.radialVelocity?.theta ?? 60,
         )
     ]
 }
@@ -388,9 +388,9 @@ function getStandardBehaviours(options = {}, emitter) {
             options.collision?.useMass ?? true,
         ),
         new Force(
-            options.force?.fx ?? 0,
-            options.force?.fy ?? 0.5,
-            options.force?.fz ?? 1,
+            options.force?.fx ?? 0.2,
+            options.force?.fy ?? 1.8,
+            options.force?.fz ?? 0.2,
         )
     ]
 }
@@ -436,6 +436,7 @@ export {
     animate,
     nebula,
     Vector3D,
+    Force,
     scene,
     environmentMap,
     camera,
@@ -445,6 +446,7 @@ export {
     sphereRadius,
     surroundingCube,
     getStandardInitializers,
+    getStandardBehaviours,
     leftEmitterRadVelocityAxis,
     rightEmitterRadVelocityAxis,
     objects,

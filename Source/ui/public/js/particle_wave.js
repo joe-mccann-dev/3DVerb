@@ -86,9 +86,12 @@ function setInitialValuesForAttrs(separation, wavePosition, wave = waves.top) {
 }
 
 function setSineWaveAmplitude(output) {
+    amplitude = getAmplitude(output);
+}
+
+function getAmplitude(output, K = 20) {
     // convert negative decibels to positive; take reciprocal
-    const K = 20;
-    amplitude = K * (currentSeparation) * (1 / (output * -1));
+    return K * (currentSeparation) * (1 / (output * -1));
 }
 
 
@@ -159,5 +162,6 @@ export {
     SEPARATION,
     currentSeparation,
     setSineWaveAmplitude,
+    getAmplitude,
     amplitude,
 }
