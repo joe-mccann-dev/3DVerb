@@ -16,7 +16,7 @@ import ParticleSystem, {
     Scale,
     Color,
     SpriteRenderer,
-    CrossZone,
+    Collision,
     ScreenZone,
     Force,
 } from 'three-nebula';
@@ -289,7 +289,7 @@ function animate(time, theta = 0, emitterRadius = 10) {
     handleBypassOrFreezeChecked(time);
 
     stats.update();
-    //nebula.system.update();
+    nebula.system.update();
     controls.update();
     renderer.render(scene, camera);
     requestAnimationFrame((time) => animate(time, theta, emitterRadius));
@@ -345,15 +345,13 @@ function animateNebulaEmitterPositions(theta, emitterRadius) {
 
 function createEmitter(colorA, colorB, options = {}) {
     const emitter = new Emitter()
-        .setRate(new Rate(new Span(2, 4), new Span(0.01, 0.03)))
+        .setRate(new Rate(new Span(2, 4), new Span(0.1, 0.3)))
         .setInitializers(getStandardInitializers(options))
-        .setBehaviours([
-            new Alpha(0.5, 0),
-            new Color(colorA, colorB),
-            new Scale(1, 0.5),
-            new CrossZone(new ScreenZone(camera, renderer), 'dead'),
-            new Force(0, 0, 2),
-        ]);
+    emitter.setBehaviours(
+            getStandardBehaviours(
+                { color: { colorA: colorA, colorB: colorB } }),
+                emitter
+    );
     return emitter;
 }
 
@@ -364,9 +362,35 @@ function getStandardInitializers(options = {}) {
         new Body(nebula.sprite),
         new Radius(options.radius ?? 20),
         new RadialVelocity(
-            options.radialVelocity?.speed ?? 50,
+            options.radialVelocity?.speed ?? new Span(20, 100),
             options.radialVelocity?.axis ?? leftEmitterRadVelocityAxis(),
-            options.radialVelocity?.theta ?? 0
+            options.radialVelocity?.theta ?? 30,
+        )
+    ]
+}
+
+function getStandardBehaviours(options = {}, emitter) {
+    return [
+        new Alpha(
+            options.alpha?.alphaA ?? 0.5,
+            options.alpha?.alphaB ?? 0,
+        ),
+        new Color(
+            options.color?.colorA ?? COLORS.darkGreen,
+            options.color?.colorB ?? COLORS.skyBlue
+        ),
+        new Scale(
+            options.scale?.scaleA ?? 1,
+            options.scale?.scaleB ?? 0.5
+        ),
+        new Collision(
+            options.collision?.emitter ?? emitter,
+            options.collision?.useMass ?? true,
+        ),
+        new Force(
+            options.force?.fx ?? 0,
+            options.force?.fy ?? 0.5,
+            options.force?.fz ?? 1,
         )
     ]
 }
