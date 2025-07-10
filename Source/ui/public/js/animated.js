@@ -170,6 +170,7 @@ function addSurroundingCube() {
     const cubeGeometry = new THREE.BoxGeometry(cubeWidth, cubeHeight, cubeDepth, cubeWidthSegments, cubeHeightSegments);
     surroundingCube = makeSurroundingCube(cubeGeometry, new THREE.Vector3(50, 140, 50));
     //addToSceneAndObjects(surroundingCube);
+    
 }
 
 function makeSurroundingCube(geometry, position) {
@@ -358,7 +359,7 @@ function createEmitter(colorA, colorB, options = {}) {
 
 function getStandardInitializers(options = {}) {
     return [
-        new Mass(options.mass ?? 1.4),
+        new Mass(options.mass ?? new Span(2, 4), new Span(20, 40)),
         new Life(options.life ?? 1.2),
         new Body(nebula.sprite),
         new Radius(options.radius ?? 30),
@@ -400,7 +401,8 @@ function getStandardBehaviours(options = {}, emitter) {
 function collideFunction(emitter) {
     console.log("emitter: ", emitter);
     console.log("some particles collided");
-    if (emitter) { 
+    if (emitter) {
+
     }
 }
 
