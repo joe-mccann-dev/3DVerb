@@ -17,7 +17,6 @@ import ParticleSystem, {
     Color,
     SpriteRenderer,
     Collision,
-    ScreenZone,
     Force,
 } from 'three-nebula';
 
@@ -46,6 +45,7 @@ const lines = [];
 const nebula = {};
 const emitterLeftX = -20, emitterLeftY = 70;
 const emitterRightX = 120, emitterRightY = 70;
+const DEFAULT_EMITTER_DAMPING = 0.006;
 
 init();
 
@@ -345,13 +345,14 @@ function animateNebulaEmitterPositions(theta, emitterRadius) {
 
 function createEmitter(colorA, colorB, options = {}) {
     const emitter = new Emitter()
-        .setRate(new Rate(new Span(2, 4), new Span(0.1, 0.3)))
+        .setRate(new Rate(new Span(3, 6), new Span(0.1, 0.3)))
         .setInitializers(getStandardInitializers(options))
     emitter.setBehaviours(
             getStandardBehaviours(
                 { color: { colorA: colorA, colorB: colorB } }),
                 emitter
     );
+    emitter.damping = 0.06;
     return emitter;
 }
 
@@ -364,7 +365,7 @@ function getStandardInitializers(options = {}) {
         new RadialVelocity(
             options.radialVelocity?.speed ?? new Span(20, 100),
             options.radialVelocity?.axis ?? leftEmitterRadVelocityAxis(),
-            options.radialVelocity?.theta ?? 60,
+            options.radialVelocity?.theta ?? 32,
         )
     ]
 }
@@ -385,7 +386,8 @@ function getStandardBehaviours(options = {}, emitter) {
         ),
         new Collision(
             options.collision?.emitter ?? emitter,
-            options.collision?.useMass ?? true,
+            options.collision?.useMass ?? false,
+            options.collision?.onCollide ?? collideFunction(emitter),
         ),
         new Force(
             options.force?.fx ?? 0.2,
@@ -393,6 +395,13 @@ function getStandardBehaviours(options = {}, emitter) {
             options.force?.fz ?? 0.2,
         )
     ]
+}
+
+function collideFunction(emitter) {
+    console.log("emitter: ", emitter);
+    console.log("some particles collided");
+    if (emitter) { 
+    }
 }
 
 function leftEmitterRadVelocityAxis() {
@@ -447,8 +456,10 @@ export {
     surroundingCube,
     getStandardInitializers,
     getStandardBehaviours,
+    collideFunction,
     leftEmitterRadVelocityAxis,
     rightEmitterRadVelocityAxis,
     objects,
     addToSceneAndObjects,
+    DEFAULT_EMITTER_DAMPING,
 }

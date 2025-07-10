@@ -153,10 +153,32 @@ function onOutputChange(output) {
     particleWave.setSineWaveAmplitude(output);
     const force = particleWave.getAmplitude(output, 16);
     console.log("force in onOutputChange(): ", force);
-    Animated.nebula.emitters.forEach((emitter) => {
+
+    const minSpeed = 20;
+    const maxSpeed = 60;
+    const speedFactor = particleWave.getAmplitude(output, 1);
+    const speedScale = minSpeed + (maxSpeed - minSpeed) * speedFactor
+    Animated.nebula.emitters.forEach((emitter, emitterIndex) => {
+        emitter.damping = (
+            output > currentOutput
+                ? Animated.DEFAULT_EMITTER_DAMPING
+                : Animated.DEFAULT_EMITTER_DAMPING * 10
+        );
+
+        emitter.setInitializers(Animated.getStandardInitializers({
+            life: lifeScale,
+            radialVelocity: {
+                axis: emitterIndex < 2
+                    ? (leftAxis ?? Animated.leftEmitterRadVelocityAxis())
+                    : (rightAxis ?? Animated.rightEmitterRadVelocityAxis()),
+                speed: speedScale,
+            },
+        }));
+
         emitter.setBehaviours(Animated.getStandardBehaviours(
             {
                 force: { fz: force },
+                collision: { onCollide: Animated.collideFunction(emitter)}
             }
         ));
     });
@@ -239,6 +261,9 @@ function onWidthChange(widthValue) {
     }
     setLAxis(lAxis);
     setRAxis(rAxis);
+
+    console.log("lAxis: ", lAxis);
+    console.log("rAxis: ", rAxis);
 }
 
 
