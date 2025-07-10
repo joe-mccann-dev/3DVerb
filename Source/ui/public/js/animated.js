@@ -399,11 +399,11 @@ function getStandardBehaviours(options = {}, emitter) {
 }
 
 function collideFunction(emitter) {
-    console.log("emitter: ", emitter);
-    console.log("some particles collided");
-    if (emitter) {
+    //console.log("emitter: ", emitter);
+    //console.log("some particles collided");
+    //if (emitter) {
 
-    }
+    //}
 }
 
 function leftEmitterRadVelocityAxis() {

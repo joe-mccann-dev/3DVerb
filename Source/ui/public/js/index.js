@@ -192,7 +192,6 @@ function onRoomSizeChange(roomSizeValue) {
         const wave = particleWave.waves[location];
         particleWave.setInitialValuesForAttrs(separationScaleFactor, particleWave.vectors[location], wave);
     }
-    
 
     const min = 0.50;
     const scale = min + (1 - min) * roomSizeValue;
@@ -203,23 +202,19 @@ function onRoomSizeChange(roomSizeValue) {
     const minLife = 1.2;
     const maxLife = 4.2;
     lifeScale = minLife + (maxLife - minLife) * roomSizeValue;
-    for (let i = 0; i < Animated.nebula.emitters.length / 2; i++) {
-        Animated.nebula.emitters[i].setInitializers(Animated.getStandardInitializers(
+    Animated.nebula.emitters.forEach((emitter, emitterIndex) => {
+        emitter.setInitializers(Animated.getStandardInitializers(
             {
                 life: lifeScale,
-                radialVelocity: { axis: leftAxis ?? Animated.leftEmitterRadVelocityAxis() }
+                radialVelocity: {
+                    axis: emitterIndex < 2
+                        ? (leftAxis ?? Animated.leftEmitterRadVelocityAxis())
+                        : (rightAxis ?? Animated.rightEmitterRadVelocityAxis())
+                }
             }
-        ));
-    }
-    for (let i = 2; i < Animated.nebula.emitters.length; i++) {
-        Animated.nebula.emitters[i].setInitializers(Animated.getStandardInitializers(
-            {
-                life: lifeScale,
-                // prevent from returning to default leftEmitterRadVelocityAxis option
-                radialVelocity: { axis: rightAxis ?? Animated.rightEmitterRadVelocityAxis() }
-            }
-        ));
-    }
+        ))
+    });
+
     // set life here so no jumps in life on width change when room size doesn't change.
     setLife(lifeScale);
 }
@@ -243,27 +238,21 @@ function onWidthChange(widthValue) {
     const rightAxisScale = rightMin + (rightMax - rightMin) * logOfWidthFactor;
     const lAxis = new Animated.Vector3D(leftAxisScale, 0, 10);
     const rAxis = new Animated.Vector3D(rightAxisScale, 0, 10);
-    for (let i = 0; i < Animated.nebula.emitters.length / 2; ++i) {
-        Animated.nebula.emitters[i].setInitializers(Animated.getStandardInitializers(
+    Animated.nebula.emitters.forEach((emitter, emitterIndex) => {
+        emitter.setInitializers(Animated.getStandardInitializers(
             {
                 life: lifeScale,
-                radialVelocity: { axis: lAxis }
+                radialVelocity: {
+                    axis: emitterIndex < 2
+                        ? (lAxis ?? Animated.leftEmitterRadVelocityAxis())
+                        : (rAxis ?? Animated.rightEmitterRadVelocityAxis())
+                }
             }
-        ));
-    }
-    for (let i = 2; i < Animated.nebula.emitters.length; ++i) {
-        Animated.nebula.emitters[i].setInitializers(Animated.getStandardInitializers(
-            {
-                life: lifeScale,
-                radialVelocity: { axis: rAxis }
-            }
-        ));
-    }
+        ))
+    });
+
     setLAxis(lAxis);
     setRAxis(rAxis);
-
-    console.log("lAxis: ", lAxis);
-    console.log("rAxis: ", rAxis);
 }
 
 
