@@ -152,7 +152,7 @@ function setupBackendEventListeners() {
 function onOutputChange(output) {
 
     particleWave.setSineWaveAmplitude(output);
-    const force = particleWave.getAmplitude(output, 16);
+    const force = particleWave.getAmplitude(output, 8);
 
     const minSpeed = 20;
     const maxSpeed = 60;
@@ -172,12 +172,14 @@ function onOutputChange(output) {
                     ? (leftAxis ?? Animated.leftEmitterRadVelocityAxis())
                     : (rightAxis ?? Animated.rightEmitterRadVelocityAxis()),
                 speed: speedScale,
-            },
-        }));
+                },
+            }
+        ));
 
+        const forceZ = force;
         emitter.setBehaviours(Animated.getStandardBehaviours(
             {
-                force: { fz: force },
+                force: { fz: forceZ },
                 //collision: { onCollide: Animated.collideFunction(emitter)}
             }
         ));
@@ -292,6 +294,12 @@ function setUserData() {
     Animated.spheres.forEach((sphere) => {
         sphere.userData.originalScale = sphere.scale.clone();
     });
+
+    Animated.nebula.emitters.forEach((emitter) => {
+        emitter.userData = {};
+        emitter.userData.collidedParticles = [];
+
+    })
 
     Animated.pointLight.userData.originalIntensity = Animated.pointLight.intensity;
     Animated.surroundingCube.userData.originalScale = Animated.surroundingCube.scale.clone();

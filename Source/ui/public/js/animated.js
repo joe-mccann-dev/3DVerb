@@ -363,7 +363,7 @@ function getStandardInitializers(options = {}) {
         new Mass(options.mass ?? new Span(2, 4), new Span(20, 40)),
         new Life(options.life ?? 1.2),
         new Body(nebula.sprite),
-        new Radius(options.radius ?? 30),
+        new Radius(options.radius ?? 40),
         new RadialVelocity(
             options.radialVelocity?.speed ?? new Span(20, 100),
             options.radialVelocity?.axis ?? leftEmitterRadVelocityAxis(),
@@ -393,7 +393,7 @@ function getStandardBehaviours(options = {}, emitter) {
         new Force(
             options.force?.fx ?? 0.2,
             options.force?.fy ?? 2.8,
-            options.force?.fz ?? 0.2,
+            options.force?.fz ?? 1.2,
         ),
     ]
 }
@@ -402,22 +402,22 @@ function collideFunction(emitter) {
     if (emitter) {
         const cubeHalfDepth = cubeDepth / 2;
         const cubeScaleVector3 = surroundingCube.userData.scale;
+
         if (cubeScaleVector3) {
             const cubeScaleZ = cubeScaleVector3.z;
             const cubeFrontFaceZ = (surroundingCube.position.z + (cubeHalfDepth * cubeScaleZ));
-            console.log("cubeFrontFaceZ: ", cubeFrontFaceZ)
-            const forceIndex = 0;
-            emitter.particles.forEach((particle) => {
-                particle.behaviours.forEach((behaviour, index) => {
-                    if (behaviour.constructor.name === 'Force') {
-                        forceIndex = index;
-                    }
-                })
-                if (particle.position.z >= cubeFrontFaceZ - 40) {
-                    particle.velocity.z *= -1;
-                    particle.behaviours[forceIndex].force.z *= -1;
+            const cubeBackFaceZ = (surroundingCube.position.z - (cubeHalfDepth * cubeScaleZ));
 
+            emitter.particles.forEach((particle) => {
+                const forceBehaviour = particle.behaviours.find((behaviour) => {
+                    return behaviour.type === "Force";
+                });
+                if (particle.position.z >= cubeFrontFaceZ - 60) {
+                    particle.velocity.z *= -1;
+                    forceBehaviour.force.z *= -1;
+                    emitter.userData.forceZ = forceBehaviour.force.z;
                 }
+                
             });
         }
     }
@@ -473,6 +473,7 @@ export {
     spheres,
     sphereRadius,
     surroundingCube,
+    cubeDepth,
     getStandardInitializers,
     getStandardBehaviours,
     collideFunction,
