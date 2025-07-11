@@ -150,13 +150,13 @@ function setupBackendEventListeners() {
 }
 
 function onOutputChange(output) {
+
     particleWave.setSineWaveAmplitude(output);
     const force = particleWave.getAmplitude(output, 16);
-    console.log("force in onOutputChange(): ", force);
 
     const minSpeed = 20;
     const maxSpeed = 60;
-    const speedFactor = particleWave.getAmplitude(output, 1);
+    const speedFactor = particleWave.getAmplitude(output, 4);
     const speedScale = minSpeed + (maxSpeed - minSpeed) * speedFactor
     Animated.nebula.emitters.forEach((emitter, emitterIndex) => {
         emitter.damping = (
@@ -178,9 +178,11 @@ function onOutputChange(output) {
         emitter.setBehaviours(Animated.getStandardBehaviours(
             {
                 force: { fz: force },
-                collision: { onCollide: Animated.collideFunction(emitter)}
+                //collision: { onCollide: Animated.collideFunction(emitter)}
             }
         ));
+
+        Animated.collideFunction(emitter);
     });
 }
 
@@ -197,10 +199,10 @@ function onRoomSizeChange(roomSizeValue) {
     const scale = min + (1 - min) * roomSizeValue;
     Animated.surroundingCube.scale.copy(Animated.surroundingCube.userData.originalScale);
     Animated.surroundingCube.scale.multiplyScalar(scale);
-
+    Animated.surroundingCube.userData.scale = Animated.surroundingCube.scale;
 
     const minLife = 1.2;
-    const maxLife = 4.2;
+    const maxLife = 6.2;
     lifeScale = minLife + (maxLife - minLife) * roomSizeValue;
     Animated.nebula.emitters.forEach((emitter, emitterIndex) => {
         emitter.setInitializers(Animated.getStandardInitializers(

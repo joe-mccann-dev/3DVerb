@@ -18,6 +18,7 @@ import ParticleSystem, {
     SpriteRenderer,
     Collision,
     Force,
+    Gravity,
 } from 'three-nebula';
 
 import * as UI from './index.js';
@@ -38,6 +39,9 @@ const objects = [];
 const spheres = [];
 let sphereRadius;
 let surroundingCube;
+const cubeWidth = 1200;
+const cubeHeight = 800;
+const cubeDepth = 900;
 
 const planes = [];
 const lines = [];
@@ -162,14 +166,11 @@ function makeSphere(geometry, position, color = COLORS.sphereColor) {
 }
 
 function addSurroundingCube() {
-    const cubeWidth = 900;
-    const cubeHeight= 600;
-    const cubeDepth = 800;
     const cubeWidthSegments = 20;
     const cubeHeightSegments = 20; 
     const cubeGeometry = new THREE.BoxGeometry(cubeWidth, cubeHeight, cubeDepth, cubeWidthSegments, cubeHeightSegments);
-    surroundingCube = makeSurroundingCube(cubeGeometry, new THREE.Vector3(50, 140, 50));
-    //addToSceneAndObjects(surroundingCube);
+    surroundingCube = makeSurroundingCube(cubeGeometry, new THREE.Vector3(50, 80, 50));
+    addToSceneAndObjects(surroundingCube);
     
 }
 
@@ -282,7 +283,7 @@ function addToSceneAndObjects(objectToAdd) {
     objects.push(objectToAdd);
 }
 
-function animate(time, theta = 0, emitterRadius = 10) {
+function animate(time, theta = 0, emitterRadius = 12) {
     time *= 0.001;
 
     animateNebulaEmitterPositions(theta += 0.13, emitterRadius);
@@ -387,23 +388,39 @@ function getStandardBehaviours(options = {}, emitter) {
         ),
         new Collision(
             options.collision?.emitter ?? emitter,
-            options.collision?.useMass ?? false,
-            options.collision?.onCollide ?? collideFunction(emitter),
+            options.collision?.useMass ?? true,
         ),
         new Force(
             options.force?.fx ?? 0.2,
-            options.force?.fy ?? 1.8,
+            options.force?.fy ?? 2.8,
             options.force?.fz ?? 0.2,
-        )
+        ),
     ]
 }
 
 function collideFunction(emitter) {
-    //console.log("emitter: ", emitter);
-    //console.log("some particles collided");
-    //if (emitter) {
+    if (emitter) {
+        const cubeHalfDepth = cubeDepth / 2;
+        const cubeScaleVector3 = surroundingCube.userData.scale;
+        if (cubeScaleVector3) {
+            const cubeScaleZ = cubeScaleVector3.z;
+            const cubeFrontFaceZ = (surroundingCube.position.z + (cubeHalfDepth * cubeScaleZ));
+            console.log("cubeFrontFaceZ: ", cubeFrontFaceZ)
+            const forceIndex = 0;
+            emitter.particles.forEach((particle) => {
+                particle.behaviours.forEach((behaviour, index) => {
+                    if (behaviour.constructor.name === 'Force') {
+                        forceIndex = index;
+                    }
+                })
+                if (particle.position.z >= cubeFrontFaceZ - 40) {
+                    particle.velocity.z *= -1;
+                    particle.behaviours[forceIndex].force.z *= -1;
 
-    //}
+                }
+            });
+        }
+    }
 }
 
 function leftEmitterRadVelocityAxis() {
