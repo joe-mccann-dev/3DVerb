@@ -1,5 +1,6 @@
 import { BufferGeometry, BufferAttribute, Color, Points, ShaderMaterial, AdditiveBlending, Vector3 } from 'three'
 import * as COLORS from './colors.js';
+import * as UI from './index.js';
 import {environmentMap, camera } from './animated.js'
 
 const SEPARATION = 30, AMOUNTX = 32, AMOUNTY = 16;
@@ -16,6 +17,8 @@ const scales = new Float32Array(numParticles);
 const colors = new Float32Array(numParticles * 3);
 let currentSeparation = SEPARATION;
 let amplitude = -999;
+const maxAmps = 10;
+const ampQueue = [];
 
 function setupParticles() {
     const shaderMaterial = new ShaderMaterial({
@@ -86,12 +89,37 @@ function setInitialValuesForAttrs(separation, wavePosition, wave = waves.top) {
 }
 
 function setSineWaveAmplitude(output) {
-    amplitude = getAmplitude(output);
+    // convert negative decibels to positive; take reciprocal
+    const convertedOutput = (-1 * output);
+
+    const min = 1;
+    const max = 3;
+    const amplitudeScale = UI.getLogScaledValue(min, max, convertedOutput, 8);
+
+
+    amplitude = amplitudeScale * (currentSeparation) * (1 / convertedOutput);
+    
 }
 
-function getAmplitude(output, K = 20) {
-    // convert negative decibels to positive; take reciprocal
-    return K * (currentSeparation) * (1 / (output * -1));
+function getAmplitude() {
+    return amplitude;
+}
+
+function updateAmpQueue(newAmp) {
+    ampQueue.push(newAmp);
+    if (ampQueue.length > maxAmps) {
+        ampQueue.shift();
+    }
+}
+
+function getAverageAmplitude() {
+    if (ampQueue.length === 0) {
+        return 0;
+    }
+
+    return ampQueue.reduce((a, b) => {
+        return a + b;
+    }, 0) / ampQueue.length;
 }
 
 
@@ -125,12 +153,13 @@ function animateParticles(levels, count = 0) {
                 // animate y_position based on corresponding level
                 const y_pos = vectors[location].y;
 
+                const avgAmp = getAverageAmplitude();
                 positionArray[positionIndex + 1] = y_pos +
-                                                    ( amplitude * Math.sin((ix + count))) +
-                                                    ( amplitude * Math.sin((iy + count)));
-                
-                // scale particle based on corresponding level         
-                scaleArray[particleIndex] = 2 + (20 * level);
+                                                    ( avgAmp * (10 * level) * Math.sin((ix + count))) +
+                                                    ( avgAmp * (10 * level) * Math.sin((iy + count)));
+
+                // scale particle based on corresponding level       
+                scaleArray[particleIndex] = 2 + (10 * level);
 
                 const lightness = 50 + 50 * level;
                 const color = new Color().setHSL(hue / 360, 1, lightness / 100);
@@ -164,4 +193,5 @@ export {
     setSineWaveAmplitude,
     getAmplitude,
     amplitude,
+    updateAmpQueue,
 }

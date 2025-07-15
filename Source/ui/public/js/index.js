@@ -16,12 +16,14 @@ const undoRedoCtrl = Juce.getNativeFunction("webUndoRedo");
 const freezeColor = new Animated.threeColor(COLORS.freezeColor);
 let leftAxis, rightAxis;
 let currentOutput, currentSize, currentMix, currentWidth, currentDamp;
-let lifeScale;
+let lifeScale, speedScale;
 let countForParticles = 0;
 
 let roomSizeThrottleHandler, mixThrottleHandler, widthThrottleHandler,
     freezeThrottleHandler, levelsThrottleHandler, outputThrottleHandler;
-const THROTTLE_TIME = 100;
+// aiming for ~30 FPS. 1000 ms / 30 fps = 33.3333
+const THROTTLE_TIME = 33;
+const SLOW_THROTTLE_TIME = THROTTLE_TIME * 3;
 const DEFAULT_STEP_VALUE = 0.01;
 
 const bypassAndMono = {
@@ -81,10 +83,8 @@ function setupBackendEventListeners() {
         fetch(Juce.getBackendResourceAddress("outputLevel.json"))
             .then((response) => response.json())
             .then((outputLevelData) => {
-                if (currentOutput != outputLevelData.left) {
-                    outputThrottleHandler(outputLevelData.left);
-                }
-                currentOutput = outputLevelData.left;
+                //setCurrentOutput(outputLevelData.left);
+                outputThrottleHandler(outputLevelData.left);
             })
             .catch(console.error);
     });
@@ -97,7 +97,8 @@ function setupBackendEventListeners() {
                 if (currentSize != roomSizeData.roomSize) {
                     roomSizeThrottleHandler(roomSizeData.roomSize);
                 }
-                currentSize = roomSizeData.roomSize;
+                setCurrentSize(roomSizeData.roomSize);
+                //currentSize = roomSizeData.roomSize;
             })
             .catch(console.error);
     });
@@ -149,15 +150,42 @@ function setupBackendEventListeners() {
     })
 }
 
+function onLevelsChange(levels) {
+    // send updated magnitudes to particle animation function
+    particleWave.animateParticles(levels.slice(1, levels.length), countForParticles += 0.1);
+    
+}
+
 function onOutputChange(output) {
 
+    setCurrentOutput(output);
+
+    const isLoudOutput = getCurrentOutput() > -12;
+    const isMinOutput = getCurrentOutput() <= -60;
+
     particleWave.setSineWaveAmplitude(output);
-    const force = particleWave.getAmplitude(output, 8);
+    const amplitude = particleWave.getAmplitude();
+    particleWave.updateAmpQueue(amplitude);
 
     const minSpeed = 20;
-    const maxSpeed = 60;
-    const speedFactor = particleWave.getAmplitude(output, 4);
-    const speedScale = minSpeed + (maxSpeed - minSpeed) * speedFactor
+    const maxSpeed = 80;
+    let speedMultiplier = isLoudOutput ? amplitude * 0.2 : amplitude * 0.8;
+    setSpeedScale(getLinearScaledValue(minSpeed, maxSpeed, speedMultiplier));
+
+    const minLife = 2;
+    const maxLife = 8;
+    const rmSize = getCurrentSize();
+    let lifeMultiplier = rmSize;
+
+    lifeMultiplier = isLoudOutput ? lifeMultiplier * 0.5 : lifeMultiplier;
+
+    if (isMinOutput) {
+        setLifeScale(0.6); 
+    } else {
+        setLifeScale(getLinearScaledValue(minLife, maxLife, lifeMultiplier));
+    }
+
+   
     Animated.nebula.emitters.forEach((emitter, emitterIndex) => {
         emitter.damping = (
             output > currentOutput
@@ -176,10 +204,15 @@ function onOutputChange(output) {
             }
         ));
 
-        const forceZ = force;
+        const forceZ = speedMultiplier;
+        const forceY = speedMultiplier * 0.5;
+        const forceX = speedMultiplier * 0.01;
+        const colors = COLORS.spriteColors;
+        const colorSpan = new Animated.ColorSpan(colors);
         emitter.setBehaviours(Animated.getStandardBehaviours(
             {
-                force: { fz: forceZ },
+                force: { fx: forceX, fy: forceY, fz: forceZ },
+                color: { colorA: colorSpan, colorB: colorSpan },
                 //collision: { onCollide: Animated.collideFunction(emitter)}
             }
         ));
@@ -189,6 +222,7 @@ function onOutputChange(output) {
 }
 
 function onRoomSizeChange(roomSizeValue) {
+    setCurrentSize(roomSizeValue);
     const floor = 8;
     const separationScaleFactor = floor + (particleWave.currentSeparation * roomSizeValue);
 
@@ -203,9 +237,8 @@ function onRoomSizeChange(roomSizeValue) {
     Animated.surroundingCube.scale.multiplyScalar(scale);
     Animated.surroundingCube.userData.scale = Animated.surroundingCube.scale;
 
-    const minLife = 1.2;
-    const maxLife = 6.2;
-    lifeScale = minLife + (maxLife - minLife) * roomSizeValue;
+    
+    
     Animated.nebula.emitters.forEach((emitter, emitterIndex) => {
         emitter.setInitializers(Animated.getStandardInitializers(
             {
@@ -213,22 +246,17 @@ function onRoomSizeChange(roomSizeValue) {
                 radialVelocity: {
                     axis: emitterIndex < 2
                         ? (leftAxis ?? Animated.leftEmitterRadVelocityAxis())
-                        : (rightAxis ?? Animated.rightEmitterRadVelocityAxis())
-                }
+                        : (rightAxis ?? Animated.rightEmitterRadVelocityAxis()),
+                    speed: speedScale,
+                },
             }
         ))
-    });
-
-    // set life here so no jumps in life on width change when room size doesn't change.
-    setLife(lifeScale);
+    });    
 }
 
 function onMixChange(mixValue) {
-    Animated.spheres.forEach((sphere) => {
-        const scale = Animated.sphereRadius + (mixValue * 4);
-        sphere.scale.copy(sphere.userData.originalScale);
-        sphere.scale.multiplyScalar(scale);
-    });
+    const scaleFactor = 4;
+    scaleAnchorSpheres(mixValue, scaleFactor);
 }
 
 function onWidthChange(widthValue) {
@@ -236,52 +264,86 @@ function onWidthChange(widthValue) {
     const leftMax = -600;
     const rightMin = -150;
     const rightMax = 600;
+
     // using log for less sensitive scale slider
-    const logOfWidthFactor = Math.log(widthValue + 1) / Math.log(5);
-    const leftAxisScale = leftMin + (leftMax - leftMin) * logOfWidthFactor;
-    const rightAxisScale = rightMin + (rightMax - rightMin) * logOfWidthFactor;
-    const lAxis = new Animated.Vector3D(leftAxisScale, 0, 10);
-    const rAxis = new Animated.Vector3D(rightAxisScale, 0, 10);
+    const leftAxisScale = getLogScaledValue(leftMin, leftMax, widthValue, 8);
+    const rightAxisScale = getLogScaledValue(rightMin, rightMax, widthValue, 8);
+
+    setLeftAxis(new Animated.Vector3D(leftAxisScale, 0, 10));
+    setRightAxis(new Animated.Vector3D(rightAxisScale, 0, 10));
+
     Animated.nebula.emitters.forEach((emitter, emitterIndex) => {
         emitter.setInitializers(Animated.getStandardInitializers(
             {
                 life: lifeScale,
                 radialVelocity: {
                     axis: emitterIndex < 2
-                        ? (lAxis ?? Animated.leftEmitterRadVelocityAxis())
-                        : (rAxis ?? Animated.rightEmitterRadVelocityAxis())
-                }
+                        ? (leftAxis ?? Animated.leftEmitterRadVelocityAxis())
+                        : (rightAxis ?? Animated.rightEmitterRadVelocityAxis()),
+                    speed: speedScale,
+                },
             }
-        ))
+        ));
     });
+}
 
-    setLAxis(lAxis);
-    setRAxis(rAxis);
+function setLeftAxis(axis) { leftAxis = axis }
+function setRightAxis(axis) { rightAxis = axis; }
+
+function setLifeScale(lScale) { lifeScale = lScale; }
+
+function setSpeedScale(spScale) { speedScale = spScale; }
+
+function onFreezeChange(frozen) {
+    freezeAnchorSpheres(frozen);
 }
 
 
-function onFreezeChange(frozen) {
+function setCurrentOutput(outputLevel) {
+    currentOutput = outputLevel;
+}
+
+function getCurrentOutput() {
+    return currentOutput;
+}
+
+function setCurrentSize(rmSize) {
+    currentSize = rmSize;
+}
+
+function getCurrentSize() {
+    return currentSize;
+}
+
+function getLinearScaledValue(minValue, maxValue, paramValue) {
+    return minValue + (maxValue - minValue) * paramValue;
+}
+
+function getLogScaledValue(minValue, maxValue, paramValue, logBase) {
+    const logScale = Math.log(paramValue + 1) / Math.log(logBase);
+    return minValue + (maxValue - minValue) * logScale;
+}
+
+function scaleSurroundingCube(scale) {
+    Animated.surroundingCube.scale.copy(Animated.surroundingCube.userData.originalScale);
+    Animated.surroundingCube.scale.multiplyScalar(scale);
+    Animated.surroundingCube.userData.scale = Animated.surroundingCube.scale;
+}
+
+function scaleAnchorSpheres(mixValue, scaleFactor) {
+    Animated.spheres.forEach((sphere) => {
+        const sphereSize = Animated.sphereRadius + (mixValue * scaleFactor);
+        sphere.scale.copy(sphere.userData.originalScale);
+        sphere.scale.multiplyScalar(sphereSize);
+    });
+}
+
+function freezeAnchorSpheres(frozen) {
     Animated.spheres.forEach((sphere) => {
         frozen ?
             sphere.material.color.copy(freezeColor) :
             sphere.material.color.copy(sphere.userData.color);
     });
-}
-
-function onLevelsChange(levels) {
-    // send updated magnitudes to particle animation function
-    particleWave.animateParticles(levels.slice(1, levels.length), countForParticles += 0.1);
-}
-
-function setLAxis(axis) {
-    leftAxis = axis
-}
-function setRAxis(axis) {
-    rightAxis = axis;
-}
-
-function setLife(lScale) {
-    lifeScale = lScale;
 }
 
 function setUserData() {
@@ -321,28 +383,28 @@ function throttle(func, delay) {
 function initThrottleHandlers() {
     roomSizeThrottleHandler = throttle((roomSizeValue) => {
         onRoomSizeChange(roomSizeValue);
-    }, THROTTLE_TIME);
+    }, SLOW_THROTTLE_TIME);
 
     mixThrottleHandler = throttle((mixValue) => {
         onMixChange(mixValue);
-    }, THROTTLE_TIME);
+    }, SLOW_THROTTLE_TIME);
 
     widthThrottleHandler = throttle((widthValue) => {
         onWidthChange(widthValue);
-    }, THROTTLE_TIME);
+    }, SLOW_THROTTLE_TIME);
 
     // TODO: place here dampThrottleHandler
 
     freezeThrottleHandler = throttle((frozen) => {
         onFreezeChange(frozen);
-    }, THROTTLE_TIME * 2);
+    }, SLOW_THROTTLE_TIME);
 
     levelsThrottleHandler = throttle((levels) => {
         onLevelsChange(levels);
-    }, THROTTLE_TIME * 0.2);
+    }, THROTTLE_TIME);
     outputThrottleHandler = throttle((output) => {
         onOutputChange(output);
-    }, THROTTLE_TIME * 0.2);
+    }, THROTTLE_TIME);
 }
 
 function setupDOMEventListeners() {
@@ -429,4 +491,7 @@ function setFreezeLabelColor(checked, label) {
 export {
     freeze,
     bypassAndMono,
+    getLinearScaledValue,
+    getLogScaledValue,
+    throttle,
 }

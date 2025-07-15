@@ -19,6 +19,7 @@ import ParticleSystem, {
     Collision,
     Force,
     Gravity,
+    ColorSpan,
 } from 'three-nebula';
 
 import * as UI from './index.js';
@@ -317,10 +318,10 @@ function configNebula() {
 
 function createNebulaEmitters() {
     nebula.emitters = [];
-    nebula.emitterLeft0 = createEmitter(COLORS.darkGreen, COLORS.skyBlue);
-    nebula.emitterLeft1 = createEmitter(COLORS.skyBlue, COLORS.darkGreen);
-    nebula.emitterRight0 = createEmitter(COLORS.darkBlue, COLORS.grayGreen, { radialVelocity: { axis: new Vector3D(200, 0, 10) } });
-    nebula.emitterRight1 = createEmitter(COLORS.grayGreen, COLORS.darkBlue, { radialVelocity: { axis: new Vector3D(200, 0, 10) } });
+    nebula.emitterLeft0 = createEmitter();
+    nebula.emitterLeft1 = createEmitter();
+    nebula.emitterRight0 = createEmitter( { radialVelocity: { axis: new Vector3D(200, 0, 10) } });
+    nebula.emitterRight1 = createEmitter( { radialVelocity: { axis: new Vector3D(200, 0, 10) } });
 
     nebula.emitterLeft0.position.set(-20, 70, 0);
     nebula.emitterLeft1.position.set(-20, 70, 0);
@@ -347,13 +348,8 @@ function animateNebulaEmitterPositions(theta, emitterRadius) {
 
 function createEmitter(colorA, colorB, options = {}) {
     const emitter = new Emitter()
-        .setRate(new Rate(new Span(3, 6), new Span(0.1, 0.3)))
+        .setRate(new Rate(new Span(3, 6), 0.18))
         .setInitializers(getStandardInitializers(options))
-    emitter.setBehaviours(
-            getStandardBehaviours(
-                { color: { colorA: colorA, colorB: colorB } }),
-                emitter
-    );
     emitter.damping = 0.06;
     return emitter;
 }
@@ -363,11 +359,11 @@ function getStandardInitializers(options = {}) {
         new Mass(options.mass ?? new Span(2, 4), new Span(20, 40)),
         new Life(options.life ?? 1.2),
         new Body(nebula.sprite),
-        new Radius(options.radius ?? 40),
+        new Radius(options.radius ?? 24),
         new RadialVelocity(
             options.radialVelocity?.speed ?? new Span(20, 100),
             options.radialVelocity?.axis ?? leftEmitterRadVelocityAxis(),
-            options.radialVelocity?.theta ?? 32,
+            options.radialVelocity?.theta ?? 24,
         )
     ]
 }
@@ -379,8 +375,8 @@ function getStandardBehaviours(options = {}, emitter) {
             options.alpha?.alphaB ?? 0,
         ),
         new Color(
-            options.color?.colorA ?? COLORS.darkGreen,
-            options.color?.colorB ?? COLORS.skyBlue
+            options.color?.colorA ?? new ColorSpan(COLORS.spriteColors),
+            options.color?.colorB ?? new ColorSpan(COLORS.spriteColors)
         ),
         new Scale(
             options.scale?.scaleA ?? 1,
@@ -392,8 +388,8 @@ function getStandardBehaviours(options = {}, emitter) {
         ),
         new Force(
             options.force?.fx ?? 0.2,
-            options.force?.fy ?? 2.8,
-            options.force?.fz ?? 1.2,
+            options.force?.fy ?? 0.2,
+            options.force?.fz ?? 0.2,
         ),
     ]
 }
@@ -408,14 +404,15 @@ function collideFunction(emitter) {
             const cubeFrontFaceZ = (surroundingCube.position.z + (cubeHalfDepth * cubeScaleZ));
             const cubeBackFaceZ = (surroundingCube.position.z - (cubeHalfDepth * cubeScaleZ));
 
-            emitter.particles.forEach((particle) => {
+            emitter.particles.forEach((particle, index) => {
                 const forceBehaviour = particle.behaviours.find((behaviour) => {
                     return behaviour.type === "Force";
                 });
-                if (particle.position.z >= cubeFrontFaceZ - 60) {
-                    particle.velocity.z *= -1;
-                    forceBehaviour.force.z *= -1;
-                    emitter.userData.forceZ = forceBehaviour.force.z;
+
+                if (particle.position.z >= cubeFrontFaceZ - 20) {
+                    particle.velocity.z *= (-1.0 + Math.sin(Math.random() + index))
+                    particle.velocity.y *= (1.0 + Math.sin(Math.random() + index))
+                    forceBehaviour.force.z *= (-1.0 + Math.sin(Math.random() + index));
                 }
                 
             });
@@ -454,17 +451,12 @@ function handleBypassOrFreezeChecked(time) {
     }
 }
 
-function rotateBigSphere(time) {
-    const bigSphereRotationSpeed = 0.15;
-    const rotation = time * bigSphereRotationSpeed;
-    bigSphere.rotation.y = rotation;
-}
-
 export {
     animate,
     nebula,
     Vector3D,
     Force,
+    ColorSpan,
     scene,
     environmentMap,
     camera,

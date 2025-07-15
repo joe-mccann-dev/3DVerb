@@ -12,6 +12,14 @@ const darkGreen = '#1f2300';
 const skyBlue = '#3f4569';
 const darkBlue = '#23244b';
 const grayGreen = '#4e5050';
+
+const neonGreen = '#4aff00';
+const cyan = '#5bc0ff';   
+const indigo = '#4c5cff';  
+const mint = '#88ffcc'; 
+
+const spriteColors = [neonGreen, cyan, indigo, mint];
+
 // UI Colors
 const freezeColorHash = '#60A5FA';
 const lightBlueUI = '#BFDBFE';
@@ -36,5 +44,6 @@ export {
     freezeColorHash,
     lightBlueUI,
     sphereColorUI,
-    roomFrameColorUI
+    roomFrameColorUI,
+    spriteColors,
 }
