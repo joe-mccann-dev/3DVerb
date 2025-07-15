@@ -160,32 +160,36 @@ function onOutputChange(output) {
 
     setCurrentOutput(output);
 
-    const isLoudOutput = getCurrentOutput() > -12;
     const isMinOutput = getCurrentOutput() <= -60;
+    const isLoudOutput = getCurrentOutput() > -12;
+    
+
+    // sine wave too big when passing audio mastered at modern levels
+    // inverse nature of output means multiplying output decreases amplitude in setSineWaveAmplitude()
+    if (isLoudOutput) { output = output * 4 }
 
     particleWave.setSineWaveAmplitude(output);
-    const amplitude = particleWave.getAmplitude();
+    let amplitude = particleWave.getAmplitude();
     particleWave.updateAmpQueue(amplitude);
+    amplitude = particleWave.getAverageAmplitude();
 
     const minSpeed = 20;
     const maxSpeed = 80;
-    let speedMultiplier = isLoudOutput ? amplitude * 0.2 : amplitude * 0.8;
-    setSpeedScale(getLinearScaledValue(minSpeed, maxSpeed, speedMultiplier));
-
-    const minLife = 2;
-    const maxLife = 8;
+    let speedMultiplier = amplitude;
+    
+    const minLife = 5;
+    const maxLife = 10;
     const rmSize = getCurrentSize();
     let lifeMultiplier = rmSize;
 
-    lifeMultiplier = isLoudOutput ? lifeMultiplier * 0.5 : lifeMultiplier;
-
     if (isMinOutput) {
-        setLifeScale(0.6); 
+        setLifeScale(0.2); 
+        setSpeedScale(0.2);
     } else {
         setLifeScale(getLinearScaledValue(minLife, maxLife, lifeMultiplier));
+        setSpeedScale(getLinearScaledValue(minSpeed, maxSpeed, speedMultiplier));
     }
 
-   
     Animated.nebula.emitters.forEach((emitter, emitterIndex) => {
         emitter.damping = (
             output > currentOutput
@@ -204,9 +208,10 @@ function onOutputChange(output) {
             }
         ));
 
-        const forceZ = speedMultiplier;
-        const forceY = speedMultiplier * 0.5;
-        const forceX = speedMultiplier * 0.01;
+        const baseForce = (8 + rmSize) * Math.log(1 + speedScale);
+        const forceZ = baseForce;
+        const forceY = baseForce * 0.2;
+        const forceX = emitterIndex < 2 ? (-1 * baseForce * 0.15) : (baseForce * 0.15);
         const colors = COLORS.spriteColors;
         const colorSpan = new Animated.ColorSpan(colors);
         emitter.setBehaviours(Animated.getStandardBehaviours(
@@ -223,7 +228,7 @@ function onOutputChange(output) {
 
 function onRoomSizeChange(roomSizeValue) {
     setCurrentSize(roomSizeValue);
-    const floor = 8;
+    const floor = 12;
     const separationScaleFactor = floor + (particleWave.currentSeparation * roomSizeValue);
 
     for (const location in particleWave.waves) {

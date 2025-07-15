@@ -93,8 +93,8 @@ function setSineWaveAmplitude(output) {
     const convertedOutput = (-1 * output);
 
     const min = 1;
-    const max = 3;
-    const amplitudeScale = UI.getLogScaledValue(min, max, convertedOutput, 8);
+    const max = 6;
+    const amplitudeScale = UI.getLogScaledValue(min, max, convertedOutput, 5);
 
 
     amplitude = amplitudeScale * (currentSeparation) * (1 / convertedOutput);
@@ -154,12 +154,14 @@ function animateParticles(levels, count = 0) {
                 const y_pos = vectors[location].y;
 
                 const avgAmp = getAverageAmplitude();
+                const positionMultiplier = (10 * level)
                 positionArray[positionIndex + 1] = y_pos +
-                                                    ( avgAmp * (10 * level) * Math.sin((ix + count))) +
-                                                    ( avgAmp * (10 * level) * Math.sin((iy + count)));
+                                                    ( avgAmp * positionMultiplier * Math.sin((ix + count))) +
+                                                    ( avgAmp * positionMultiplier * Math.sin((iy + count)));
 
-                // scale particle based on corresponding level       
-                scaleArray[particleIndex] = 2 + (10 * level);
+                // scale particle based on corresponding level 
+                const scaleMultiplier = (40 * level)
+                scaleArray[particleIndex] = 2 + scaleMultiplier;
 
                 const lightness = 50 + 50 * level;
                 const color = new Color().setHSL(hue / 360, 1, lightness / 100);
@@ -194,4 +196,5 @@ export {
     getAmplitude,
     amplitude,
     updateAmpQueue,
+    getAverageAmplitude,
 }

@@ -348,7 +348,7 @@ function animateNebulaEmitterPositions(theta, emitterRadius) {
 
 function createEmitter(colorA, colorB, options = {}) {
     const emitter = new Emitter()
-        .setRate(new Rate(new Span(3, 6), 0.18))
+        .setRate(new Rate(new Span(2, 4), 0.18))
         .setInitializers(getStandardInitializers(options))
     emitter.damping = 0.06;
     return emitter;
@@ -359,7 +359,7 @@ function getStandardInitializers(options = {}) {
         new Mass(options.mass ?? new Span(2, 4), new Span(20, 40)),
         new Life(options.life ?? 1.2),
         new Body(nebula.sprite),
-        new Radius(options.radius ?? 24),
+        new Radius(options.radius ?? 32),
         new RadialVelocity(
             options.radialVelocity?.speed ?? new Span(20, 100),
             options.radialVelocity?.axis ?? leftEmitterRadVelocityAxis(),
