@@ -4,7 +4,7 @@ import * as UI from './index.js';
 import {environmentMap, camera } from './animated.js'
 
 const SEPARATION = 30, AMOUNTX = 32, AMOUNTY = 16;
-const WAVE_X_POS = 50, WAVE_Y_POS = 200, WAVE_Z_POS = 50;
+const WAVE_X_POS = 50, WAVE_Y_POS = 240, WAVE_Z_POS = 50;
 const WAVE_Y_POS_BOTTOM = -80;
 
 const waves = {};
@@ -61,8 +61,7 @@ function createBuffGeometry(positions, scales, colors) {
 }
 
 function setInitialValuesForAttrs(separation, wavePosition, wave = waves.top) {
-    currentSeparation = separation;
-    console.log("separation: ", separation);
+    setCurrentSeparation(separation);
     let i = 0, j = 0;
 
     for (let ix = 0; ix < AMOUNTX; ix++) {
@@ -85,6 +84,10 @@ function setInitialValuesForAttrs(separation, wavePosition, wave = waves.top) {
             j++;
         }
     }
+}
+
+function setCurrentSeparation(newSeparation) {
+    currentSeparation = newSeparation;
 }
 
 function setSineWaveAmplitude(output) {
@@ -187,6 +190,7 @@ export {
     animateParticles,
     setInitialValuesForAttrs,
     SEPARATION,
+    setCurrentSeparation,
     setSineWaveAmplitude,
     getAmplitude,
     amplitude,

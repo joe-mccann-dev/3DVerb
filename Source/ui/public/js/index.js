@@ -166,7 +166,7 @@ function onOutputChange(output) {
 
     // sine wave too big when passing audio mastered at modern levels
     // inverse nature of output means multiplying output decreases amplitude in setSineWaveAmplitude()
-    if (isLoudOutput) { output = output * 8 }
+    if (isLoudOutput) { output = output * 6 }
 
     particleWave.setSineWaveAmplitude(output);
     let amplitude = particleWave.getAmplitude();
@@ -178,7 +178,7 @@ function onOutputChange(output) {
     let speedMultiplier = amplitude;
     
     const minLife = 5;
-    const maxLife = 10;
+    const maxLife = 50;
     const rmSize = getCurrentSize();
     let lifeMultiplier = rmSize;
 
@@ -208,7 +208,8 @@ function onOutputChange(output) {
             }
         ));
 
-        const baseForce = (8 + rmSize) * Math.log(1 + speedScale);
+        const baseForceFloor = 8;
+        const baseForce = (baseForceFloor + rmSize) * Math.log(1 + speedScale);
         const forceZ = baseForce;
         const forceY = baseForce * 0.2;
         const logMultiplierX = getLogScaledValue(baseForce * 0.01, baseForce * 0.05, rmSize, 2)

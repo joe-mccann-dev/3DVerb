@@ -381,25 +381,41 @@ function getStandardBehaviours(options = {}, emitter) {
             options.scale?.scaleA ?? 1,
             options.scale?.scaleB ?? 0.5
         ),
-        new Collision(
-            options.collision?.emitter ?? emitter,
-            options.collision?.useMass ?? true,
-        ),
+        //new Collision(
+        //    options.collision?.emitter ?? emitter,
+        //    options.collision?.useMass ?? true,
+        //),
         new Force(
             options.force?.fx ?? 0.2,
             options.force?.fy ?? 0.2,
             options.force?.fz ?? 0.2,
         ),
+        new Gravity(
+           4.2
+        )
     ]
 }
 
 function collideFunction(emitter) {
     if (emitter) {
-        const cubeHalfDepth = cubeDepth / 2;
+        const cubeHalfDepth = cubeDepth * 0.5;
+        const cubeHalfHeight = cubeHeight * 0.5;
+        const cubeHalfWidth = cubeWidth * 0.5;
+
         const cubeScaleVector3 = surroundingCube.userData.scale;
+        const reflectionBuffer = 75;
 
         if (cubeScaleVector3) {
             const cubeScaleZ = cubeScaleVector3.z;
+            const cubeScaleY = cubeScaleVector3.y;
+            const cubeScaleX = cubeScaleVector3.x;
+
+            const cubeLeftFaceX = (surroundingCube.position.x) - (cubeHalfWidth * cubeScaleX);
+            const cubeRightFaceX = (surroundingCube.position.x) + (cubeHalfWidth * cubeScaleX)
+
+            const cubeTopFaceY = (surroundingCube.position.y + (cubeHalfHeight * cubeScaleY));
+            const cubeBottomFaceY = (surroundingCube.position.y - (cubeHalfHeight * cubeScaleY));
+
             const cubeFrontFaceZ = (surroundingCube.position.z + (cubeHalfDepth * cubeScaleZ));
             const cubeBackFaceZ = (surroundingCube.position.z - (cubeHalfDepth * cubeScaleZ));
 
@@ -408,15 +424,52 @@ function collideFunction(emitter) {
                     return behaviour.type === "Force";
                 });
 
-                if (particle.position.z >= cubeFrontFaceZ - 20) {
-                    particle.velocity.z *= (-1.0 + Math.sin(Math.random() + index))
-                    particle.velocity.y *= (1.0 + Math.sin(Math.random() + index))
-                    forceBehaviour.force.z *= (-1.0 + Math.sin(Math.random() + index));
+                //const gravityBehaviour = particle.behaviours.find((behaviour) => {
+                //    return behaviour.type === "Gravity";
+                //})
+
+                if (particle.position.z >= cubeFrontFaceZ - reflectionBuffer) {
+                    particle.velocity.z *= reverseVelocityFactor(index);
+                    forceBehaviour.force.z *= reverseForceFactor(index);
                 }
-                
+
+                if (particle.position.z <= cubeBackFaceZ + reflectionBuffer) {
+                    particle.velocity.z *= reverseVelocityFactor(index);  
+                    forceBehaviour.force.z *= reverseForceFactor(index);
+                }
+
+                if (particle.position.y >= cubeTopFaceY - reflectionBuffer) {
+                    particle.velocity.y *= reverseVelocityFactor(index);
+                    forceBehaviour.force.y *= reverseForceFactor(index);
+                    gravityBehaviour.gravity *= 2;
+                }
+
+                if (particle.position.y <= cubeBottomFaceY + reflectionBuffer) {
+                    particle.velocity.y *= reverseVelocityFactor(index);
+                    forceBehaviour.force.y *= reverseForceFactor(index);
+                }
+
+                if (particle.position.x <= cubeLeftFaceX + reflectionBuffer) {
+                    particle.velocity.x *= reverseVelocityFactor(index, 200);
+                    forceBehaviour.x *= reverseForceFactor(index, 200);
+                }
+
+                if (particle.position.x >= cubeRightFaceX - reflectionBuffer) {
+                    particle.velocity.x *= reverseVelocityFactor(index, 200);
+                    forceBehaviour.x *= reverseForceFactor(index, 200);
+                }
             });
         }
     }
+}
+
+function reverseVelocityFactor(particleIndex, multiplier = 1) {
+    //(-1.0 + Math.sin(Math.random() + particleIndex))
+    return (-1.0) * multiplier;
+}
+
+function reverseForceFactor(particleIndex, multiplier = 1) {
+    return (-1.0) * multiplier;
 }
 
 function leftEmitterRadVelocityAxis() {
