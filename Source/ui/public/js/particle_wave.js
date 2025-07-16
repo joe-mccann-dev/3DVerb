@@ -4,7 +4,7 @@ import * as UI from './index.js';
 import {environmentMap, camera } from './animated.js'
 
 const SEPARATION = 30, AMOUNTX = 32, AMOUNTY = 16;
-const WAVE_X_POS = 50, WAVE_Y_POS = 240, WAVE_Z_POS = 50;
+const WAVE_X_POS = 50, WAVE_Y_POS = 200, WAVE_Z_POS = 50;
 const WAVE_Y_POS_BOTTOM = -80;
 
 const waves = {};
@@ -24,7 +24,7 @@ function setupParticles() {
     const shaderMaterial = new ShaderMaterial({
         uniforms: {
             color: { value: new Color(COLORS.particleColor) },
-            size: { value: 2.5 },
+            size: { value: 1.2 },
             envMap: { value: environmentMap },
             cameraPosition: { value: camera.position }
         },
@@ -45,8 +45,8 @@ function setupParticles() {
     vectors.top = new Vector3(WAVE_X_POS, WAVE_Y_POS, WAVE_Z_POS);
     vectors.bottom = new Vector3(WAVE_X_POS, WAVE_Y_POS_BOTTOM, WAVE_Z_POS);
 
-    setInitialValuesForAttrs(currentSeparation, vectors.top, waves.top);
-    setInitialValuesForAttrs(currentSeparation, vectors.bottom, waves.bottom);
+    setInitialValuesForAttrs(SEPARATION, vectors.top, waves.top);
+    setInitialValuesForAttrs(SEPARATION, vectors.bottom, waves.bottom);
 
     return waves;
 }
@@ -62,7 +62,7 @@ function createBuffGeometry(positions, scales, colors) {
 
 function setInitialValuesForAttrs(separation, wavePosition, wave = waves.top) {
     currentSeparation = separation;
-
+    console.log("separation: ", separation);
     let i = 0, j = 0;
 
     for (let ix = 0; ix < AMOUNTX; ix++) {
@@ -71,9 +71,9 @@ function setInitialValuesForAttrs(separation, wavePosition, wave = waves.top) {
             const colorArray = wave.geometry.attributes.color.array;
             const scaleArray = wave.geometry.attributes.scale.array;
 
-            positionArray[i] = wavePosition.x + ix * currentSeparation - ((AMOUNTX * currentSeparation) / 2); // x
+            positionArray[i] = wavePosition.x + ix * separation - ((AMOUNTX * separation) / 2); // x
             positionArray[i + 1] = wavePosition.y; // y
-            positionArray[i + 2] = wavePosition.z + iy * currentSeparation - ((AMOUNTY * currentSeparation) / 2); // z
+            positionArray[i + 2] = wavePosition.z + iy * separation - ((AMOUNTY * separation) / 2); // z
 
             colorArray[i] = 1;
             colorArray[i + 1] = 1;
@@ -83,7 +83,6 @@ function setInitialValuesForAttrs(separation, wavePosition, wave = waves.top) {
 
             i += 3;
             j++;
-
         }
     }
 }
@@ -91,14 +90,10 @@ function setInitialValuesForAttrs(separation, wavePosition, wave = waves.top) {
 function setSineWaveAmplitude(output) {
     // convert negative decibels to positive; take reciprocal
     const convertedOutput = (-1 * output);
-
     const min = 1;
     const max = 6;
     const amplitudeScale = UI.getLogScaledValue(min, max, convertedOutput, 5);
-
-
     amplitude = amplitudeScale * (currentSeparation) * (1 / convertedOutput);
-    
 }
 
 function getAmplitude() {
@@ -192,7 +187,6 @@ export {
     animateParticles,
     setInitialValuesForAttrs,
     SEPARATION,
-    currentSeparation,
     setSineWaveAmplitude,
     getAmplitude,
     amplitude,

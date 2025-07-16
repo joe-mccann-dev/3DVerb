@@ -41,8 +41,8 @@ const spheres = [];
 let sphereRadius;
 let surroundingCube;
 const cubeWidth = 1200;
-const cubeHeight = 800;
-const cubeDepth = 900;
+const cubeHeight = 1000;
+const cubeDepth = cubeHeight;
 
 const planes = [];
 const lines = [];
@@ -170,8 +170,8 @@ function addSurroundingCube() {
     const cubeWidthSegments = 20;
     const cubeHeightSegments = 20; 
     const cubeGeometry = new THREE.BoxGeometry(cubeWidth, cubeHeight, cubeDepth, cubeWidthSegments, cubeHeightSegments);
-    surroundingCube = makeSurroundingCube(cubeGeometry, new THREE.Vector3(50, 80, 50));
-    //addToSceneAndObjects(surroundingCube);
+    surroundingCube = makeSurroundingCube(cubeGeometry, new THREE.Vector3(50, 100, 50));
+    addToSceneAndObjects(surroundingCube);
 }
 
 function makeSurroundingCube(geometry, position) {
