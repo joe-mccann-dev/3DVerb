@@ -1,0 +1,153 @@
+:root {
+    --dark-gray: #111827;
+    --medium-light-gray: #9CA3AF;
+    --medium-dark-gray: #374151;
+    --light-gray: #E5E7EB;
+    --medium-amber: #FBBF24;
+    --medium-dark-amber: #B45309;
+    --sky-blue: #3f4569;
+    --dark-blue: #23244b;
+    --particle-color: #fafaf0;
+    --light-yellow: #e1e0b1;
+    --dark-green-black: #2d3022;
+}
+
+body {
+    background-image: linear-gradient(to right, var(--light-yellow), var(--dark-gray));
+    padding: 14px;
+    height: 100%;
+}
+
+main {
+    color: var(--dark-blue);
+    display: flex;
+    gap: 10px;
+    height: 92vh;
+    font-family: Baumans;
+    letter-spacing: 3px;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    border-bottom: solid 1px var(--medium-dark-gray);
+}
+
+.header .title {
+    letter-spacing: 12px;
+}
+
+.header .subtitle {
+    letter-spacing: 4px;
+}
+
+.productInfo {
+    color: var(--gray);
+    padding: 2px;
+    font-size: 12px;
+    height: 24px;
+    padding-bottom: 12px;
+}
+
+.bypassAndMono {
+    border-bottom: solid 1px var(--dark-gray);
+    padding: 20px 0;
+}
+
+.primaryParams {
+    border-bottom: solid 1px var(--dark-gray);
+    padding: 16px 0;
+}
+
+.slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 320px;
+    height: 16px;
+    background: var(--sky-blue);
+    outline: none;
+    opacity: 0.7; 
+    -webkit-transition: .3s; 
+    transition: opacity .3s;
+}
+
+.slider:hover {
+    opacity: 1;
+}
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none; 
+  appearance: none;
+  width: 24px;
+  height: 24px;
+  background: var(--light-yellow); 
+  cursor: pointer;
+}
+
+input.checkbox {
+    cursor: pointer;
+    width: 20px;
+    height: 20px;
+}
+
+input[type="checkbox"]:focus {
+    outline: 2px solid var(--sky-blue);
+    outline-offset: 2px;
+}
+
+.plugin {
+    width: 64%;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.labelAndParam {
+    display: flex;
+    justify-content: space-between;
+    gap: 4px;
+    margin-left: 12px;
+}
+
+.labelAndParam label {
+    font-weight: bold;
+}
+
+.freezeLabel {
+    cursor: pointer;
+    padding: 2px;
+}
+
+.freezeLabel label {
+    padding: 4px 0;
+}
+
+.sliderValue {
+    font-size: 16px;
+    color: var(--dark-green-black);
+    margin-left: 2px;
+}
+
+.undoRedo {
+    height: 40px;
+    padding: 24px 0;
+}
+
+.undoRedo button {
+    padding: 6px;
+    font-family: Baumans;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.visualizer {
+    width: 100%;
+    height: 100%;
+    padding: 0 20px;
+}
+
+canvas {
+
+}

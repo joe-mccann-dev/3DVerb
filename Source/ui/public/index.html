@@ -4,45 +4,146 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script type="importmap">
-        {
-          "imports": {
-            "three": "/node_modules/three/build/three.module.js",
-            "three/examples/jsm/loaders/GLTFLoader": "/node_modules/three/examples/jsm/loaders/GLTFLoader.js"
-          }
-        }
-    </script>
-    <script type="module" src="index.js"></script>
-    <title>Reverbulizer</title>
+    <script type="module" src="js/index.js"></script>
+    <title>3DVerb</title>
     <link rel="icon" type="image/x-icon" href="/assets/favicon.ico">
+    <link rel="stylesheet" href="index.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Baumans&display=swap" rel="stylesheet">
 </head>
 
-<body style="background-color: #333">
-    <main style="color: #eee">
-        <h1>Reverbulizer Plugin</h1>
-        <table id="productInfo">
-            <thead>
-                <tr>
-                    <td>Property</td>
-                    <td>Value</td>
-                </tr>
-            </thead>
-            <tr>
-                <td>Vendor</td>
-                <td id="pluginVendor"></td>
-            </tr>
-            <tr>
-                <td>Plugin name</td>
-                <td id="pluginName"></td>
-            </tr>
-            <tr>
-                <td>Plugin version</td>
-                <td id="pluginVersion"></td>
-            </tr>
-        </table>
-        <button id="nativeFunctionButton">Call a C++ function</button>
-        <button id="emitEventButton">Emit a frontend event</button>
+<body>
+    <main id="main">
+        <div class="plugin">
+            <div class="header">
+                <div>
+                    <h1 class="title">3DVerb</h1>
+                    <h5 class="subtitle">Visualize reverb in three dimensions.</h5>
+                    <!--<table class="productInfo" id="productInfo">
+                        <tr>
+                            <td>version</td>
+                            <td id="pluginVersion">version</td>
+                        </tr>
+                        <tr>
+                            <td>by</td>
+                            <td id="pluginVendor"></td>
+                        </tr>
+                    </table>-->
+                </div>
+
+
+            </div>
+
+            <div class="bypassAndMono">
+                <div class="labelAndParam">
+                    <label for="bypassCheckbox">bypass</label>
+                    <input class="checkbox" type="checkbox" id="bypassCheckbox" />
+
+                    <label for="monoCheckbox">mono input</label>
+                    <input class="checkbox" type="checkbox" id="monoCheckbox" />
+                </div>
+            </div>
+
+            <div class="primaryParams">
+                <div class="labelAndParam">
+                    <div class="sliderLabelAndValue">
+                        <label for="gainSlider">gain</label>
+                        <p class="sliderValue" id="gainSliderValue"></p>
+                    </div>
+
+                    <input class="slider" type="range" id="gainSlider">
+                </div>
+
+                <div class="labelAndParam">
+                    <div class="sliderLabelAndValue">
+                        <label for="roomSizeSlider">room size</label>
+                        <p class="sliderValue" id="roomSizeSliderValue"></p>
+                    </div>
+                    <input class="slider" type="range" id="roomSizeSlider">
+                </div>
+
+                <div class="labelAndParam">
+                    <div class="sliderLabelAndValue">
+                        <label for="mixSlider">mix</label>
+                        <p class="sliderValue" id="mixSliderValue"></p>
+                    </div>
+                    <input class="slider" type="range" id="mixSlider">
+                </div>
+
+                <div class="labelAndParam">
+                    <div class="sliderLabelAndValue">
+                        <label for="widthSlider">width</label>
+                        <p class="sliderValue" id="widthSliderValue"></p>
+                    </div>
+                    <input class="slider" type="range" id="widthSlider">
+                </div>
+
+                <div class="labelAndParam">
+                    <div class="sliderLabelAndValue">
+                        <label for="dampSlider">damp</label>
+                        <p class="sliderValue" id="dampSliderValue"></p>
+                    </div>
+                    <input class="slider" type="range" orient='circular' id="dampSlider">
+                </div>
+
+                <div class="labelAndParam freezeLabel">
+                    <label for="freezeCheckbox" id="freezeLabel" class="freezeLabel">freeze</label>
+                    <input class="checkbox" type="checkbox" id="freezeCheckbox">
+                </div>
+
+            </div>
+
+
+            <div class="undoRedo">
+                <button id="undoButton">undo</button>
+                <button id="redoButton">redo</button>
+            </div>
+        </div>
+        <div class="visualizer" id="visualizer"></div>
     </main>
+    <script type="x-shader/x-vertex" id="vertexshader">
+
+        attribute float scale;
+        attribute vec3 color;
+
+        varying vec3 vColor;
+        varying vec3 vReflect;
+
+        uniform float size;
+
+        void main() {
+            vColor = color;
+            vec4 worldPosition = modelMatrix * vec4(position, 1.0);
+            vec3 worldNormal = normalize(position);
+            vec3 incidentVector = normalize(worldPosition.xyz - cameraPosition);
+            vReflect = reflect(incidentVector, worldNormal);
+
+            vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+            gl_PointSize = size * scale * ( 300.0 / - mvPosition.z );
+
+            gl_Position = projectionMatrix * mvPosition;
+
+        }
+
+    </script>
+
+    <script type="x-shader/x-fragment" id="fragmentshader">
+
+        varying vec3 vColor;
+        varying vec3 vReflect;
+        uniform samplerCube envMap;
+        void main() {
+
+            if ( length( gl_PointCoord - vec2( 0.5, 0.5 ) ) > 0.475 ) discard;
+
+            vec3 envColor = textureCube(envMap, vReflect).rgb;
+
+            gl_FragColor = vec4(mix(vColor, envColor, 0.5), 1.0);
+
+        }
+
+    </script>
 </body>
 
 </html>

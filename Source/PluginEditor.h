@@ -1,7 +1,7 @@
 /*
   ==============================================================================
 
-    This file contains the basic framework code for a JUCE plugin editor.
+	This file contains the basic framework code for a JUCE plugin editor.
 
   ==============================================================================
 */
@@ -17,37 +17,83 @@
 
 namespace webview_plugin
 {
-    class ReverbulizerAudioProcessorEditor : public juce::AudioProcessorEditor,
-        private juce::Timer
-    {
-    public:
-        ReverbulizerAudioProcessorEditor(ReverbulizerAudioProcessor&);
-        ~ReverbulizerAudioProcessorEditor() override;
+	class ReverbulizerAudioProcessorEditor : public juce::AudioProcessorEditor,
+		private juce::Timer
+	{
+	public:
+		ReverbulizerAudioProcessorEditor(ReverbulizerAudioProcessor&, juce::UndoManager& um);
+		~ReverbulizerAudioProcessorEditor() override;
 
-        //==============================================================================
-        //void paint(juce::Graphics&) override;
-        void resized() override;
+		//==============================================================================
+		//void paint(juce::Graphics&) override;
+		void resized() override;
 
-        void timerCallback() override;
+		void timerCallback() override;
 
-    private:
-        std::optional<juce::WebBrowserComponent::Resource> getResource(const juce::String& url);
+		bool keyPressed(const juce::KeyPress& k) override;
 
-        void nativeFunction(const juce::Array<juce::var>& args, 
-            juce::WebBrowserComponent::NativeFunctionCompletion completion);
-        // This reference is provided as a quick way for your editor to
-        // access the processor object that created it.
-        ReverbulizerAudioProcessor& audioProcessor;
+	private:
+		std::optional<juce::WebBrowserComponent::Resource> getResource(const juce::String& url);
 
-        juce::TextButton runJavaScriptButton{ "Run some JavaScript" };
-        juce::TextButton emitJavaScriptButton{ "Emit JavaScript event" };
+		void webUndoRedo(const juce::Array<juce::var>& args,
+			juce::WebBrowserComponent::NativeFunctionCompletion completion);
+		// This reference is provided as a quick way for your editor to
+		// access the processor object that created it.
+		ReverbulizerAudioProcessor& audioProcessor;
 
-        juce::Label labelUpdatedFromJavaScript{ "label", "To be updated from JavaScript" };
+		juce::UndoManager& undoManager;
 
-        juce::WebBrowserComponent webView;
+		// BEGIN NATIVE GUI
+		juce::Slider gainSlider{ "gain slider" };
+		juce::SliderParameterAttachment gainSliderAttachment;
 
-        JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ReverbulizerAudioProcessorEditor)
-    };
+		juce::ToggleButton bypassButton{ "Bypass" };
+		juce::ButtonParameterAttachment bypassButtonAttachment;
 
-    juce::File getResourceDirectory();
+		juce::ToggleButton monoButton{ "mono" };
+		juce::ButtonParameterAttachment monoButtonAttachment;
+
+		//juce::Slider widthSlider{ "widthSlider" };
+		//juce::SliderParameterAttachment widthSliderAttachment;
+
+
+		juce::TextButton runJavaScriptButton{ "Run some JavaScript" };
+		juce::TextButton emitJavaScriptButton{ "Emit JavaScript event" };
+		juce::Label labelUpdatedFromJavaScript{ "label", "To be updated from JavaScript" };
+		// END NATIVE GUI
+
+
+		// BEGIN WEB VIEW
+		juce::WebSliderRelay webGainRelay;
+		juce::WebToggleButtonRelay webBypassRelay;
+		juce::WebToggleButtonRelay webMonoRelay;
+
+		juce::WebSliderRelay webReverbSizeRelay;
+		juce::WebSliderRelay webMixRelay; 
+		juce::WebSliderRelay webWidthRelay;
+		juce::WebSliderRelay webDampRelay;
+		juce::WebSliderRelay webFreezeRelay;
+
+
+		juce::WebBrowserComponent webView;
+
+		juce::WebSliderParameterAttachment webGainSliderAttachment;
+		juce::WebToggleButtonParameterAttachment webBypassToggleAttachment;
+		juce::WebToggleButtonParameterAttachment webMonoToggleAttachment;
+
+		juce::WebSliderParameterAttachment webReverbSizeSliderAttachment;
+		juce::WebSliderParameterAttachment webMixSliderAttachment;
+		juce::WebSliderParameterAttachment webWidthSliderAttachment;
+		juce::WebSliderParameterAttachment webDampSliderAttachment;
+		juce::WebSliderParameterAttachment webFreezeSliderAttachment;
+
+
+
+		// END WEBVIEW
+
+		JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ReverbulizerAudioProcessorEditor)
+	};
+
+	juce::File getResourceDirectory();
+	juce::File getDLLDirectory();
 }

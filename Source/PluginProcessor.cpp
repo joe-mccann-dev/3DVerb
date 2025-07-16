@@ -8,21 +8,70 @@
 
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
+#include "ParameterIDs.h"
 
 //==============================================================================
 namespace webview_plugin
 {
+    namespace
+    {
+        auto createParameterLayout()
+        {
+            juce::AudioProcessorValueTreeState::ParameterLayout layout;
+
+            layout.add(std::make_unique<juce::AudioParameterFloat>(
+                id::GAIN, "gain", juce::NormalisableRange<float>{0.f, 1.0f, 0.01f, 0.9f}, 1.f));
+
+            layout.add(std::make_unique<juce::AudioParameterBool>(
+                id::BYPASS, "bypass", false, juce::AudioParameterBoolAttributes{}));
+
+            layout.add(std::make_unique<juce::AudioParameterBool>(
+                id::MONO, "mono", true, juce::AudioParameterBoolAttributes{}));
+
+            layout.add(std::make_unique<juce::AudioParameterFloat>(
+                id::SIZE, "size", juce::NormalisableRange<float>{0.f, 1.0f, 0.01f, 1.f}, 0.5f));
+
+            layout.add(std::make_unique<juce::AudioParameterFloat>(
+                // range params =  (rangeStart, rangeEnd, intervalValue, skewFactor)
+                id::MIX, "mix", juce::NormalisableRange<float>{0.f, 1.0f, 0.01f, 1.f}, 0.75f));
+
+            layout.add(std::make_unique<juce::AudioParameterFloat>(
+                id::WIDTH, "width", juce::NormalisableRange<float>{0.f, 1.0f, 0.01f, 1.f}, 0.75f));
+
+            layout.add(std::make_unique<juce::AudioParameterFloat>(
+                // range params =  (rangeStart, rangeEnd, intervalValue, skewFactor)
+                id::DAMP, "damp", juce::NormalisableRange<float>{0.f, 1.0f, 0.01f, 1.f}, 0.5f));
+
+            layout.add(std::make_unique<juce::AudioParameterFloat>(
+                id::FREEZE, "freeze",
+                juce::NormalisableRange<float>{0.0f, 1.0f, 0.01f}, 0.0f));
+
+            return layout;
+        }
+    }
     ReverbulizerAudioProcessor::ReverbulizerAudioProcessor()
-        #ifndef JucePlugin_PreferredChannelConfigurations
-                : AudioProcessor(BusesProperties()
-        #if ! JucePlugin_IsMidiEffect
-        #if ! JucePlugin_IsSynth
-                    .withInput("Input", juce::AudioChannelSet::stereo(), true)
-        #endif
-                    .withOutput("Output", juce::AudioChannelSet::stereo(), true)
-        #endif
-                )
-        #endif
+#ifndef JucePlugin_PreferredChannelConfigurations
+        : AudioProcessor(BusesProperties()
+#if ! JucePlugin_IsMidiEffect
+#if ! JucePlugin_IsSynth
+            .withInput("Input", juce::AudioChannelSet::stereo(), true)
+#endif
+            .withOutput("Output", juce::AudioChannelSet::stereo(), true)
+#endif
+        ),
+#endif
+        apvts{ *this, &undoManager, "APVTS", createParameterLayout() },
+        gain{ apvts.getRawParameterValue(id::GAIN.getParamID()) },
+        // note: can review WebViewPluginDemo to find cleaner way to cast this
+        bypass{ *dynamic_cast<juce::AudioParameterBool*>(apvts.getParameter(id::BYPASS.getParamID())) },
+        mono {*dynamic_cast<juce::AudioParameterBool*>(apvts.getParameter(id::MONO.getParamID()))},
+        size{ dynamic_cast<juce::AudioParameterFloat*>(apvts.getParameter(id::SIZE.getParamID())) },
+        mix{ dynamic_cast<juce::AudioParameterFloat*>(apvts.getParameter(id::MIX.getParamID())) },
+        width{ dynamic_cast<juce::AudioParameterFloat*>(apvts.getParameter(id::WIDTH.getParamID())) },
+        damp{dynamic_cast<juce::AudioParameterFloat*>(apvts.getParameter(id::DAMP.getParamID()))},
+        freeze{ dynamic_cast<juce::AudioParameterFloat*>(apvts.getParameter(id::FREEZE.getParamID())) },
+        forwardFFT{fftOrder},
+        window{fftSize, juce::dsp::WindowingFunction<float>::hann}
     {
     }
 
@@ -38,29 +87,29 @@ namespace webview_plugin
 
     bool ReverbulizerAudioProcessor::acceptsMidi() const
     {
-#if JucePlugin_WantsMidiInput
-        return true;
-#else
-        return false;
-#endif
+        #if JucePlugin_WantsMidiInput
+            return true;
+        #else
+            return false;
+        #endif
     }
 
     bool ReverbulizerAudioProcessor::producesMidi() const
     {
-#if JucePlugin_ProducesMidiOutput
-        return true;
-#else
-        return false;
-#endif
+        #if JucePlugin_ProducesMidiOutput
+            return true;
+        #else
+            return false;
+        #endif
     }
 
     bool ReverbulizerAudioProcessor::isMidiEffect() const
     {
-#if JucePlugin_IsMidiEffect
-        return true;
-#else
-        return false;
-#endif
+        #if JucePlugin_IsMidiEffect
+            return true;
+        #else
+            return false;
+        #endif
     }
 
     double ReverbulizerAudioProcessor::getTailLengthSeconds() const
@@ -97,19 +146,17 @@ namespace webview_plugin
     {
         // Use this method as the place to do any pre-playback
         // initialisation that you need..
-        envelopeFollower.prepare(juce::dsp::ProcessSpec
-            {
-                .sampleRate = sampleRate,
-                .maximumBlockSize = static_cast<juce::uint32>(samplesPerBlock),
-                .numChannels = static_cast<juce::uint32>(getTotalNumOutputChannels())
-            });
-        envelopeFollower.setAttackTime(200.f);
-        envelopeFollower.setReleaseTime(200.f);
-        envelopeFollower.setLevelCalculationType(
-            juce::dsp::BallisticsFilter<float>::LevelCalculationType::peak
-        );
+        juce::dsp::ProcessSpec spec{};
 
+        spec.sampleRate = sampleRate;
+        spec.maximumBlockSize = static_cast<juce::uint32>(samplesPerBlock);
+        spec.numChannels = static_cast<juce::uint32>(getTotalNumOutputChannels());
+
+        envelopeFollower.prepare(spec);
+        setEnvFollowerParams(envelopeFollower);
         envelopeFollowerOutputBuffer.setSize(getTotalNumOutputChannels(), samplesPerBlock);
+
+        reverb.prepare(spec);
     }
 
     void ReverbulizerAudioProcessor::releaseResources()
@@ -118,72 +165,114 @@ namespace webview_plugin
         // spare memory, etc.
     }
 
-#ifndef JucePlugin_PreferredChannelConfigurations
+    #ifndef JucePlugin_PreferredChannelConfigurations
     bool ReverbulizerAudioProcessor::isBusesLayoutSupported(const BusesLayout& layouts) const
     {
-#if JucePlugin_IsMidiEffect
         juce::ignoreUnused(layouts);
-        return true;
-#else
         // This is the place where you check if the layout is supported.
         // In this template code we only support mono or stereo.
         // Some plugin hosts, such as certain GarageBand versions, will only
         // load plugins that support stereo bus layouts.
-        if (layouts.getMainOutputChannelSet() != juce::AudioChannelSet::mono()
-            && layouts.getMainOutputChannelSet() != juce::AudioChannelSet::stereo())
-            return false;
+        if (layouts.getMainOutputChannelSet() == juce::AudioChannelSet::mono()
+            || layouts.getMainOutputChannelSet() == juce::AudioChannelSet::stereo())
+        {
+            return layouts.getMainOutputChannelSet() == juce::AudioChannelSet::stereo();
+        }
 
-        // This checks if the input layout matches the output layout
-#if ! JucePlugin_IsSynth
-        if (layouts.getMainOutputChannelSet() != layouts.getMainInputChannelSet())
-            return false;
-#endif
+        return false;
 
-        return true;
-#endif
     }
-#endif
+    #endif
+
+    void ReverbulizerAudioProcessor::updateReverb()
+    {
+        params.roomSize = size->get();
+        params.wetLevel = mix->get();
+        params.dryLevel = 1.0f - mix->get();
+        params.width = width->get();
+        params.damping = damp->get();
+        params.freezeMode = freeze->get();
+
+        reverb.setParameters(params);
+    }
+
+    void ReverbulizerAudioProcessor::setEnvFollowerParams(juce::dsp::BallisticsFilter<float> envFollower)
+    {  
+        envFollower.setAttackTime(200.f);
+        envFollower.setReleaseTime(200.f);
+        envFollower.setLevelCalculationType(
+            juce::dsp::BallisticsFilter<float>::LevelCalculationType::peak);
+    }
 
     void ReverbulizerAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
     {
         juce::ScopedNoDenormals noDenormals;
-        auto totalNumInputChannels = getTotalNumInputChannels();
-        auto totalNumOutputChannels = getTotalNumOutputChannels();
-
-        // In case we have more outputs than inputs, this code clears any output
-        // channels that didn't contain input data, (because these aren't
-        // guaranteed to be empty - they may contain garbage).
-        // This is here to avoid people getting screaming feedback
-        // when they first compile a plugin, but obviously you don't need to keep
-        // this code if your algorithm always overwrites all the output channels.
-        for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
-            buffer.clear(i, 0, buffer.getNumSamples());
-
-        // This is the place where you'd normally do the guts of your plugin's
-        // audio processing...
-        // Make sure to reset the state if your inner loop is processing
-        // the samples and the outer loop is handling the channels.
-        // Alternatively, you can process the samples with the channels
-        // interleaved by keeping the same state.
-        for (int channel = 0; channel < totalNumInputChannels; ++channel)
+        // clears empty output channels 
+        for (auto i = getTotalNumInputChannels(); i < getTotalNumOutputChannels(); ++i)
         {
-            auto* channelData = buffer.getWritePointer(channel);
-
-            // ..do something to the data...
+            buffer.clear(i, 0, buffer.getNumSamples());
         }
 
-        const auto inBlock = juce::dsp::AudioBlock<float>(buffer).getSubsetChannelBlock
-        (
-            0u, static_cast<size_t>(getTotalNumOutputChannels())
-        );
+        // TODO: Only perform this check in Standalone Mode 
+        sumLeftAndRightChannels(buffer);
 
-        auto outBlock = juce::dsp::AudioBlock<float>(envelopeFollowerOutputBuffer);
+        if (bypass.get()) { return; }
+        // TODO: smooth gain to prevent rapid changes in gain
+        buffer.applyGain(*gain);
 
-        envelopeFollower.process(juce::dsp::ProcessContextNonReplacing<float>(inBlock, outBlock));
-        outputLevelLeft = juce::Decibels::gainToDecibels
-        (
-            outBlock.getSample(0u, static_cast<int>(outBlock.getNumSamples() - 1))
-        );
+        juce::dsp::AudioBlock<float> block{ buffer };
+        juce::dsp::AudioBlock<float> envOutBlock{ envelopeFollowerOutputBuffer };
+
+        juce::dsp::ProcessContextNonReplacing<float> envCtx{ block, envOutBlock };
+        envelopeFollower.process(envCtx);
+
+        updateReverb();
+        juce::dsp::ProcessContextReplacing<float> reverbCtx{block};
+        reverb.process(reverbCtx);
+
+        prepareForFFT(block);
+        
+        setParamsForFrontend(envOutBlock);
+    }
+
+    void ReverbulizerAudioProcessor::sumLeftAndRightChannels(juce::AudioBuffer<float>& buffer)
+    {
+        bool monoInputChecked = mono.get();
+        if (monoInputChecked && getTotalNumInputChannels() >= 2)
+        {
+            auto* monoInput = buffer.getReadPointer(0);
+            auto* leftOut = buffer.getWritePointer(0);
+            auto* rightOut = buffer.getWritePointer(1);
+
+            for (int i = 0; i < buffer.getNumSamples(); ++i)
+            {
+                leftOut[i] = monoInput[i];
+                rightOut[i] = monoInput[i];
+            }
+        }
+    }
+
+    void ReverbulizerAudioProcessor::prepareForFFT(juce::dsp::AudioBlock<float> block)
+    {
+        for (auto i = 0; i < block.getNumSamples(); ++i)
+        {
+            // average L + R stereo samples into single sample
+            float monoSample = 0.5f * (block.getChannelPointer(0)[i] + block.getChannelPointer(1)[i]);
+            // push sample into an array so that a set block of samples 
+            // can be processed by FFT algorithm. FFT transforms time domain to frequency domain.
+            // Frequency data are gathered in "freq bins" that represent magnitudes
+            // of a given freq. over the duration of the block
+            pushNextSampleIntoFifo(monoSample);
+        }
+    }
+
+    void ReverbulizerAudioProcessor::setParamsForFrontend(juce::dsp::AudioBlock<float> envOutBlock)
+    {
+        outputLevelLeft = juce::Decibels::gainToDecibels(envOutBlock.getSample(0u, static_cast<int>(envOutBlock.getNumSamples() - 1)));
+        isFrozen = params.freezeMode > 0.5f;
+        mixValue = params.wetLevel;
+        roomSizeValue = params.roomSize;
+        widthValue = params.width;
     }
 
     //==============================================================================
@@ -194,7 +283,7 @@ namespace webview_plugin
 
     juce::AudioProcessorEditor* ReverbulizerAudioProcessor::createEditor()
     {
-        return new ReverbulizerAudioProcessorEditor(*this);
+        return new ReverbulizerAudioProcessorEditor(*this, undoManager);
     }
 
     //==============================================================================
@@ -203,12 +292,20 @@ namespace webview_plugin
         // You should use this method to store your parameters in the memory block.
         // You could do that either as raw data, or use the XML or ValueTree classes
         // as intermediaries to make it easy to save and load complex data.
+        juce::MemoryOutputStream mos(destData, true);
+        apvts.state.writeToStream(mos);
     }
 
     void ReverbulizerAudioProcessor::setStateInformation(const void* data, int sizeInBytes)
     {
         // You should use this method to restore your parameters from this memory block,
         // whose contents will have been created by the getStateInformation() call.
+        auto tree = juce::ValueTree::readFromData(data, sizeInBytes);
+        if (tree.isValid())
+        {
+            apvts.replaceState(tree);
+            updateReverb();
+        }
     }
 }
     //==============================================================================
