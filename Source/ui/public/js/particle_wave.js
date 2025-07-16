@@ -24,7 +24,7 @@ function setupParticles() {
     const shaderMaterial = new ShaderMaterial({
         uniforms: {
             color: { value: new Color(COLORS.particleColor) },
-            size: { value: 1.5 },
+            size: { value: 2.5 },
             envMap: { value: environmentMap },
             cameraPosition: { value: camera.position }
         },
@@ -154,13 +154,14 @@ function animateParticles(levels, count = 0) {
                 const y_pos = vectors[location].y;
 
                 const avgAmp = getAverageAmplitude();
-                const positionMultiplier = (10 * level)
+                const positionFloor = 2;
+                const positionMultiplier = positionFloor + UI.getLogScaledValue((2 * level), (4 * level), ix, 10);
                 positionArray[positionIndex + 1] = y_pos +
                                                     ( avgAmp * positionMultiplier * Math.sin((ix + count))) +
                                                     ( avgAmp * positionMultiplier * Math.sin((iy + count)));
 
                 // scale particle based on corresponding level 
-                const scaleMultiplier = (40 * level)
+                const scaleMultiplier = UI.getLogScaledValue((15 * level), (30 * level), ix, 5);
                 scaleArray[particleIndex] = 2 + scaleMultiplier;
 
                 const lightness = 50 + 50 * level;
@@ -197,4 +198,5 @@ export {
     amplitude,
     updateAmpQueue,
     getAverageAmplitude,
+    WAVE_Z_POS,
 }

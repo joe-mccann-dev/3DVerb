@@ -171,8 +171,7 @@ function addSurroundingCube() {
     const cubeHeightSegments = 20; 
     const cubeGeometry = new THREE.BoxGeometry(cubeWidth, cubeHeight, cubeDepth, cubeWidthSegments, cubeHeightSegments);
     surroundingCube = makeSurroundingCube(cubeGeometry, new THREE.Vector3(50, 80, 50));
-    addToSceneAndObjects(surroundingCube);
-    
+    //addToSceneAndObjects(surroundingCube);
 }
 
 function makeSurroundingCube(geometry, position) {
@@ -300,7 +299,7 @@ function animate(time, theta = 0, emitterRadius = 12) {
 
 function configNebula() {
     nebula.system = new ParticleSystem();
-    const spriteMap = new THREE.TextureLoader().load('assets/wave-scaled.png');
+    const spriteMap = new THREE.TextureLoader().load('assets/PNG/spark_03.png');
     const spriteMaterial = new THREE.SpriteMaterial({
         map: spriteMap,
         color: COLORS.spriteColor,
@@ -346,7 +345,7 @@ function animateNebulaEmitterPositions(theta, emitterRadius) {
     nebula.emitterRight1.position.y = emitterRightY + emitterRadius * Math.cos(theta + Math.PI / 2);
 }
 
-function createEmitter(colorA, colorB, options = {}) {
+function createEmitter(options = {}) {
     const emitter = new Emitter()
         .setRate(new Rate(new Span(2, 4), 0.18))
         .setInitializers(getStandardInitializers(options))

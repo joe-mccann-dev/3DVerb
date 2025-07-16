@@ -160,13 +160,13 @@ function onOutputChange(output) {
 
     setCurrentOutput(output);
 
-    const isMinOutput = getCurrentOutput() <= -60;
+    const isOutputBelowThreshold = getCurrentOutput() <= -50;
     const isLoudOutput = getCurrentOutput() > -12;
     
 
     // sine wave too big when passing audio mastered at modern levels
     // inverse nature of output means multiplying output decreases amplitude in setSineWaveAmplitude()
-    if (isLoudOutput) { output = output * 4 }
+    if (isLoudOutput) { output = output * 8 }
 
     particleWave.setSineWaveAmplitude(output);
     let amplitude = particleWave.getAmplitude();
@@ -174,7 +174,7 @@ function onOutputChange(output) {
     amplitude = particleWave.getAverageAmplitude();
 
     const minSpeed = 20;
-    const maxSpeed = 80;
+    const maxSpeed = 60;
     let speedMultiplier = amplitude;
     
     const minLife = 5;
@@ -182,7 +182,7 @@ function onOutputChange(output) {
     const rmSize = getCurrentSize();
     let lifeMultiplier = rmSize;
 
-    if (isMinOutput) {
+    if (isOutputBelowThreshold) {
         setLifeScale(0.2); 
         setSpeedScale(0.2);
     } else {
@@ -211,7 +211,8 @@ function onOutputChange(output) {
         const baseForce = (8 + rmSize) * Math.log(1 + speedScale);
         const forceZ = baseForce;
         const forceY = baseForce * 0.2;
-        const forceX = emitterIndex < 2 ? (-1 * baseForce * 0.15) : (baseForce * 0.15);
+        const logMultiplierX = getLogScaledValue(baseForce * 0.01, baseForce * 0.05, rmSize, 2)
+        const forceX = emitterIndex < 2 ? -1 * logMultiplierX : logMultiplierX;
         const colors = COLORS.spriteColors;
         const colorSpan = new Animated.ColorSpan(colors);
         emitter.setBehaviours(Animated.getStandardBehaviours(
@@ -237,10 +238,16 @@ function onRoomSizeChange(roomSizeValue) {
     }
 
     const min = 0.50;
-    const scale = min + (1 - min) * roomSizeValue;
+    const max = 1.25;
+    const scale = min + (max - min) * roomSizeValue;
     Animated.surroundingCube.scale.copy(Animated.surroundingCube.userData.originalScale);
+    Animated.surroundingCube.position.copy(Animated.surroundingCube.userData.originalPosition);
+
     Animated.surroundingCube.scale.multiplyScalar(scale);
     Animated.surroundingCube.userData.scale = Animated.surroundingCube.scale;
+
+    Animated.surroundingCube.position.multiplyScalar(scale);
+    Animated.surroundingCube.userData.position = Animated.surroundingCube.position;
 
     
     
@@ -370,6 +377,7 @@ function setUserData() {
 
     Animated.pointLight.userData.originalIntensity = Animated.pointLight.intensity;
     Animated.surroundingCube.userData.originalScale = Animated.surroundingCube.scale.clone();
+    Animated.surroundingCube.userData.originalPosition = Animated.surroundingCube.position.clone();
 }
 
 //https://www.freecodecamp.org/news/throttling-in-javascript/
@@ -385,10 +393,18 @@ function throttle(func, delay) {
     }
 }
 
+function debounce(func, timeout = THROTTLE_TIME) {
+    let timer;
+    return (...args) => {
+        clearTimeout(timer);
+        timer = setTimeout(() => { func.apply(this, args); }, timeout);
+    };
+}
+
 function initThrottleHandlers() {
-    roomSizeThrottleHandler = throttle((roomSizeValue) => {
+    roomSizeThrottleHandler = debounce((roomSizeValue) => {
         onRoomSizeChange(roomSizeValue);
-    }, SLOW_THROTTLE_TIME);
+    }, 10);
 
     mixThrottleHandler = throttle((mixValue) => {
         onMixChange(mixValue);
