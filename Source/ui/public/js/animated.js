@@ -23,7 +23,7 @@ import ParticleSystem, {
 } from 'three-nebula';
 
 import * as UI from './index.js';
-import { waves, setupParticles } from './particle_wave.js'
+import * as particleWave from './particle_wave.js'
 import Stats from 'three/addons/libs/stats.module.js';
 
 import * as COLORS from './colors.js';
@@ -40,7 +40,7 @@ const objects = [];
 const spheres = [];
 let sphereRadius;
 let surroundingCube;
-const cubeWidth = 1200;
+const cubeWidth = 1500;
 const cubeHeight = 1000;
 const cubeDepth = cubeHeight;
 
@@ -59,14 +59,15 @@ function init() {
     initRenderer();
     initCamera();
     addPointLight();
-    addSpheres();
+    particleWave.setupParticles();
     addSurroundingCube();
+    addSpheres();
     addPlanes();
     addLines();
     configNebula();
-    setupParticles();
-    for (const location in waves) {
-        scene.add(waves[location]);
+    
+    for (const location in particleWave.waves) {
+        scene.add(particleWave.waves[location]);
     }
     promises.addModelsToScene();
     requestAnimationFrame(animate);
@@ -128,23 +129,44 @@ function addPointLight() {
 }
 
 function addSpheres() {
-    sphereRadius = 3.2;
+    sphereRadius = 5;
     const sphereWidthSegments = 30;
     const sphereHeightSegments = 30;
     const sphereGeometry = new THREE.SphereGeometry(sphereRadius, sphereWidthSegments, sphereHeightSegments);
 
+    const positionArray = particleWave.waves.top.geometry.attributes.position.array;
+    const positionArrayBottom = particleWave.waves.bottom.geometry.attributes.position.array
+
+    const leftMostParticlePositionX = positionArray[0];
+    const rightMostParticlePositionX = positionArray[positionArray.length - 3];
+
+    const topParticlePositionY = positionArray[1];
+    const bottomParticlePositionY = positionArrayBottom[1];
+
+    const forwardMostParticlePositionZ = positionArray[positionArray.length - 1];
+    const rearMostParticlePositionZ = positionArray[2];
+
+    const sphereLeftX = leftMostParticlePositionX;
+    const sphereRightX = rightMostParticlePositionX;
+    
+    const sphereTopY = topParticlePositionY;
+    const sphereBottomY = bottomParticlePositionY;
+
+    const sphereFrontZ = forwardMostParticlePositionZ;
+    const sphereBackZ = rearMostParticlePositionZ;
+
     spheres.push(
         // left
-        makeSphere(sphereGeometry, new THREE.Vector3(-200, -50, 300)),
-        makeSphere(sphereGeometry, new THREE.Vector3(-200, 250, 300)),
-        makeSphere(sphereGeometry, new THREE.Vector3(-200, -50, -200)),
-        makeSphere(sphereGeometry, new THREE.Vector3(-200, 250, -200)),
+        makeSphere(sphereGeometry, new THREE.Vector3(sphereLeftX, sphereBottomY, sphereFrontZ)),
+        makeSphere(sphereGeometry, new THREE.Vector3(sphereLeftX, sphereTopY, sphereFrontZ)),
+        makeSphere(sphereGeometry, new THREE.Vector3(sphereLeftX, sphereBottomY, sphereBackZ)),
+        makeSphere(sphereGeometry, new THREE.Vector3(sphereLeftX, sphereTopY, sphereBackZ)),
 
         //right
-        makeSphere(sphereGeometry, new THREE.Vector3(300, -50, 300)),
-        makeSphere(sphereGeometry, new THREE.Vector3(300, 250, 300)),
-        makeSphere(sphereGeometry, new THREE.Vector3(300, -50, -200)),
-        makeSphere(sphereGeometry, new THREE.Vector3(300, 250, -200))
+        makeSphere(sphereGeometry, new THREE.Vector3(sphereRightX, sphereBottomY, sphereFrontZ)),
+        makeSphere(sphereGeometry, new THREE.Vector3(sphereRightX, sphereTopY, sphereFrontZ)),
+        makeSphere(sphereGeometry, new THREE.Vector3(sphereRightX, sphereBottomY, sphereBackZ)),
+        makeSphere(sphereGeometry, new THREE.Vector3(sphereRightX, sphereTopY, sphereBackZ))
     );
 }
 
@@ -152,9 +174,11 @@ function makeSphere(geometry, position, color = COLORS.sphereColor) {
     const material = new THREE.MeshStandardMaterial({
         color: color,
         envMap: environmentMap,
-        alphaMap: alphaMap,
+        //alphaMap: alphaMap,
         transparent: true,
-        envMapIntensity: 10.0,
+        opacity: 0.9,
+        envMapIntensity: 12.0,
+        depthWrite: false,
     });
     const sphere = new THREE.Mesh(geometry, material);
     sphere.position.set(position.x, position.y, position.z);

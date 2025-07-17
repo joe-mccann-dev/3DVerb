@@ -1,7 +1,8 @@
-const sphereColor =  0xc2c289;
+
 const topPlaneColor = 0x2c2e54;
 const sidePlaneColor = 0x888c8f;
 const speakerStandColor = 0xbfbc85;
+const sphereColor = speakerStandColor;
 const roomFrameColor = 0x919ddc;
 const spriteColor = 0xffffff;
 const freezeColor = 0x60a5fa;

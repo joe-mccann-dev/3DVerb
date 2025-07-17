@@ -240,9 +240,14 @@ function onRoomSizeChange(roomSizeValue) {
 
     const min = 0.50;
     const max = 1.0;
-    const scale = min + (max - min) * roomSizeValue;
+    const cubeScale = getLinearScaledValue(min, max, roomSizeValue);
 
-    scaleSurroundingCube(scale);
+    const sphereMin = 0.5;
+    const sphereMax = 1.5;
+    const sphereScale = getLinearScaledValue(sphereMin, sphereMax, roomSizeValue);
+
+    scaleSurroundingCube(cubeScale);
+    scaleAnchorSpheresPosition(sphereScale);
    
     Animated.nebula.emitters.forEach((emitter, emitterIndex) => {
         emitter.setInitializers(Animated.getStandardInitializers(
@@ -348,6 +353,13 @@ function scaleAnchorSpheres(mixValue, scaleFactor) {
     });
 }
 
+function scaleAnchorSpheresPosition(scale) {
+    Animated.spheres.forEach((sphere) => {
+        sphere.position.copy(sphere.userData.originalPosition);
+        sphere.position.set(scale * sphere.position.x, sphere.position.y, scale * sphere.position.z);
+    });
+}
+
 function freezeAnchorSpheres(frozen) {
     Animated.spheres.forEach((sphere) => {
         frozen ?
@@ -361,10 +373,9 @@ function setUserData() {
         if (!sphere.userData.color) {
             sphere.userData.color = sphere.material.color.clone();
         }
-    });
 
-    Animated.spheres.forEach((sphere) => {
         sphere.userData.originalScale = sphere.scale.clone();
+        sphere.userData.originalPosition = sphere.position.clone();
     });
 
     Animated.nebula.emitters.forEach((emitter) => {

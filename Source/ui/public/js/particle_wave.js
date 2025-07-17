@@ -4,8 +4,8 @@ import * as UI from './index.js';
 import {environmentMap, camera } from './animated.js'
 
 const SEPARATION = 30, AMOUNTX = 32, AMOUNTY = 16;
-const WAVE_X_POS = 50, WAVE_Y_POS = 240, WAVE_Z_POS = 50;
-const WAVE_Y_POS_BOTTOM = -80;
+const WAVE_X_POS = 50, WAVE_Y_POS = 250, WAVE_Z_POS = 50;
+const WAVE_Y_POS_BOTTOM = -150;
 
 const waves = {};
 const vectors = {};
@@ -196,5 +196,8 @@ export {
     amplitude,
     updateAmpQueue,
     getAverageAmplitude,
+    WAVE_X_POS,
+    WAVE_Y_POS,
     WAVE_Z_POS,
+    WAVE_Y_POS_BOTTOM,
 }
