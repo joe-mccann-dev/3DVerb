@@ -133,18 +133,18 @@ function addSpheres() {
     const sphereHeightSegments = 30;
     const sphereGeometry = new THREE.SphereGeometry(sphereRadius, sphereWidthSegments, sphereHeightSegments);
 
-
-
     spheres.push(
-        makeSphere(sphereGeometry, new THREE.Vector3(-50, -10, 150)),
-        makeSphere(sphereGeometry, new THREE.Vector3(-50, 200, 150)),
-        makeSphere(sphereGeometry, new THREE.Vector3(-50, -10, -50)),
-        makeSphere(sphereGeometry, new THREE.Vector3(-50, 200, -50)),
+        // left
+        makeSphere(sphereGeometry, new THREE.Vector3(-200, -50, 300)),
+        makeSphere(sphereGeometry, new THREE.Vector3(-200, 250, 300)),
+        makeSphere(sphereGeometry, new THREE.Vector3(-200, -50, -200)),
+        makeSphere(sphereGeometry, new THREE.Vector3(-200, 250, -200)),
+
         //right
-        makeSphere(sphereGeometry, new THREE.Vector3(150, -10, 150)),
-        makeSphere(sphereGeometry, new THREE.Vector3(150, 200, 150)),
-        makeSphere(sphereGeometry, new THREE.Vector3(150, -10, -50)),
-        makeSphere(sphereGeometry, new THREE.Vector3(150, 200, -50))
+        makeSphere(sphereGeometry, new THREE.Vector3(300, -50, 300)),
+        makeSphere(sphereGeometry, new THREE.Vector3(300, 250, 300)),
+        makeSphere(sphereGeometry, new THREE.Vector3(300, -50, -200)),
+        makeSphere(sphereGeometry, new THREE.Vector3(300, 250, -200))
     );
 }
 
@@ -193,14 +193,14 @@ function makeSurroundingCube(geometry, position) {
     return cube;
 }
 function addPlanes() {
-    const planeGeometry = new THREE.PlaneGeometry(210, 210, 4, 4);
-    const speakerStandGeometry = new THREE.PlaneGeometry(45, 45, 2, 2);
+    const planeGeometry = new THREE.PlaneGeometry(510, 310, 4, 4);
+    const speakerStandGeometry = new THREE.PlaneGeometry(75, 50, 4, 4);
     const horizontalPlaneRotation = new THREE.Vector3(-Math.PI / 2, 0, 0);
     const verticalPlaneRotation = new THREE.Vector3(-Math.PI, 0, 0);
     planes.push(
-        makePlane(planeGeometry, COLORS.sidePlaneColor, new THREE.Vector3(50, -10, 50), horizontalPlaneRotation),
-        makePlane(planeGeometry, COLORS.sidePlaneColor, new THREE.Vector3(50, 200, 50), horizontalPlaneRotation),
-        makePlane(planeGeometry, COLORS.sidePlaneColor, new THREE.Vector3(50, 95, -50), verticalPlaneRotation),
+        //makePlane(planeGeometry, COLORS.sidePlaneColor, new THREE.Vector3(50, -10, 50), horizontalPlaneRotation),
+        //makePlane(planeGeometry, COLORS.sidePlaneColor, new THREE.Vector3(50, 200, 50), horizontalPlaneRotation),
+        //makePlane(planeGeometry, COLORS.sidePlaneColor, new THREE.Vector3(50, 95, -50), verticalPlaneRotation),
         // speaker stands
         makePlane(speakerStandGeometry, COLORS.speakerStandColor, new THREE.Vector3(-20, 50, -20), horizontalPlaneRotation),
         makePlane(speakerStandGeometry, COLORS.speakerStandColor, new THREE.Vector3(120, 50, -20), horizontalPlaneRotation)
@@ -213,7 +213,7 @@ function makePlane(geometry, color, position, rotation) {
         envMap: environmentMap,
         side: THREE.DoubleSide,
         transparent: true,
-        alphaMap: alphaMap,
+        opacity: 0.8,
     });
     const plane = new THREE.Mesh(geometry, material);
     plane.rotation.set(rotation.x, rotation.y, rotation.z)
