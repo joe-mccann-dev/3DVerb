@@ -233,8 +233,6 @@ function onRoomSizeChange(roomSizeValue) {
     const floor = 12;
     const separationScaleFactor = floor + (particleWave.SEPARATION * roomSizeValue);
 
-    console.log("in onRoomSizeChange. separationScaleFactor: ", separationScaleFactor);
-
     for (const location in particleWave.waves) {
         const wave = particleWave.waves[location];
         particleWave.setInitialValuesForAttrs(separationScaleFactor, particleWave.vectors[location], wave);
