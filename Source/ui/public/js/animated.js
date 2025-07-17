@@ -299,7 +299,7 @@ function animate(time, theta = 0, emitterRadius = 12) {
 
 function configNebula() {
     nebula.system = new ParticleSystem();
-    const spriteMap = new THREE.TextureLoader().load('assets/PNG/spark_03.png');
+    const spriteMap = new THREE.TextureLoader().load('assets/PNG/flame_04.png');
     const spriteMaterial = new THREE.SpriteMaterial({
         map: spriteMap,
         color: COLORS.spriteColor,
@@ -347,8 +347,9 @@ function animateNebulaEmitterPositions(theta, emitterRadius) {
 
 function createEmitter(options = {}) {
     const emitter = new Emitter()
-        .setRate(new Rate(new Span(2, 4), 0.18))
+        .setRate(new Rate(new Span(1, 2), 0.18))
         .setInitializers(getStandardInitializers(options))
+
     emitter.damping = 0.06;
     return emitter;
 }
@@ -358,7 +359,7 @@ function getStandardInitializers(options = {}) {
         new Mass(options.mass ?? new Span(2, 4), new Span(20, 40)),
         new Life(options.life ?? 1.2),
         new Body(nebula.sprite),
-        new Radius(options.radius ?? 32),
+        new Radius(options.radius ?? 24),
         new RadialVelocity(
             options.radialVelocity?.speed ?? new Span(20, 100),
             options.radialVelocity?.axis ?? leftEmitterRadVelocityAxis(),
@@ -370,8 +371,8 @@ function getStandardInitializers(options = {}) {
 function getStandardBehaviours(options = {}, emitter) {
     return [
         new Alpha(
-            options.alpha?.alphaA ?? 0.5,
-            options.alpha?.alphaB ?? 0,
+            options.alpha?.alphaA ?? 0.2,
+            options.alpha?.alphaB ?? 1.0,
         ),
         new Color(
             options.color?.colorA ?? new ColorSpan(COLORS.spriteColors),
@@ -390,9 +391,9 @@ function getStandardBehaviours(options = {}, emitter) {
             options.force?.fy ?? 0.2,
             options.force?.fz ?? 0.2,
         ),
-        new Gravity(
-           4.2
-        )
+        //new Gravity(
+        //   4.2
+        //)
     ]
 }
 
@@ -441,7 +442,7 @@ function collideFunction(emitter) {
                 if (particle.position.y >= cubeTopFaceY - reflectionBuffer) {
                     particle.velocity.y *= reverseVelocityFactor(index);
                     forceBehaviour.force.y *= reverseForceFactor(index);
-                    gravityBehaviour.gravity *= 2;
+                    //gravityBehaviour.gravity *= 2;
                 }
 
                 if (particle.position.y <= cubeBottomFaceY + reflectionBuffer) {
@@ -473,10 +474,10 @@ function reverseForceFactor(particleIndex, multiplier = 1) {
 }
 
 function leftEmitterRadVelocityAxis() {
-    return new Vector3D(-200, 0, 10);
+    return new Vector3D(-200, 50, 10);
 }
 function rightEmitterRadVelocityAxis() {
-    return new Vector3D(200, 0, 10);
+    return new Vector3D(200, 50, 10);
 }
 
 function handleBypassOrFreezeChecked(time) {
