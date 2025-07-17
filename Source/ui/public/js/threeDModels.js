@@ -1,5 +1,5 @@
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
-import { scene, environmentMap, addToSceneAndObjects } from './animated.js';
+import { environmentMap, addToSceneAndObjects } from './animated.js';
 
 const loader = new GLTFLoader();
 const speakersPromise = new Promise((resolve, reject) => {
@@ -8,13 +8,13 @@ const speakersPromise = new Promise((resolve, reject) => {
         const leftSpeaker = glb.scene;
         leftSpeaker.envMap = environmentMap;
         leftSpeaker.receiveShadow = true;
-        leftSpeaker.scale.set(26, 26, 26);     
-        leftSpeaker.position.set(-20, 50, -20);
+        leftSpeaker.scale.set(45, 45, 45);     
+        leftSpeaker.position.set(-140, 80, -20);
         speakers.push(leftSpeaker);
 
         const rightSpeaker = leftSpeaker.clone();
         rightSpeaker.envMap = environmentMap;
-        rightSpeaker.position.x += 140;
+        rightSpeaker.position.x += 300;
 
         speakers.push(rightSpeaker);
 
@@ -28,9 +28,8 @@ const carpetPromise = new Promise((resolve, reject) => {
         carpet.envMap = environmentMap;
         carpet.receiveShadow = true;
         carpet.castShadow = true;
-        carpet.scale.set(50, 50, 60);
-        carpet.position.set(52, -8, 50);
-        carpet.rotateY(Math.PI / 2);
+        carpet.scale.set(120, 100, 100);
+        carpet.position.set(10, 0, 50);
 
         resolve(carpet);
     }, undefined, reject);
@@ -42,25 +41,24 @@ const lampPromise = new Promise((resolve, reject) => {
         lamp.envMap = environmentMap;
         lamp.receiveShadow = true;
         lamp.castShadow = true;
-        lamp.scale.set(70, 70, 70);
-        lamp.position.set(25, 60, -10);
+        lamp.scale.set(100, 100, 100);
+        lamp.position.set(-30, 100, -10);
         lamp.rotateY(Math.PI / 4)
 
         resolve(lamp);
     }, undefined, reject);
 });
 
-const panelsPromise = new Promise((resolve, reject) => {
+const panelPromise = new Promise((resolve, reject) => {
     loader.load('assets/wall_wood_panels.glb', function (glb) {
-        const panels = [];
         const panel = glb.scene;
         panel.envMap = environmentMap;
         panel.receiveShadow = true;
-        panel.scale.set(100, 100, 100);
-        panel.position.set(60, 10, -40);
-        panels.push(panel);
+        panel.scale.set(150, 150, 150);
+        panel.position.set(-25, 90, -80);
+        panel.rotateZ(Math.PI / 2);
 
-        resolve(panels);
+        resolve(panel);
     }, undefined, reject);
 });
 
@@ -70,25 +68,23 @@ const plantPromise = new Promise((resolve, reject) => {
         plant.envMap = environmentMap;
         plant.receiveShadow = true;
         plant.castShadow = true;
-        plant.scale.set(0.24, 0.24, 0.24);
-        plant.position.set(80, 5, 10);
+        plant.scale.set(0.35, 0.35, 0.35);
+        plant.position.set(60, 20, 80);
 
         resolve(plant);
     }, undefined, reject);
 });
 
-const soundPanelsPromise = new Promise((resolve, reject) => {
+const soundPanelPromise = new Promise((resolve, reject) => {
     loader.load('assets/sound_proof_panel.glb', function (glb) {
-        const panels = [];
         const panel = glb.scene;
+
         panel.envMap = environmentMap;
-        panel.position.set(70, 145, -46);
+        panel.scale.set(5, 5, 5);
+        panel.position.set(55, 145, -90);
         panel.rotateX(Math.PI / 2);
 
-        panel.scale.set(4, 4, 4);
-        panels.push(panel);
-
-        resolve(panels);
+        resolve(panel);
     }, undefined, reject);
 });
 
@@ -104,18 +100,14 @@ function addModelsToScene() {
     lampPromise.then((lamp) => {
         addToSceneAndObjects(lamp);
     });
-    panelsPromise.then((panels) => {
-        panels.forEach((panel) => {
-            addToSceneAndObjects(panel);
-        });
+    panelPromise.then((panel) => {
+        addToSceneAndObjects(panel);
     });
     plantPromise.then((plant) => {
         addToSceneAndObjects(plant);
     });
-    soundPanelsPromise.then((soundPanels) => {
-        soundPanels.forEach((soundPanel) => {
-            addToSceneAndObjects(soundPanel);
-        })
+    soundPanelPromise.then((soundPanel) => {
+        addToSceneAndObjects(soundPanel);
     });
 }
 

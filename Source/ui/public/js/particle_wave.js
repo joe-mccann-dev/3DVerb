@@ -5,7 +5,7 @@ import {environmentMap, camera } from './animated.js'
 
 const SEPARATION = 30, AMOUNTX = 32, AMOUNTY = 16;
 const WAVE_X_POS = 50, WAVE_Y_POS = 250, WAVE_Z_POS = 50;
-const WAVE_Y_POS_BOTTOM = -150;
+const WAVE_Y_POS_BOTTOM = -140;
 
 const waves = {};
 const vectors = {};

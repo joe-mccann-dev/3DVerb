@@ -48,8 +48,12 @@ const planes = [];
 const lines = [];
 
 const nebula = {};
-const emitterLeftX = -20, emitterLeftY = 70;
-const emitterRightX = 120, emitterRightY = 70;
+
+const emitterLeftX = -140;
+const emitterRightX = 160;
+const emitterY = 110;
+const emitterZ = 10;
+
 const DEFAULT_EMITTER_DAMPING = 0.006;
 
 init();
@@ -114,8 +118,8 @@ function initCamera() {
     });
 }
 function addPointLight() {
-    pointLight = new THREE.PointLight(0xc9c893, 50000);;
-    pointLight.position.set(25, 120, -10);
+    pointLight = new THREE.PointLight(0xc9c893, 60000);
+    pointLight.position.set(-30, 170, -10);
     pointLight.castShadow = true;
     pointLight.shadow.camera.left = -10;
     pointLight.shadow.camera.right = 10;
@@ -125,6 +129,12 @@ function addPointLight() {
     pointLight.shadow.camera.far = 70;
     pointLight.shadow.mapSize.width = 2048;
     pointLight.shadow.mapSize.height = 2048;
+
+
+    const sphereSize = 20;
+    const pointLightHelper = new THREE.PointLightHelper(pointLight, sphereSize);
+    scene.add(pointLightHelper);
+
     scene.add(pointLight);
 }
 
@@ -212,22 +222,23 @@ function makeSurroundingCube(geometry, position) {
     });
     const cube = new THREE.Mesh(geometry, cubeMaterial);
     cube.position.set(position.x, position.y, position.z);
-    //cube.rotateY(-Math.PI);
 
     return cube;
 }
 function addPlanes() {
-    const planeGeometry = new THREE.PlaneGeometry(510, 310, 4, 4);
-    const speakerStandGeometry = new THREE.PlaneGeometry(75, 50, 4, 4);
+    const planeGeometry = new THREE.PlaneGeometry(500, 300, 4, 4);
+    const verticalPlaneGeometry = new THREE.PlaneGeometry(500, 250, 4, 4);
+    const speakerStandGeometry = new THREE.PlaneGeometry(120, 100, 4, 4);
     const horizontalPlaneRotation = new THREE.Vector3(-Math.PI / 2, 0, 0);
     const verticalPlaneRotation = new THREE.Vector3(-Math.PI, 0, 0);
     planes.push(
-        //makePlane(planeGeometry, COLORS.sidePlaneColor, new THREE.Vector3(50, -10, 50), horizontalPlaneRotation),
+        makePlane(planeGeometry, COLORS.bottomPlaneColor, new THREE.Vector3(10, -5, 50), horizontalPlaneRotation),
         //makePlane(planeGeometry, COLORS.sidePlaneColor, new THREE.Vector3(50, 200, 50), horizontalPlaneRotation),
-        //makePlane(planeGeometry, COLORS.sidePlaneColor, new THREE.Vector3(50, 95, -50), verticalPlaneRotation),
+        makePlane(verticalPlaneGeometry, COLORS.sidePlaneColor, new THREE.Vector3(10, 100, -90), verticalPlaneRotation),
+
         // speaker stands
-        makePlane(speakerStandGeometry, COLORS.speakerStandColor, new THREE.Vector3(-20, 50, -20), horizontalPlaneRotation),
-        makePlane(speakerStandGeometry, COLORS.speakerStandColor, new THREE.Vector3(120, 50, -20), horizontalPlaneRotation)
+        makePlane(speakerStandGeometry, COLORS.speakerStandColor, new THREE.Vector3(-140, 80, -20), horizontalPlaneRotation),
+        makePlane(speakerStandGeometry, COLORS.speakerStandColor, new THREE.Vector3(160, 80, -20), horizontalPlaneRotation)
     );
 }
 
@@ -250,29 +261,13 @@ function makePlane(geometry, color, position, rotation) {
 
 function addLines() {
     lines.push(
-        // lines connecting bottom plane
-        makeLine(-50, 150, -10, -10, -50, -50),
-        makeLine(-50, -50, -10, -10, 150, -50),
-        makeLine(-50, 150, -10, -10, 150, 150),
-        makeLine(150, 150, -10, -10, 150, -50),
-
-        // lines connecting bottom to top
-        makeLine(-50, -50, -10, 200, -50, -50),
-        makeLine(150, 150, -10, 200, -50, -50),
-
-        // lines connecting top plane
-        makeLine(-50, 150, 200, 200, 150, 150),
-        makeLine(-50, 150, 200, 200, -50, -50),
-        makeLine(-50, -50, 200, 200, -50, 150),
-        makeLine(150, 150, 200, 200, -50, 150),
-
         // speaker stands
-        makeLine(-20, -20, -10, 50, -20, -20, COLORS.speakerStandColor),
-        makeLine(120, 120, -10, 50, -20, -20, COLORS.speakerStandColor),
+        makeLine(-140, -140, 0, 80, -20, -20, COLORS.speakerStandColor),
+        makeLine(160, 160, 0, 80, -20, -20, COLORS.speakerStandColor),
     );
 }
 
-function makeLine(src_x, dest_x, src_y, dest_y, src_z, dest_z, color = COLORS.roomFrameColor) {
+function makeLine(src_x, dest_x, src_y, dest_y, src_z, dest_z, color = COLORS.bottomPlaneColor) {
     const distance = Math.sqrt(
         (dest_x - src_x) ** 2 +
         (dest_y - src_y) ** 2 +
@@ -280,7 +275,7 @@ function makeLine(src_x, dest_x, src_y, dest_y, src_z, dest_z, color = COLORS.ro
     );
 
     // use box geometry as a line so lines react to light
-    const geometry = new THREE.BoxGeometry(0.5, 0.5, distance);
+    const geometry = new THREE.BoxGeometry(2, 2, distance);
 
     const material = new THREE.MeshStandardMaterial({
         color: color,
@@ -311,7 +306,6 @@ function animate(time, theta = 0, emitterRadius = 12) {
     time *= 0.001;
 
     animateNebulaEmitterPositions(theta += 0.13, emitterRadius);
-    //rotateBigSphere(time);
     handleBypassOrFreezeChecked(time);
 
     stats.update();
@@ -346,11 +340,6 @@ function createNebulaEmitters() {
     nebula.emitterRight0 = createEmitter( { radialVelocity: { axis: new Vector3D(200, 0, 10) } });
     nebula.emitterRight1 = createEmitter( { radialVelocity: { axis: new Vector3D(200, 0, 10) } });
 
-    nebula.emitterLeft0.position.set(-20, 70, 0);
-    nebula.emitterLeft1.position.set(-20, 70, 0);
-    nebula.emitterRight0.position.set(120, 70, 0);
-    nebula.emitterRight1.position.set(120, 70, 0);
-
     nebula.emitters.push(nebula.emitterLeft0);
     nebula.emitters.push(nebula.emitterLeft1);
     nebula.emitters.push(nebula.emitterRight0);
@@ -359,14 +348,20 @@ function createNebulaEmitters() {
 
 function animateNebulaEmitterPositions(theta, emitterRadius) {
     nebula.emitterLeft0.position.x = emitterLeftX + emitterRadius * Math.cos(theta);
-    nebula.emitterLeft0.position.y = emitterLeftY + emitterRadius * Math.sin(theta);
+    nebula.emitterLeft0.position.y = emitterY + emitterRadius * Math.sin(theta);
+    nebula.emitterLeft0.position.z = emitterZ;
+
     nebula.emitterLeft1.position.x = emitterLeftX + emitterRadius * Math.cos(theta + Math.PI / 2);
-    nebula.emitterLeft1.position.y = emitterLeftY + emitterRadius * Math.cos(theta + Math.PI / 2);
+    nebula.emitterLeft1.position.y = emitterY + emitterRadius * Math.cos(theta + Math.PI / 2);
+    nebula.emitterLeft1.position.z = emitterZ;
 
     nebula.emitterRight0.position.x = emitterRightX + emitterRadius * Math.cos(theta);
-    nebula.emitterRight0.position.y = emitterRightY + emitterRadius * Math.sin(theta);
+    nebula.emitterRight0.position.y = emitterY + emitterRadius * Math.sin(theta);
+    nebula.emitterRight0.position.z = emitterZ;
+
     nebula.emitterRight1.position.x = emitterRightX + emitterRadius * Math.cos(theta + Math.PI / 2);
-    nebula.emitterRight1.position.y = emitterRightY + emitterRadius * Math.cos(theta + Math.PI / 2);
+    nebula.emitterRight1.position.y = emitterY + emitterRadius * Math.cos(theta + Math.PI / 2);
+    nebula.emitterRight1.position.z = emitterZ;
 }
 
 function createEmitter(options = {}) {
@@ -395,7 +390,7 @@ function getStandardInitializers(options = {}) {
 function getStandardBehaviours(options = {}, emitter) {
     return [
         new Alpha(
-            options.alpha?.alphaA ?? 0.2,
+            options.alpha?.alphaA ?? 0.5,
             options.alpha?.alphaB ?? 1.0,
         ),
         new Color(

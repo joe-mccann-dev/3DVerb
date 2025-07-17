@@ -1,5 +1,6 @@
 
 const topPlaneColor = 0x2c2e54;
+const bottomPlaneColor = 0x404332;
 const sidePlaneColor = 0x888c8f;
 const speakerStandColor = 0xbfbc85;
 const sphereColor = speakerStandColor;
@@ -29,6 +30,7 @@ const roomFrameColorUI = '#919ddc';
 
 export {
     sphereColor,
+    bottomPlaneColor,
     topPlaneColor,
     sidePlaneColor,
     speakerStandColor,
