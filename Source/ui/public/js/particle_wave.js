@@ -4,8 +4,8 @@ import * as UI from './index.js';
 import {environmentMap, camera } from './animated.js'
 
 const SEPARATION = 30, AMOUNTX = 32, AMOUNTY = 16;
-const WAVE_X_POS = 50, WAVE_Y_POS = 250, WAVE_Z_POS = 50;
-const WAVE_Y_POS_BOTTOM = -140;
+const WAVE_X_POS = 50, WAVE_Y_POS = 350, WAVE_Z_POS = 50;
+const WAVE_Y_POS_BOTTOM = -350;
 
 const waves = {};
 const vectors = {};
@@ -24,7 +24,7 @@ function setupParticles() {
     const shaderMaterial = new ShaderMaterial({
         uniforms: {
             color: { value: new Color(COLORS.particleColor) },
-            size: { value: 1.2 },
+            size: { value: 1.8 },
             envMap: { value: environmentMap },
             cameraPosition: { value: camera.position }
         },
@@ -86,41 +86,6 @@ function setInitialValuesForAttrs(separation, wavePosition, wave = waves.top) {
     }
 }
 
-function setCurrentSeparation(newSeparation) {
-    currentSeparation = newSeparation;
-}
-
-function setSineWaveAmplitude(output) {
-    // convert negative decibels to positive; take reciprocal
-    const convertedOutput = (-1 * output);
-    const min = 1;
-    const max = 6;
-    const amplitudeScale = UI.getLogScaledValue(min, max, convertedOutput, 5);
-    amplitude = amplitudeScale * (currentSeparation) * (1 / convertedOutput);
-}
-
-function getAmplitude() {
-    return amplitude;
-}
-
-function updateAmpQueue(newAmp) {
-    ampQueue.push(newAmp);
-    if (ampQueue.length > maxAmps) {
-        ampQueue.shift();
-    }
-}
-
-function getAverageAmplitude() {
-    if (ampQueue.length === 0) {
-        return 0;
-    }
-
-    return ampQueue.reduce((a, b) => {
-        return a + b;
-    }, 0) / ampQueue.length;
-}
-
-
 // sine wave animation taken from https://github.com/mrdoob/three.js/blob/master/examples/webgl_points_waves.html
 function animateParticles(levels, count = 0) {
 
@@ -180,6 +145,40 @@ function animateParticles(levels, count = 0) {
         wave.geometry.attributes.scale.needsUpdate = true;
         wave.geometry.attributes.color.needsUpdate = true;
     }
+}
+
+function setCurrentSeparation(newSeparation) {
+    currentSeparation = newSeparation;
+}
+
+function setSineWaveAmplitude(output) {
+    // convert negative decibels to positive; take reciprocal
+    const convertedOutput = (-1 * output);
+    const min = 1;
+    const max = 6;
+    const amplitudeScale = UI.getLogScaledValue(min, max, convertedOutput, 5);
+    amplitude = amplitudeScale * (currentSeparation) * (1 / convertedOutput);
+}
+
+function getAmplitude() {
+    return amplitude;
+}
+
+function updateAmpQueue(newAmp) {
+    ampQueue.push(newAmp);
+    if (ampQueue.length > maxAmps) {
+        ampQueue.shift();
+    }
+}
+
+function getAverageAmplitude() {
+    if (ampQueue.length === 0) {
+        return 0;
+    }
+
+    return ampQueue.reduce((a, b) => {
+        return a + b;
+    }, 0) / ampQueue.length;
 }
 
 

@@ -9,7 +9,7 @@ const speakersPromise = new Promise((resolve, reject) => {
         leftSpeaker.envMap = environmentMap;
         leftSpeaker.receiveShadow = true;
         leftSpeaker.scale.set(45, 45, 45);     
-        leftSpeaker.position.set(-140, 80, -20);
+        leftSpeaker.position.set(-140, -20, -20);
         speakers.push(leftSpeaker);
 
         const rightSpeaker = leftSpeaker.clone();
@@ -29,7 +29,7 @@ const carpetPromise = new Promise((resolve, reject) => {
         carpet.receiveShadow = true;
         carpet.castShadow = true;
         carpet.scale.set(120, 100, 100);
-        carpet.position.set(10, 0, 50);
+        carpet.position.set(10, -98, 85);
 
         resolve(carpet);
     }, undefined, reject);
@@ -42,7 +42,7 @@ const lampPromise = new Promise((resolve, reject) => {
         lamp.receiveShadow = true;
         lamp.castShadow = true;
         lamp.scale.set(100, 100, 100);
-        lamp.position.set(-30, 100, -10);
+        lamp.position.set(-30, 0, -10);
         lamp.rotateY(Math.PI / 4)
 
         resolve(lamp);
@@ -55,7 +55,7 @@ const panelPromise = new Promise((resolve, reject) => {
         panel.envMap = environmentMap;
         panel.receiveShadow = true;
         panel.scale.set(150, 150, 150);
-        panel.position.set(-25, 90, -80);
+        panel.position.set(-25, -10, -80);
         panel.rotateZ(Math.PI / 2);
 
         resolve(panel);
@@ -69,7 +69,7 @@ const plantPromise = new Promise((resolve, reject) => {
         plant.receiveShadow = true;
         plant.castShadow = true;
         plant.scale.set(0.35, 0.35, 0.35);
-        plant.position.set(60, 20, 80);
+        plant.position.set(60, -80, 90);
 
         resolve(plant);
     }, undefined, reject);
@@ -81,7 +81,7 @@ const soundPanelPromise = new Promise((resolve, reject) => {
 
         panel.envMap = environmentMap;
         panel.scale.set(5, 5, 5);
-        panel.position.set(55, 145, -90);
+        panel.position.set(55, 45, -90);
         panel.rotateX(Math.PI / 2);
 
         resolve(panel);

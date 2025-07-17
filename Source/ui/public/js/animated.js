@@ -51,7 +51,7 @@ const nebula = {};
 
 const emitterLeftX = -140;
 const emitterRightX = 160;
-const emitterY = 110;
+const emitterY = 10;
 const emitterZ = 10;
 
 const DEFAULT_EMITTER_DAMPING = 0.006;
@@ -108,18 +108,20 @@ function initRenderer() {
 
 function initCamera() {
     aspect = canvas.width / canvas.height;
-    camera = new THREE.PerspectiveCamera(75, aspect, 10, 2000);
-    camera.position.set(303, 408, 880);
-    camera.lookAt(new THREE.Vector3(50, 65, -50));
+    camera = new THREE.PerspectiveCamera(75, aspect, 10, 4000);
+    camera.position.set(977, 543, 1127);
+    camera.lookAt(new THREE.Vector3(172, 80, -20));
     controls = new OrbitControls(camera, renderer.domElement);
-    controls.addEventListener('change', () => {
-        //console.log('position:', camera.position);
-        //console.log('target:', controls.target);
-    });
+    controls.autoRotateSpeed = 0.1;
+    controls.autoRotate = true;
+    //controls.addEventListener('change', () => {
+    //    console.log('position:', camera.position);
+    //    console.log('target:', controls.target);
+    //});
 }
 function addPointLight() {
     pointLight = new THREE.PointLight(0xc9c893, 60000);
-    pointLight.position.set(-30, 170, -10);
+    pointLight.position.set(-30, 70, -10);
     pointLight.castShadow = true;
     pointLight.shadow.camera.left = -10;
     pointLight.shadow.camera.right = 10;
@@ -190,6 +192,7 @@ function makeSphere(geometry, position, color = COLORS.sphereColor) {
         envMapIntensity: 12.0,
         depthWrite: false,
     });
+
     const sphere = new THREE.Mesh(geometry, material);
     sphere.position.set(position.x, position.y, position.z);
     sphere.castShadow = true;
@@ -204,7 +207,7 @@ function addSurroundingCube() {
     const cubeWidthSegments = 20;
     const cubeHeightSegments = 20; 
     const cubeGeometry = new THREE.BoxGeometry(cubeWidth, cubeHeight, cubeDepth, cubeWidthSegments, cubeHeightSegments);
-    surroundingCube = makeSurroundingCube(cubeGeometry, new THREE.Vector3(50, 100, 50));
+    surroundingCube = makeSurroundingCube(cubeGeometry, new THREE.Vector3(50, 50, 50));
     addToSceneAndObjects(surroundingCube);
 }
 
@@ -226,19 +229,19 @@ function makeSurroundingCube(geometry, position) {
     return cube;
 }
 function addPlanes() {
-    const planeGeometry = new THREE.PlaneGeometry(500, 300, 4, 4);
+    const planeGeometry = new THREE.PlaneGeometry(500, 400, 4, 4);
     const verticalPlaneGeometry = new THREE.PlaneGeometry(500, 250, 4, 4);
     const speakerStandGeometry = new THREE.PlaneGeometry(120, 100, 4, 4);
     const horizontalPlaneRotation = new THREE.Vector3(-Math.PI / 2, 0, 0);
     const verticalPlaneRotation = new THREE.Vector3(-Math.PI, 0, 0);
     planes.push(
-        makePlane(planeGeometry, COLORS.bottomPlaneColor, new THREE.Vector3(10, -5, 50), horizontalPlaneRotation),
+        makePlane(planeGeometry, COLORS.bottomPlaneColor, new THREE.Vector3(10, -100, 50), horizontalPlaneRotation),
         //makePlane(planeGeometry, COLORS.sidePlaneColor, new THREE.Vector3(50, 200, 50), horizontalPlaneRotation),
-        makePlane(verticalPlaneGeometry, COLORS.sidePlaneColor, new THREE.Vector3(10, 100, -90), verticalPlaneRotation),
+        makePlane(verticalPlaneGeometry, COLORS.sidePlaneColor, new THREE.Vector3(10, 0, -90), verticalPlaneRotation),
 
         // speaker stands
-        makePlane(speakerStandGeometry, COLORS.speakerStandColor, new THREE.Vector3(-140, 80, -20), horizontalPlaneRotation),
-        makePlane(speakerStandGeometry, COLORS.speakerStandColor, new THREE.Vector3(160, 80, -20), horizontalPlaneRotation)
+        makePlane(speakerStandGeometry, COLORS.speakerStandColor, new THREE.Vector3(-140, -20, -20), horizontalPlaneRotation),
+        makePlane(speakerStandGeometry, COLORS.speakerStandColor, new THREE.Vector3(160, -20, -20), horizontalPlaneRotation)
     );
 }
 
@@ -262,8 +265,8 @@ function makePlane(geometry, color, position, rotation) {
 function addLines() {
     lines.push(
         // speaker stands
-        makeLine(-140, -140, 0, 80, -20, -20, COLORS.speakerStandColor),
-        makeLine(160, 160, 0, 80, -20, -20, COLORS.speakerStandColor),
+        makeLine(-140, -140, -100, -20, -20, -20, COLORS.speakerStandColor),
+        makeLine(160, 160, -100, -20, -20, -20, COLORS.speakerStandColor),
     );
 }
 
@@ -378,7 +381,7 @@ function getStandardInitializers(options = {}) {
         new Mass(options.mass ?? new Span(2, 4), new Span(20, 40)),
         new Life(options.life ?? 1.2),
         new Body(nebula.sprite),
-        new Radius(options.radius ?? 24),
+        new Radius(options.radius ?? 18),
         new RadialVelocity(
             options.radialVelocity?.speed ?? new Span(20, 100),
             options.radialVelocity?.axis ?? leftEmitterRadVelocityAxis(),
