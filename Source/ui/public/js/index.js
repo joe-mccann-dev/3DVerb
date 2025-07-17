@@ -239,19 +239,11 @@ function onRoomSizeChange(roomSizeValue) {
     }
 
     const min = 0.50;
-    const max = 1.25;
+    const max = 1.0;
     const scale = min + (max - min) * roomSizeValue;
-    Animated.surroundingCube.scale.copy(Animated.surroundingCube.userData.originalScale);
-    Animated.surroundingCube.position.copy(Animated.surroundingCube.userData.originalPosition);
 
-    Animated.surroundingCube.scale.multiplyScalar(scale);
-    Animated.surroundingCube.userData.scale = Animated.surroundingCube.scale;
-
-    Animated.surroundingCube.position.multiplyScalar(scale);
-    Animated.surroundingCube.userData.position = Animated.surroundingCube.position;
-
-    
-    
+    scaleSurroundingCube(scale);
+   
     Animated.nebula.emitters.forEach((emitter, emitterIndex) => {
         emitter.setInitializers(Animated.getStandardInitializers(
             {
@@ -339,8 +331,13 @@ function getLogScaledValue(minValue, maxValue, paramValue, logBase) {
 
 function scaleSurroundingCube(scale) {
     Animated.surroundingCube.scale.copy(Animated.surroundingCube.userData.originalScale);
+    Animated.surroundingCube.position.copy(Animated.surroundingCube.userData.originalPosition);
+
     Animated.surroundingCube.scale.multiplyScalar(scale);
     Animated.surroundingCube.userData.scale = Animated.surroundingCube.scale;
+
+    Animated.surroundingCube.position.multiplyScalar(scale);
+    Animated.surroundingCube.userData.position = Animated.surroundingCube.position;
 }
 
 function scaleAnchorSpheres(mixValue, scaleFactor) {
