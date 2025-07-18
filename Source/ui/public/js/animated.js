@@ -120,8 +120,8 @@ function initCamera() {
     //});
 }
 function addPointLight() {
-    pointLight = new THREE.PointLight(0xc9c893, 60000);
-    pointLight.position.set(-30, 70, -10);
+    pointLight = new THREE.PointLight(0xc9c893, 200000);
+    pointLight.position.set(-30, 90, -10);
     pointLight.castShadow = true;
     pointLight.shadow.camera.left = -10;
     pointLight.shadow.camera.right = 10;
@@ -141,9 +141,9 @@ function addPointLight() {
 }
 
 function addSpheres() {
-    sphereRadius = 5;
-    const sphereWidthSegments = 30;
-    const sphereHeightSegments = 30;
+    sphereRadius = 5.2;
+    const sphereWidthSegments = 16;
+    const sphereHeightSegments = 20;
     const sphereGeometry = new THREE.SphereGeometry(sphereRadius, sphereWidthSegments, sphereHeightSegments);
 
     const positionArray = particleWave.waves.top.geometry.attributes.position.array;
@@ -191,6 +191,7 @@ function makeSphere(geometry, position, color = COLORS.sphereColor) {
         opacity: 0.9,
         envMapIntensity: 12.0,
         depthWrite: false,
+        wireframe: true,
     });
 
     const sphere = new THREE.Mesh(geometry, material);
@@ -213,14 +214,14 @@ function addSurroundingCube() {
 
 function makeSurroundingCube(geometry, position) {
     const cubeMaterial = new THREE.MeshStandardMaterial({
-        color: COLORS.topPlaneColor,
+        color: COLORS.sidePlaneColor,
         envMap: environmentMap,
-        envMapIntensity: 8.0,
-        metalness: 0.8,
-        roughness: 0.32,
+        envMapIntensity: 100.0,
+        metalness: 1.0,
+        roughness: 0.18,
         alphaMap: alphaMap,
         transparent: true,
-        opacity: 0.3,
+        opacity: 0.6,
         depthWrite: false
     });
     const cube = new THREE.Mesh(geometry, cubeMaterial);
@@ -305,7 +306,7 @@ function addToSceneAndObjects(objectToAdd) {
     objects.push(objectToAdd);
 }
 
-function animate(time, theta = 0, emitterRadius = 12) {
+function animate(time, theta = 0, emitterRadius = 24) {
     time *= 0.001;
 
     animateNebulaEmitterPositions(theta += 0.13, emitterRadius);
@@ -381,7 +382,7 @@ function getStandardInitializers(options = {}) {
         new Mass(options.mass ?? new Span(2, 4), new Span(20, 40)),
         new Life(options.life ?? 1.2),
         new Body(nebula.sprite),
-        new Radius(options.radius ?? 18),
+        new Radius(options.radius ?? 24),
         new RadialVelocity(
             options.radialVelocity?.speed ?? new Span(20, 100),
             options.radialVelocity?.axis ?? leftEmitterRadVelocityAxis(),
@@ -394,7 +395,7 @@ function getStandardBehaviours(options = {}, emitter) {
     return [
         new Alpha(
             options.alpha?.alphaA ?? 0.5,
-            options.alpha?.alphaB ?? 1.0,
+            options.alpha?.alphaB ?? 1,
         ),
         new Color(
             options.color?.colorA ?? new ColorSpan(COLORS.spriteColors),

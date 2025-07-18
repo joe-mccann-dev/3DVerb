@@ -41,8 +41,8 @@ const lampPromise = new Promise((resolve, reject) => {
         lamp.envMap = environmentMap;
         lamp.receiveShadow = true;
         lamp.castShadow = true;
-        lamp.scale.set(100, 100, 100);
-        lamp.position.set(-30, 0, -10);
+        lamp.scale.set(110, 110, 110);
+        lamp.position.set(-30, 10, -10);
         lamp.rotateY(Math.PI / 4)
 
         resolve(lamp);

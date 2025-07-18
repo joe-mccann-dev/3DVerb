@@ -151,6 +151,10 @@ function setCurrentSeparation(newSeparation) {
     currentSeparation = newSeparation;
 }
 
+function getCurrentSeparation() {
+    return currentSeparation;
+}
+
 function setSineWaveAmplitude(output) {
     // convert negative decibels to positive; take reciprocal
     const convertedOutput = (-1 * output);
@@ -190,6 +194,7 @@ export {
     setInitialValuesForAttrs,
     SEPARATION,
     setCurrentSeparation,
+    getCurrentSeparation,
     setSineWaveAmplitude,
     getAmplitude,
     amplitude,

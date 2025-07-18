@@ -178,7 +178,7 @@ function onOutputChange(output) {
     let speedMultiplier = amplitude;
     
     const minLife = 5;
-    const maxLife = 25;
+    const maxLife = 20;
     const rmSize = getCurrentSize();
     let lifeMultiplier = rmSize;
 

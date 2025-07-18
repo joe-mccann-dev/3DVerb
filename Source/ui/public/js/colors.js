@@ -8,6 +8,7 @@ const roomFrameColor = 0x919ddc;
 const spriteColor = 0xffffff;
 const freezeColor = 0x60a5fa;
 const particleColor = 0xfafaf0;
+const skyBlueColor = 0x3f4569;
 
 // emitter colors that expect different format
 const darkGreen = '#1f2300';
@@ -38,6 +39,7 @@ export {
     spriteColor,
     freezeColor,
     particleColor,
+    skyBlueColor,
     // emitter colors
     darkGreen,
     skyBlue,
