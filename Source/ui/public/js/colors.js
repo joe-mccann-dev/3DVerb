@@ -19,9 +19,21 @@ const grayGreen = '#4e5050';
 const neonGreen = '#4aff00';
 const cyan = '#5bc0ff';   
 const indigo = '#4c5cff';  
-const mint = '#88ffcc'; 
+const mint = '#88ffcc';
+
+const red = "#FF0000";
+const orange = "#FF7F00";
+const yellow = "#FFFF00";
+const green = "#00FF00";
+const blue = "#0000FF";
+const indigo1 = "#4B0082";
+const violet = "#8B00FF";
 
 const spriteColors = [neonGreen, cyan, indigo, mint];
+const rainbowColors = [red, orange, yellow, green, blue, indigo1, violet];
+
+
+
 
 // UI Colors
 const freezeColorHash = '#60A5FA';
@@ -51,4 +63,5 @@ export {
     sphereColorUI,
     roomFrameColorUI,
     spriteColors,
+    rainbowColors
 }

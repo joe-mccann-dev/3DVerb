@@ -18,9 +18,13 @@ import ParticleSystem, {
     SpriteRenderer,
     Collision,
     Force,
-    Gravity,
     ColorSpan,
+    RandomDrift,
+    Gravity,
+    ease,
 } from 'three-nebula';
+
+//import { ease } from 'three-nebula/src/ease/index.js'
 
 import * as UI from './index.js';
 import * as particleWave from './particle_wave.js'
@@ -41,8 +45,8 @@ const spheres = [];
 let sphereRadius;
 let surroundingCube;
 const cubeWidth = 1500;
-const cubeHeight = 1000;
-const cubeDepth = cubeHeight;
+const cubeHeight = 600;
+const cubeDepth = cubeHeight * 1.2;
 
 const planes = [];
 const lines = [];
@@ -103,13 +107,13 @@ function initRenderer() {
     canvas = renderer.domElement;
     visualizer.appendChild(canvas);
     stats = new Stats();
-    //visualizer.appendChild(stats.dom)
+    visualizer.appendChild(stats.dom)
 }
 
 function initCamera() {
     aspect = canvas.width / canvas.height;
     camera = new THREE.PerspectiveCamera(75, aspect, 10, 4000);
-    camera.position.set(977, 543, 1127);
+    camera.position.set(977, 443, 877);
     camera.lookAt(new THREE.Vector3(172, 80, -20));
     controls = new OrbitControls(camera, renderer.domElement);
     controls.autoRotateSpeed = 0.1;
@@ -221,7 +225,7 @@ function makeSurroundingCube(geometry, position) {
         roughness: 0.18,
         alphaMap: alphaMap,
         transparent: true,
-        opacity: 0.6,
+        opacity: 0.8,
         depthWrite: false
     });
     const cube = new THREE.Mesh(geometry, cubeMaterial);
@@ -252,7 +256,7 @@ function makePlane(geometry, color, position, rotation) {
         envMap: environmentMap,
         side: THREE.DoubleSide,
         transparent: true,
-        opacity: 0.8,
+        opacity: 0.5,
     });
     const plane = new THREE.Mesh(geometry, material);
     plane.rotation.set(rotation.x, rotation.y, rotation.z)
@@ -306,7 +310,7 @@ function addToSceneAndObjects(objectToAdd) {
     objects.push(objectToAdd);
 }
 
-function animate(time, theta = 0, emitterRadius = 24) {
+function animate(time, theta = 0, emitterRadius = 32) {
     time *= 0.001;
 
     animateNebulaEmitterPositions(theta += 0.13, emitterRadius);
@@ -321,7 +325,7 @@ function animate(time, theta = 0, emitterRadius = 24) {
 
 function configNebula() {
     nebula.system = new ParticleSystem();
-    const spriteMap = new THREE.TextureLoader().load('assets/PNG/flame_04.png');
+    const spriteMap = new THREE.TextureLoader().load('assets/PNG/flare_01.png');
     const spriteMaterial = new THREE.SpriteMaterial({
         map: spriteMap,
         color: COLORS.spriteColor,
@@ -370,7 +374,7 @@ function animateNebulaEmitterPositions(theta, emitterRadius) {
 
 function createEmitter(options = {}) {
     const emitter = new Emitter()
-        .setRate(new Rate(new Span(1, 2), 0.18))
+        .setRate(new Rate(2, 0.2))
         .setInitializers(getStandardInitializers(options))
 
     emitter.damping = 0.06;
@@ -380,13 +384,13 @@ function createEmitter(options = {}) {
 function getStandardInitializers(options = {}) {
     return [
         new Mass(options.mass ?? new Span(2, 4), new Span(20, 40)),
-        new Life(options.life ?? 1.2),
+        new Life(options.life ?? 5),
         new Body(nebula.sprite),
-        new Radius(options.radius ?? 24),
+        new Radius(options.radius ?? 80),
         new RadialVelocity(
-            options.radialVelocity?.speed ?? new Span(20, 100),
+            options.radialVelocity?.speed ?? new Span(20, 60),
             options.radialVelocity?.axis ?? leftEmitterRadVelocityAxis(),
-            options.radialVelocity?.theta ?? 24,
+            options.radialVelocity?.theta ?? 20,
         )
     ]
 }
@@ -394,8 +398,8 @@ function getStandardInitializers(options = {}) {
 function getStandardBehaviours(options = {}, emitter) {
     return [
         new Alpha(
-            options.alpha?.alphaA ?? 0.5,
-            options.alpha?.alphaB ?? 1,
+            options.alpha?.alphaA ?? 1,
+            options.alpha?.alphaB ?? 0.5,
         ),
         new Color(
             options.color?.colorA ?? new ColorSpan(COLORS.spriteColors),
@@ -405,18 +409,26 @@ function getStandardBehaviours(options = {}, emitter) {
             options.scale?.scaleA ?? 1,
             options.scale?.scaleB ?? 0.5
         ),
-        //new Collision(
-        //    options.collision?.emitter ?? emitter,
-        //    options.collision?.useMass ?? true,
-        //),
+        new Collision(
+            options.collision?.emitter ?? emitter,
+            options.collision?.useMass ?? true,
+        ),
+        new Gravity(1.2),
         new Force(
             options.force?.fx ?? 0.2,
             options.force?.fy ?? 0.2,
             options.force?.fz ?? 0.2,
         ),
-        //new Gravity(
-        //   4.2
-        //)
+        //new Spring(0, 50, -100, 0.02, 0.9, 3, ease.easeOutSine),
+        //new RandomDrift(50, 120, 250, 0.2, 3, ease.easeOutSine),
+        new RandomDrift(
+            options.randomDrift?.driftX ?? 50,
+            options.randomDrift?.driftY ?? 120,
+            options.randomDrift?.driftZ ?? 250,
+            options.randomDrift?.delay ?? 0.2,
+            options.randomDrift?.lift ?? 3,
+            options.randomDrift?.ease ?? ease.easeOutSine
+        )
     ]
 }
 
@@ -427,7 +439,8 @@ function collideFunction(emitter) {
         const cubeHalfWidth = cubeWidth * 0.5;
 
         const cubeScaleVector3 = surroundingCube.userData.scale;
-        const reflectionBuffer = 75;
+        const reflectionBuffer = 80;
+        const MAX_VELOCITY = 250;
 
         if (cubeScaleVector3) {
             const cubeScaleZ = cubeScaleVector3.z;
@@ -443,57 +456,68 @@ function collideFunction(emitter) {
             const cubeFrontFaceZ = (surroundingCube.position.z + (cubeHalfDepth * cubeScaleZ));
             const cubeBackFaceZ = (surroundingCube.position.z - (cubeHalfDepth * cubeScaleZ));
 
+            
+
             emitter.particles.forEach((particle, index) => {
                 const forceBehaviour = particle.behaviours.find((behaviour) => {
                     return behaviour.type === "Force";
                 });
 
-                //const gravityBehaviour = particle.behaviours.find((behaviour) => {
-                //    return behaviour.type === "Gravity";
-                //})
-
                 if (particle.position.z >= cubeFrontFaceZ - reflectionBuffer) {
                     particle.velocity.z *= reverseVelocityFactor(index);
                     forceBehaviour.force.z *= reverseForceFactor(index);
+
+                    particle.addBehaviour(
+                        new Color(new ColorSpan(COLORS.rainbowColors), new ColorSpan(COLORS.spriteColors), 2)
+                    );
                 }
 
                 if (particle.position.z <= cubeBackFaceZ + reflectionBuffer) {
                     particle.velocity.z *= reverseVelocityFactor(index);  
                     forceBehaviour.force.z *= reverseForceFactor(index);
+
                 }
 
                 if (particle.position.y >= cubeTopFaceY - reflectionBuffer) {
-                    particle.velocity.y *= reverseVelocityFactor(index);
+                    particle.velocity.y *= reverseVelocityFactor(index, 2 + Math.random());
                     forceBehaviour.force.y *= reverseForceFactor(index);
-                    //gravityBehaviour.gravity *= 2;
                 }
-
+                
                 if (particle.position.y <= cubeBottomFaceY + reflectionBuffer) {
-                    particle.velocity.y *= reverseVelocityFactor(index);
+                    particle.velocity.y *= reverseVelocityFactor(index, 2 + Math.random());
                     forceBehaviour.force.y *= reverseForceFactor(index);
                 }
 
                 if (particle.position.x <= cubeLeftFaceX + reflectionBuffer) {
-                    particle.velocity.x *= reverseVelocityFactor(index, 200);
-                    forceBehaviour.x *= reverseForceFactor(index, 200);
+                    particle.velocity.x *= reverseVelocityFactor(index, 2 + Math.random());
+                    forceBehaviour.force.x *= reverseForceFactor(index);
                 }
 
                 if (particle.position.x >= cubeRightFaceX - reflectionBuffer) {
-                    particle.velocity.x *= reverseVelocityFactor(index, 200);
-                    forceBehaviour.x *= reverseForceFactor(index, 200);
+                    particle.velocity.x *= reverseVelocityFactor(index, 2 + Math.random());
+                    forceBehaviour.force.x *= reverseForceFactor(index);
                 }
+
+                //console.log("currentParticleVelocity: ", particle.velocity)
+
+                particle.velocity.clampLength(0, MAX_VELOCITY);
+
+                if (particle.position.x < cubeLeftFaceX - reflectionBuffer ||
+                      particle.position.x > cubeRightFaceX + reflectionBuffer) {
+                    particle.dead = true;
+                }
+
             });
         }
     }
 }
 
-function reverseVelocityFactor(particleIndex, multiplier = 1) {
-    //(-1.0 + Math.sin(Math.random() + particleIndex))
-    return (-1.0) * multiplier;
+function reverseVelocityFactor(index, multiplier = 1) {
+    return (-1.0) * (multiplier * Math.sin((1/index) + Math.random()));
 }
 
-function reverseForceFactor(particleIndex, multiplier = 1) {
-    return (-1.0) * multiplier;
+function reverseForceFactor(index, multiplier = 1) {
+    return (-1.0) * (multiplier * Math.cos((1/index) + Math.random()));
 }
 
 function leftEmitterRadVelocityAxis() {

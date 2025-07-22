@@ -17,6 +17,7 @@ const freezeColor = new Animated.threeColor(COLORS.freezeColor);
 let leftAxis, rightAxis;
 let currentOutput, currentSize, currentMix, currentWidth, currentDamp;
 let lifeScale, speedScale;
+let driftScale = {};
 let countForParticles = 0;
 
 let roomSizeThrottleHandler, mixThrottleHandler, widthThrottleHandler,
@@ -160,7 +161,7 @@ function onOutputChange(output) {
 
     setCurrentOutput(output);
 
-    const isOutputBelowThreshold = getCurrentOutput() <= -50;
+    const isOutputBelowThreshold = !freeze.element.checked && getCurrentOutput() <= -50;
     const isLoudOutput = getCurrentOutput() > -12;
     
 
@@ -173,14 +174,14 @@ function onOutputChange(output) {
     particleWave.updateAmpQueue(amplitude);
     amplitude = particleWave.getAverageAmplitude();
 
-    const minSpeed = 20;
-    const maxSpeed = 60;
+    const minSpeed = 35;
+    const maxSpeed = 70;
     let speedMultiplier = amplitude;
     
-    const minLife = 5;
-    const maxLife = 20;
+    const minLife = 1.5;
+    const maxLife = 4.5;
     const rmSize = getCurrentSize();
-    let lifeMultiplier = rmSize;
+    let lifeMultiplier = getLogScaledValue(minLife, maxLife, rmSize, 12);
 
     if (isOutputBelowThreshold) {
         setLifeScale(0.2); 
@@ -208,18 +209,24 @@ function onOutputChange(output) {
             }
         ));
 
-        const baseForceFloor = 8;
-        const baseForce = (baseForceFloor + rmSize) * Math.log(1 + speedScale);
-        const forceZ = baseForce;
-        const forceY = baseForce * 0.2;
-        const logMultiplierX = getLogScaledValue(baseForce * 0.01, baseForce * 0.05, rmSize, 2)
-        const forceX = emitterIndex < 2 ? -1 * logMultiplierX : logMultiplierX;
+        const baseForceFloor = 2;
+        const baseForceCeiling = 12;
+        const baseForce = getLogScaledValue(baseForceFloor, baseForceCeiling, speedScale, 10);
+        const forceZ = baseForce
+        const forceY = baseForce * 0.4;
+        const forceX = emitterIndex < 2 ? -1 * (baseForce * 0.5) : (baseForce * 0.5);
         const colors = COLORS.spriteColors;
         const colorSpan = new Animated.ColorSpan(colors);
         emitter.setBehaviours(Animated.getStandardBehaviours(
             {
                 force: { fx: forceX, fy: forceY, fz: forceZ },
                 color: { colorA: colorSpan, colorB: colorSpan },
+                randomDrift: {
+                    driftX: driftScale.x,
+                    driftY: driftScale.y,
+                    driftZ: driftScale.z,
+                }
+
                 //collision: { onCollide: Animated.collideFunction(emitter)}
             }
         ));
@@ -230,7 +237,8 @@ function onOutputChange(output) {
 
 function onRoomSizeChange(roomSizeValue) {
     setCurrentSize(roomSizeValue);
-    const floor = 12;
+
+    const floor = 20;
     const separationScaleFactor = floor + (particleWave.SEPARATION * roomSizeValue);
 
     for (const location in particleWave.waves) {
@@ -244,10 +252,24 @@ function onRoomSizeChange(roomSizeValue) {
 
     const sphereMin = 0.5;
     const sphereMax = 1.5;
-    const sphereScale = getLinearScaledValue(sphereMin, sphereMax, roomSizeValue);
+    const sphereScale = getLogScaledValue(sphereMin, sphereMax, roomSizeValue, 2);
 
     scaleSurroundingCube(cubeScale);
     scaleAnchorSpheresPosition(sphereScale);
+
+    const minDriftX = 30;
+    const maxDriftX = 100;
+    const driftXScale = getLinearScaledValue(minDriftX, maxDriftX, roomSizeValue);
+
+    const minDriftY = 50;
+    const maxDriftY = 150;
+    const driftYScale = getLinearScaledValue(minDriftY, maxDriftY, roomSizeValue);
+
+    const minDriftZ = 50;
+    const maxDriftZ = 200;
+    const driftZScale = getLinearScaledValue(minDriftZ, maxDriftZ, roomSizeValue);
+
+    setDriftScale(driftXScale, driftYScale, driftZScale);
    
     Animated.nebula.emitters.forEach((emitter, emitterIndex) => {
         emitter.setInitializers(Animated.getStandardInitializers(
@@ -260,7 +282,17 @@ function onRoomSizeChange(roomSizeValue) {
                     speed: speedScale,
                 },
             }
-        ))
+        ));
+
+        emitter.setBehaviours(Animated.getStandardBehaviours(
+            {
+                randomDrift: {
+                    driftX: driftScale.x,
+                    driftY: driftScale.y,
+                    driftZ: driftScale.z,
+                }
+            }
+        ));
     });    
 }
 
@@ -303,6 +335,12 @@ function setRightAxis(axis) { rightAxis = axis; }
 function setLifeScale(lScale) { lifeScale = lScale; }
 
 function setSpeedScale(spScale) { speedScale = spScale; }
+
+function setDriftScale(driftX, driftY, driftZ) {
+    driftScale.x = driftX;
+    driftScale.y = driftY;
+    driftScale.z = driftZ;
+}
 
 function onFreezeChange(frozen) {
     freezeAnchorSpheres(frozen);

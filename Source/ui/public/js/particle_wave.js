@@ -4,8 +4,8 @@ import * as UI from './index.js';
 import {environmentMap, camera } from './animated.js'
 
 const SEPARATION = 30, AMOUNTX = 32, AMOUNTY = 16;
-const WAVE_X_POS = 50, WAVE_Y_POS = 350, WAVE_Z_POS = 50;
-const WAVE_Y_POS_BOTTOM = -350;
+const WAVE_X_POS = 50, WAVE_Y_POS = 500, WAVE_Z_POS = 50;
+const WAVE_Y_POS_BOTTOM = -500;
 
 const waves = {};
 const vectors = {};
@@ -124,7 +124,7 @@ function animateParticles(levels, count = 0) {
                                                     ( avgAmp * positionMultiplier * Math.sin((iy + count)));
 
                 // scale particle based on corresponding level 
-                const scaleMultiplier = UI.getLogScaledValue((15 * level), (30 * level), ix, 5);
+                const scaleMultiplier = UI.getLogScaledValue((15 * level), (60 * level), ix, 10);
                 scaleArray[particleIndex] = 2 + scaleMultiplier;
 
                 const lightness = 50 + 50 * level;
