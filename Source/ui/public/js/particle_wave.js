@@ -86,7 +86,7 @@ function setInitialValuesForAttrs(separation, wavePosition, wave = waves.top) {
     }
 }
 
-// sine wave animation taken from https://github.com/mrdoob/three.js/blob/master/examples/webgl_points_waves.html
+// sine wave animation inspired by https://github.com/mrdoob/three.js/blob/master/examples/webgl_points_waves.html
 function animateParticles(levels, count = 0) {
 
     for (const location in waves) {
