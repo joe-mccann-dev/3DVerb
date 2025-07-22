@@ -419,8 +419,6 @@ function getStandardBehaviours(options = {}, emitter) {
             options.force?.fy ?? 0.2,
             options.force?.fz ?? 0.2,
         ),
-        //new Spring(0, 50, -100, 0.02, 0.9, 3, ease.easeOutSine),
-        //new RandomDrift(50, 120, 250, 0.2, 3, ease.easeOutSine),
         new RandomDrift(
             options.randomDrift?.driftX ?? 50,
             options.randomDrift?.driftY ?? 120,
