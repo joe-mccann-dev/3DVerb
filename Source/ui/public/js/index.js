@@ -131,6 +131,18 @@ function setupBackendEventListeners() {
             .catch(console.error);
     });
 
+    window.__JUCE__.backend.addEventListener("dampValue", () => {
+        fetch(Juce.getBackendResourceAddress("damp.json"))
+            .then((response) => response.json())
+            .then((dampData) => {
+                if (currentDamp != dampData.damp) {
+                    dampThrottleHandler(dampData.damp);
+                }
+                currentDamp = dampData.damp;
+            })
+            .catch(console.error);
+    });
+
     // FREEZE EVENT
     window.__JUCE__.backend.addEventListener("isFrozen", () => {
         fetch(Juce.getBackendResourceAddress("freeze.json"))
@@ -337,6 +349,10 @@ function onWidthChange(widthValue) {
     });
 }
 
+function onDampChange(dampValue) {
+    //console.log("dampValue: ", dampValue);
+}
+
 function setLeftAxis(axis) { leftAxis = axis }
 function setRightAxis(axis) { rightAxis = axis; }
 
@@ -474,6 +490,9 @@ function initThrottleHandlers() {
     }, SLOW_THROTTLE_TIME);
 
     // TODO: place here dampThrottleHandler
+    dampThrottleHandler = throttle((dampValue) => {
+        onDampChange(dampValue);
+    }, SLOW_THROTTLE_TIME)
 
     freezeThrottleHandler = throttle((frozen) => {
         onFreezeChange(frozen);

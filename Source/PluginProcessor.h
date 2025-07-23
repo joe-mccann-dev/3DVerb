@@ -62,6 +62,7 @@ namespace webview_plugin
         juce::var mixValue;
         juce::var roomSizeValue;
         juce::var widthValue;
+        juce::var dampValue;
         // store normalized levels derived from fftData below
         juce::Array<juce::var> levels;
 

@@ -273,6 +273,7 @@ namespace webview_plugin
         mixValue = params.wetLevel;
         roomSizeValue = params.roomSize;
         widthValue = params.width;
+        dampValue = params.damping;
     }
 
     //==============================================================================
