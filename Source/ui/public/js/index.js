@@ -20,7 +20,7 @@ let lifeScale, speedScale, radiusScale;
 let driftScale = {};
 let countForParticles = 0;
 
-let roomSizeThrottleHandler, mixThrottleHandler, widthThrottleHandler,
+let roomSizeThrottleHandler, mixThrottleHandler, widthThrottleHandler, dampThrottleHandler,
     freezeThrottleHandler, levelsThrottleHandler, outputThrottleHandler;
 // aiming for ~30 FPS. 1000 ms / 30 fps = 33.3333
 const THROTTLE_TIME = 33;
@@ -209,8 +209,6 @@ function onOutputChange(output) {
             radius: radiusScale,
         }
         ));
-
-        console.log("radiusScale: ", radiusScale);
 
         const baseForceFloor = 2;
         const baseForceCeiling = 12;
