@@ -123,9 +123,10 @@ function animateParticles(levels, count = 0) {
                                                     ( avgAmp * positionMultiplier * Math.sin((ix + count))) +
                                                     ( avgAmp * positionMultiplier * Math.sin((iy + count)));
 
+                const scaleFloor = 12;
                 // scale particle based on corresponding level 
-                const scaleMultiplier = UI.getLogScaledValue((15 * level), (60 * level), ix, 10);
-                scaleArray[particleIndex] = 2 + scaleMultiplier;
+                const scaleMultiplier = UI.getLogScaledValue((20 * level), (60 * level), ix, 10);
+                scaleArray[particleIndex] = scaleFloor + scaleMultiplier;
 
                 const lightness = 50 + 50 * level;
                 const color = new Color().setHSL(hue / 360, 1, lightness / 100);

@@ -168,8 +168,10 @@ function addSpheres() {
     const sphereTopY = topParticlePositionY;
     const sphereBottomY = bottomParticlePositionY;
 
-    const sphereFrontZ = forwardMostParticlePositionZ;
-    const sphereBackZ = rearMostParticlePositionZ;
+    const frontZOffset = 300;
+    const backZOffset = 200;
+    const sphereFrontZ = forwardMostParticlePositionZ + frontZOffset;
+    const sphereBackZ = rearMostParticlePositionZ - backZOffset;
 
     spheres.push(
         // left
@@ -466,7 +468,7 @@ function collideFunction(emitter) {
                     forceBehaviour.force.z *= reverseForceFactor(index);
 
                     particle.addBehaviour(
-                        new Color(new ColorSpan(COLORS.rainbowColors), new ColorSpan(COLORS.spriteColors), 2)
+                        new Color(new ColorSpan(COLORS.spriteColors), new ColorSpan(COLORS.rainbowColors), 0.22)
                     );
                 }
 

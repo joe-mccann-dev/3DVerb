@@ -63,5 +63,7 @@ export {
     sphereColorUI,
     roomFrameColorUI,
     spriteColors,
-    rainbowColors
+    rainbowColors,
+    violet,
+    orange,
 }

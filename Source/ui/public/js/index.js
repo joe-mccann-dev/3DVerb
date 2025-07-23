@@ -270,7 +270,7 @@ function onRoomSizeChange(roomSizeValue) {
 
     const sphereMin = 0.5;
     const sphereMax = 1.5;
-    const sphereScale = getLogScaledValue(sphereMin, sphereMax, roomSizeValue, 2);
+    const sphereScale = getLogScaledValue(sphereMin, sphereMax, roomSizeValue, 10);
 
     scaleSurroundingCube(cubeScale);
     scaleAnchorSpheresPosition(sphereScale);
@@ -350,7 +350,8 @@ function onWidthChange(widthValue) {
 }
 
 function onDampChange(dampValue) {
-    //console.log("dampValue: ", dampValue);
+    console.log("dampValue: ", dampValue);
+    console.log("lifeScale: ", lifeScale);
 }
 
 function setLeftAxis(axis) { leftAxis = axis }
@@ -420,9 +421,23 @@ function scaleAnchorSpheres(mixValue, scaleFactor) {
 }
 
 function scaleAnchorSpheresPosition(scale) {
-    Animated.spheres.forEach((sphere) => {
+    const currentSeparation = particleWave.getCurrentSeparation();
+    Animated.spheres.forEach((sphere, index) => {
+
         sphere.position.copy(sphere.userData.originalPosition);
-        sphere.position.set(scale * sphere.position.x, sphere.position.y, scale * sphere.position.z);
+
+        const minX = 10 * particleWave.getCurrentSeparation();
+        const maxX = 15 * particleWave.getCurrentSeparation();
+        const xOffset = getLogScaledValue(minX, maxX, scale, Math.E);
+        const sphereXOffset = index < 4 ? -xOffset : xOffset;
+
+        const zOffset = currentSeparation;
+        const sphereZOffset = sphere.position.z < 0 ? -zOffset : zOffset;
+
+        const sphereXScale = scale * (sphere.position.x + sphereXOffset);
+        const sphereZScale = scale * (sphere.position.z + sphereZOffset);
+
+        sphere.position.set(sphereXScale, sphere.position.y, sphereZScale);
     });
 }
 
