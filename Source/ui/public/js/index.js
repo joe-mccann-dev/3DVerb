@@ -16,7 +16,7 @@ const undoRedoCtrl = Juce.getNativeFunction("webUndoRedo");
 const freezeColor = new Animated.threeColor(COLORS.freezeColor);
 let leftAxis, rightAxis;
 let currentOutput, currentSize, currentMix, currentWidth, currentDamp;
-let lifeScale, speedScale;
+let lifeScale, speedScale, radiusScale;
 let driftScale = {};
 let countForParticles = 0;
 
@@ -205,9 +205,12 @@ function onOutputChange(output) {
                     ? (leftAxis ?? Animated.leftEmitterRadVelocityAxis())
                     : (rightAxis ?? Animated.rightEmitterRadVelocityAxis()),
                 speed: speedScale,
-                },
-            }
+            },
+            radius: radiusScale,
+        }
         ));
+
+        console.log("radiusScale: ", radiusScale);
 
         const baseForceFloor = 2;
         const baseForceCeiling = 12;
@@ -246,6 +249,11 @@ function onRoomSizeChange(roomSizeValue) {
         particleWave.setInitialValuesForAttrs(separationScaleFactor, particleWave.vectors[location], wave);
     }
 
+    const minRadius = 24;
+    const maxRadius = 80;
+    const radScale = getLinearScaledValue(minRadius, maxRadius, roomSizeValue);
+    setRadiusScale(radScale)
+
     const min = 0.50;
     const max = 1.0;
     const cubeScale = getLinearScaledValue(min, max, roomSizeValue);
@@ -281,6 +289,7 @@ function onRoomSizeChange(roomSizeValue) {
                         : (rightAxis ?? Animated.rightEmitterRadVelocityAxis()),
                     speed: speedScale,
                 },
+                radius: radiusScale,
             }
         ));
 
@@ -324,6 +333,7 @@ function onWidthChange(widthValue) {
                         : (rightAxis ?? Animated.rightEmitterRadVelocityAxis()),
                     speed: speedScale,
                 },
+                radius: radiusScale,
             }
         ));
     });
@@ -340,6 +350,10 @@ function setDriftScale(driftX, driftY, driftZ) {
     driftScale.x = driftX;
     driftScale.y = driftY;
     driftScale.z = driftZ;
+}
+
+function setRadiusScale(radScale) {
+    radiusScale = radScale;
 }
 
 function onFreezeChange(frozen) {
