@@ -401,7 +401,7 @@ function getStandardBehaviours(options = {}, emitter) {
     return [
         new Alpha(
             options.alpha?.alphaA ?? 1,
-            options.alpha?.alphaB ?? 0.5,
+            options.alpha?.alphaB ?? 0.75,
         ),
         new Color(
             options.color?.colorA ?? new ColorSpan(COLORS.spriteColors),
@@ -470,17 +470,21 @@ function collideFunction(emitter) {
                     particle.addBehaviour(
                         new Color(new ColorSpan(COLORS.spriteColors), new ColorSpan(COLORS.rainbowColors), 0.22)
                     );
+
+                    //particle.addBehaviour(
+                    //    new Alpha(0.2, 1)
+                    //)
                 }
 
                 if (particle.position.z <= cubeBackFaceZ + reflectionBuffer) {
                     particle.velocity.z *= reverseVelocityFactor(index);  
                     forceBehaviour.force.z *= reverseForceFactor(index);
-
                 }
 
                 if (particle.position.y >= cubeTopFaceY - reflectionBuffer) {
                     particle.velocity.y *= reverseVelocityFactor(index, 2 + Math.random());
                     forceBehaviour.force.y *= reverseForceFactor(index);
+
                 }
                 
                 if (particle.position.y <= cubeBottomFaceY + reflectionBuffer) {
@@ -498,15 +502,12 @@ function collideFunction(emitter) {
                     forceBehaviour.force.x *= reverseForceFactor(index);
                 }
 
-                //console.log("currentParticleVelocity: ", particle.velocity)
-
                 particle.velocity.clampLength(0, MAX_VELOCITY);
 
                 if (particle.position.x < cubeLeftFaceX - reflectionBuffer ||
                       particle.position.x > cubeRightFaceX + reflectionBuffer) {
                     particle.dead = true;
                 }
-
             });
         }
     }

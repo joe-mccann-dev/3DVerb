@@ -3,7 +3,7 @@ import * as COLORS from './colors.js';
 import * as UI from './index.js';
 import {environmentMap, camera } from './animated.js'
 
-const SEPARATION = 30, AMOUNTX = 32, AMOUNTY = 16;
+const SEPARATION = 50, AMOUNTX = 32, AMOUNTY = 16;
 const WAVE_X_POS = 50, WAVE_Y_POS = 500, WAVE_Z_POS = 50;
 const WAVE_Y_POS_BOTTOM = -500;
 

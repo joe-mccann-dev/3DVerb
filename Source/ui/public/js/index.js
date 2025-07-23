@@ -136,9 +136,10 @@ function setupBackendEventListeners() {
             .then((response) => response.json())
             .then((dampData) => {
                 if (currentDamp != dampData.damp) {
-                    dampThrottleHandler(dampData.damp);
+                    dampThrottleHandler(dampData.damp, getCurrentOutput());
                 }
                 currentDamp = dampData.damp;
+
             })
             .catch(console.error);
     });
@@ -173,7 +174,8 @@ function onOutputChange(output) {
 
     setCurrentOutput(output);
 
-    const isOutputBelowThreshold = !freeze.element.checked && getCurrentOutput() <= -50;
+    const isOutputBelowThreshold = !freeze.element.checked &&
+                                        getCurrentOutput() <= -50;
     const isLoudOutput = getCurrentOutput() > -12;
     
 
@@ -186,21 +188,25 @@ function onOutputChange(output) {
     particleWave.updateAmpQueue(amplitude);
     amplitude = particleWave.getAverageAmplitude();
 
-    const minSpeed = 35;
-    const maxSpeed = 70;
+    const minSpeed = 20;
+    const maxSpeed = 80;
     let speedMultiplier = amplitude;
-    
-    const minLife = 1.5;
-    const maxLife = 4.5;
+    const speed = getLogScaledValue(minSpeed, maxSpeed, speedMultiplier, 2);
+
+    const minLife = 4;
+    const maxLife = 16;
     const rmSize = getCurrentSize();
-    let lifeMultiplier = getLogScaledValue(minLife, maxLife, rmSize, 12);
+    const damping = getCurrentDamp();
+    const inverseDamping = 1 - damping;
+    const combined = 0.4 * inverseDamping + 0.6 * rmSize;
+    const life = getLinearScaledValue(minLife, maxLife, combined);
 
     if (isOutputBelowThreshold) {
         setLifeScale(0.2); 
         setSpeedScale(0.2);
     } else {
-        setLifeScale(getLinearScaledValue(minLife, maxLife, lifeMultiplier));
-        setSpeedScale(getLinearScaledValue(minSpeed, maxSpeed, speedMultiplier));
+        setLifeScale(life);
+        setSpeedScale(speed);
     }
 
     Animated.nebula.emitters.forEach((emitter, emitterIndex) => {
@@ -259,8 +265,8 @@ function onRoomSizeChange(roomSizeValue) {
         particleWave.setInitialValuesForAttrs(separationScaleFactor, particleWave.vectors[location], wave);
     }
 
-    const minRadius = 24;
-    const maxRadius = 80;
+    const minRadius = 30;
+    const maxRadius = 50;
     const radScale = getLinearScaledValue(minRadius, maxRadius, roomSizeValue);
     setRadiusScale(radScale)
 
@@ -350,8 +356,15 @@ function onWidthChange(widthValue) {
 }
 
 function onDampChange(dampValue) {
-    console.log("dampValue: ", dampValue);
-    console.log("lifeScale: ", lifeScale);
+    setCurrentDamp(dampValue);
+}
+
+function setCurrentDamp(newDamp) {
+    currentDamp = newDamp;
+} 
+
+function getCurrentDamp() {
+    return currentDamp;
 }
 
 function setLeftAxis(axis) { leftAxis = axis }

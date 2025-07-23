@@ -7,8 +7,9 @@ const speakersPromise = new Promise((resolve, reject) => {
         const speakers = [];
         const leftSpeaker = glb.scene;
         leftSpeaker.envMap = environmentMap;
-        leftSpeaker.receiveShadow = true;
-        leftSpeaker.scale.set(45, 45, 45);     
+        leftSpeaker.castShadow = false;
+        leftSpeaker.receiveShadow = false;
+        leftSpeaker.scale.set(42, 42, 42);     
         leftSpeaker.position.set(-140, -20, -20);
         speakers.push(leftSpeaker);
 
@@ -26,8 +27,8 @@ const carpetPromise = new Promise((resolve, reject) => {
     loader.load('assets/fine_persian_heriz_carpet.glb', function (glb) {
         const carpet = glb.scene;
         carpet.envMap = environmentMap;
-        carpet.receiveShadow = true;
-        carpet.castShadow = true;
+        carpet.castShadow = false;
+        carpet.receiveShadow = false;
         carpet.scale.set(120, 100, 100);
         carpet.position.set(10, -98, 85);
 
@@ -39,39 +40,13 @@ const lampPromise = new Promise((resolve, reject) => {
     loader.load('assets/floor_lamp.glb', function (glb) {
         const lamp = glb.scene;
         lamp.envMap = environmentMap;
-        lamp.receiveShadow = true;
-        lamp.castShadow = true;
-        lamp.scale.set(110, 110, 110);
+        lamp.castShadow = false;
+        lamp.receiveShadow = false;
+        lamp.scale.set(112, 112, 112);
         lamp.position.set(-30, 10, -10);
         lamp.rotateY(Math.PI / 4)
 
         resolve(lamp);
-    }, undefined, reject);
-});
-
-const panelPromise = new Promise((resolve, reject) => {
-    loader.load('assets/wall_wood_panels.glb', function (glb) {
-        const panel = glb.scene;
-        panel.envMap = environmentMap;
-        panel.receiveShadow = true;
-        panel.scale.set(150, 150, 150);
-        panel.position.set(-25, -10, -80);
-        panel.rotateZ(Math.PI / 2);
-
-        resolve(panel);
-    }, undefined, reject);
-});
-
-const plantPromise = new Promise((resolve, reject) => {
-    loader.load('assets/tall_house_plant.glb', function (glb) {
-        const plant = glb.scene;
-        plant.envMap = environmentMap;
-        plant.receiveShadow = true;
-        plant.castShadow = true;
-        plant.scale.set(0.35, 0.35, 0.35);
-        plant.position.set(60, -80, 90);
-
-        resolve(plant);
     }, undefined, reject);
 });
 
@@ -99,12 +74,6 @@ function addModelsToScene() {
     });
     lampPromise.then((lamp) => {
         addToSceneAndObjects(lamp);
-    });
-    panelPromise.then((panel) => {
-        addToSceneAndObjects(panel);
-    });
-    plantPromise.then((plant) => {
-        addToSceneAndObjects(plant);
     });
     soundPanelPromise.then((soundPanel) => {
         addToSceneAndObjects(soundPanel);
