@@ -212,15 +212,11 @@ function onOutputChange(output) {
 
     Animated.nebula.emitters.forEach((emitter, emitterIndex) => {
         const lifeInitializer = emitter.initializers.find(initializer => initializer.type === 'Life');
-        if (lifeInitializer) {
-            lifeInitializer.lifePan = new Animated.Span(lifeScale);
-        }
+        lifeInitializer.lifePan = new Animated.Span(lifeScale);
 
         const radialVelocity = emitter.initializers.find(initializer => initializer.type === 'RadialVelocity');
-        if (radialVelocity) {
-            radialVelocity.radiusPan = new Animated.Span(speedScale);
-        }
-
+        radialVelocity.radiusPan = new Animated.Span(speedScale);
+        
         const forceFloor = 2;
         const forceCeiling = 12;
         const baseForce = getLogScaledValue(forceFloor, forceCeiling, speedScale, Math.E);
@@ -255,7 +251,7 @@ function onRoomSizeChange(roomSizeValue) {
     }
 
     const minRadius = 30;
-    const maxRadius = 50;
+    const maxRadius = 80;
     const radScale = getLinearScaledValue(minRadius, maxRadius, roomSizeValue);
     setRadiusScale(radScale)
 
@@ -283,31 +279,23 @@ function onRoomSizeChange(roomSizeValue) {
     const driftZScale = getLinearScaledValue(minDriftZ, maxDriftZ, roomSizeValue);
 
     setDriftScale(driftXScale, driftYScale, driftZScale);
-   
-    Animated.nebula.emitters.forEach((emitter, emitterIndex) => {
-        emitter.setInitializers(Animated.getStandardInitializers(
-            {
-                life: lifeScale,
-                radialVelocity: {
-                    axis: emitterIndex < 2
-                        ? (leftAxis ?? Animated.leftEmitterRadVelocityAxis())
-                        : (rightAxis ?? Animated.rightEmitterRadVelocityAxis()),
-                    speed: speedScale,
-                },
-                radius: radiusScale,
-            }
-        ));
 
-        emitter.setBehaviours(Animated.getStandardBehaviours(
-            {
-                randomDrift: {
-                    driftX: driftScale.x,
-                    driftY: driftScale.y,
-                    driftZ: driftScale.z,
-                }
-            }
-        ));
-    });    
+    Animated.nebula.emitters.forEach((emitter) => {
+        emitter.initializers = emitter.initializers.filter(initializer => initializer.type !== 'Radius');
+        const newRadius = new Animated.Radius(radiusScale);
+        emitter.initializers.push(newRadius);
+
+        emitter.behaviours = emitter.behaviours.filter(b => b.type !== 'RandomDrift');
+        const newRandomDrift = new Animated.RandomDrift(
+            driftXScale,
+            driftYScale,
+            driftZScale,
+            0.2,
+            3,
+            Animated.ease.easeOutSine);
+
+        emitter.behaviours.push(newRandomDrift);
+    });   
 }
 
 function onMixChange(mixValue) {
@@ -331,14 +319,14 @@ function onWidthChange(widthValue) {
     Animated.nebula.emitters.forEach((emitter, emitterIndex) => {
         emitter.setInitializers(Animated.getStandardInitializers(
             {
-                life: lifeScale,
+                //life: lifeScale,
                 radialVelocity: {
                     axis: emitterIndex < 2
                         ? (leftAxis ?? Animated.leftEmitterRadVelocityAxis())
                         : (rightAxis ?? Animated.rightEmitterRadVelocityAxis()),
-                    speed: speedScale,
+                    //speed: speedScale,
                 },
-                radius: radiusScale,
+                //radius: radiusScale,
             }
         ));
     });
@@ -359,7 +347,7 @@ function onDampChange(dampValue) {
     Animated.nebula.emitters.forEach((emitter) => {
         emitter.setBehaviours(Animated.getStandardBehaviours(
             {
-                scale: { scaleA: scaleA, scaleB: scaleB },
+                //scale: { scaleA: scaleA, scaleB: scaleB },
                 randomDrift: {
                     driftX: driftScale.x,
                     driftY: driftScale.y,

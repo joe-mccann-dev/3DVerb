@@ -582,7 +582,11 @@ export {
     // initializers
     Life,
     Span,
+    Radius,
 
     // behaviours
     Force,
+    RandomDrift,
+
+    ease,
 }
