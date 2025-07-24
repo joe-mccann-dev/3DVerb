@@ -14,11 +14,11 @@ const redoButton = document.getElementById("redoButton");
 const undoRedoCtrl = Juce.getNativeFunction("webUndoRedo");
 
 const freezeColor = new Animated.threeColor(COLORS.freezeColor);
-let leftAxis, rightAxis;
+
 let currentOutput, currentSize, currentMix, currentWidth, currentDamp;
+let leftAxis, rightAxis;
 let lifeScale, speedScale, radiusScale;
-let driftScale = {};
-let countForParticles = 0;
+let countForParticleWave = 0;
 
 let roomSizeThrottleHandler, mixThrottleHandler, widthThrottleHandler, dampThrottleHandler,
     freezeThrottleHandler, levelsThrottleHandler, outputThrottleHandler;
@@ -84,7 +84,6 @@ function setupBackendEventListeners() {
         fetch(Juce.getBackendResourceAddress("outputLevel.json"))
             .then((response) => response.json())
             .then((outputLevelData) => {
-                //setCurrentOutput(outputLevelData.left);
                 outputThrottleHandler(outputLevelData.left);
             })
             .catch(console.error);
@@ -98,8 +97,7 @@ function setupBackendEventListeners() {
                 if (currentSize != roomSizeData.roomSize) {
                     roomSizeThrottleHandler(roomSizeData.roomSize);
                 }
-                setCurrentSize(roomSizeData.roomSize);
-                //currentSize = roomSizeData.roomSize;
+                currentSize = roomSizeData.roomSize;
             })
             .catch(console.error);
     });
@@ -137,7 +135,7 @@ function setupBackendEventListeners() {
             .then((response) => response.json())
             .then((dampData) => {
                 if (currentDamp != dampData.damp) {
-                    dampThrottleHandler(dampData.damp, getCurrentOutput());
+                    dampThrottleHandler(dampData.damp);
                 }
                 currentDamp = dampData.damp;
 
@@ -167,19 +165,16 @@ function setupBackendEventListeners() {
 
 function onLevelsChange(levels) {
     // send updated magnitudes to particle animation function
-    particleWave.animateParticles(levels.slice(1, levels.length), countForParticles += 0.1);
-    
+    particleWave.animateParticles(levels.slice(1, levels.length), countForParticleWave += 0.1);
 }
 
 function onOutputChange(output) {
-
-    setCurrentOutput(output);
+    currentOutput = output;
 
     const isOutputBelowThreshold = !freeze.element.checked &&
-                                        getCurrentOutput() <= -50;
-    const isLoudOutput = getCurrentOutput() > -12;
+                                        currentOutput <= -50;
+    const isLoudOutput = currentOutput > -12;
     
-
     // sine wave too big when passing audio mastered at modern levels
     // inverse nature of output means multiplying output decreases amplitude in setSineWaveAmplitude()
     if (isLoudOutput) { output = output * 6 }
@@ -196,18 +191,19 @@ function onOutputChange(output) {
 
     const minLife = 4;
     const maxLife = 16;
-    const rmSize = getCurrentSize();
-    const damping = getCurrentDamp();
+    const rmSize = currentSize;
+    const damping = currentDamp;
     const inverseDamping = 1 - damping;
     const combined = 0.4 * inverseDamping + 0.6 * rmSize;
     const life = getLinearScaledValue(minLife, maxLife, combined);
 
     if (isOutputBelowThreshold) {
-        setLifeScale(0.2); 
-        setSpeedScale(0.2);
+        const reducedLifeAndSpeedVal = 0.2
+        lifeScale = reducedLifeAndSpeedVal;
+        speedScale = reducedLifeAndSpeedVal;
     } else {
-        setLifeScale(life);
-        setSpeedScale(speed);
+        lifeScale = life;
+        speedScale = speed;
     }
 
     Animated.nebula.emitters.forEach((emitter, emitterIndex) => {
@@ -216,7 +212,7 @@ function onOutputChange(output) {
 
         const radialVelocity = emitter.initializers.find(initializer => initializer.type === 'RadialVelocity');
         radialVelocity.radiusPan = new Animated.Span(speedScale);
-        
+
         const forceFloor = 2;
         const forceCeiling = 12;
         const baseForce = getLogScaledValue(forceFloor, forceCeiling, speedScale, Math.E);
@@ -240,7 +236,14 @@ function onOutputChange(output) {
 }
 
 function onRoomSizeChange(roomSizeValue) {
-    setCurrentSize(roomSizeValue);
+    currentSize = roomSizeValue;
+
+    // prevent particles from "floating" outside cuboid when decreasing room size
+    Animated.nebula.emitters.forEach((emitter) => {
+        emitter.particles.forEach((particle) => {
+            particle.dead = true;
+        });
+    });
 
     const floor = 20;
     const separationScaleFactor = floor + (particleWave.SEPARATION * roomSizeValue);
@@ -252,9 +255,8 @@ function onRoomSizeChange(roomSizeValue) {
 
     const minRadius = 30;
     const maxRadius = 80;
-    const radScale = getLinearScaledValue(minRadius, maxRadius, roomSizeValue);
-    setRadiusScale(radScale)
-
+    radiusScale = getLinearScaledValue(minRadius, maxRadius, roomSizeValue);
+  
     const min = 0.50;
     const max = 1.0;
     const cubeScale = getLinearScaledValue(min, max, roomSizeValue);
@@ -278,8 +280,6 @@ function onRoomSizeChange(roomSizeValue) {
     const maxDriftZ = 200;
     const driftZScale = getLinearScaledValue(minDriftZ, maxDriftZ, roomSizeValue);
 
-    setDriftScale(driftXScale, driftYScale, driftZScale);
-
     Animated.nebula.emitters.forEach((emitter) => {
         emitter.initializers = emitter.initializers.filter(initializer => initializer.type !== 'Radius');
         const newRadius = new Animated.Radius(radiusScale);
@@ -295,7 +295,7 @@ function onRoomSizeChange(roomSizeValue) {
             Animated.ease.easeOutSine);
 
         emitter.behaviours.push(newRandomDrift);
-    });   
+    });
 }
 
 function onMixChange(mixValue) {
@@ -310,30 +310,24 @@ function onWidthChange(widthValue) {
     const rightMax = 600;
 
     // using log for less sensitive scale slider
-    const leftAxisScale = getLogScaledValue(leftMin, leftMax, widthValue, 8);
-    const rightAxisScale = getLogScaledValue(rightMin, rightMax, widthValue, 8);
+    const leftAxisScale = getLogScaledValue(leftMin, leftMax, widthValue, Math.E);
+    const rightAxisScale = getLogScaledValue(rightMin, rightMax, widthValue, Math.E);
 
-    setLeftAxis(new Animated.Vector3D(leftAxisScale, 0, 10));
-    setRightAxis(new Animated.Vector3D(rightAxisScale, 0, 10));
+    leftAxis = new Animated.Vector3D(leftAxisScale, -100, 10);
+    rightAxis = new Animated.Vector3D(rightAxisScale, 100, 10);
 
+    const theta = 20;
     Animated.nebula.emitters.forEach((emitter, emitterIndex) => {
-        emitter.setInitializers(Animated.getStandardInitializers(
-            {
-                //life: lifeScale,
-                radialVelocity: {
-                    axis: emitterIndex < 2
-                        ? (leftAxis ?? Animated.leftEmitterRadVelocityAxis())
-                        : (rightAxis ?? Animated.rightEmitterRadVelocityAxis()),
-                    //speed: speedScale,
-                },
-                //radius: radiusScale,
-            }
-        ));
+        emitter.initializers = emitter.initializers.filter(initializer => initializer.type !== 'RadialVelocity');
+        const leftOrRightAxis = emitterIndex < 2 ? leftAxis : rightAxis;
+        const newRadialVelocity = new Animated.RadialVelocity(speedScale, leftOrRightAxis, theta);
+        emitter.initializers.push(newRadialVelocity);
     });
+
 }
 
 function onDampChange(dampValue) {
-    setCurrentDamp(dampValue);
+    currentDamp = dampValue;
 
     const minScale = 0.5;
     const maxScale = 1;
@@ -343,67 +337,10 @@ function onDampChange(dampValue) {
 
     const scaleA = maxScale * dampingScale;
     const scaleB = minScale * dampingScale;
-
-    Animated.nebula.emitters.forEach((emitter) => {
-        emitter.setBehaviours(Animated.getStandardBehaviours(
-            {
-                //scale: { scaleA: scaleA, scaleB: scaleB },
-                randomDrift: {
-                    driftX: driftScale.x,
-                    driftY: driftScale.y,
-                    driftZ: driftScale.z,
-                }
-
-            }
-        ))
-
-    });
-}
-
-function setCurrentDamp(newDamp) {
-    currentDamp = newDamp;
-} 
-
-function getCurrentDamp() {
-    return currentDamp;
-}
-
-function setLeftAxis(axis) { leftAxis = axis }
-function setRightAxis(axis) { rightAxis = axis; }
-
-function setLifeScale(lScale) { lifeScale = lScale; }
-
-function setSpeedScale(spScale) { speedScale = spScale; }
-
-function setDriftScale(driftX, driftY, driftZ) {
-    driftScale.x = driftX;
-    driftScale.y = driftY;
-    driftScale.z = driftZ;
-}
-
-function setRadiusScale(radScale) {
-    radiusScale = radScale;
 }
 
 function onFreezeChange(frozen) {
     freezeAnchorSpheres(frozen);
-}
-
-
-function setCurrentOutput(outputLevel) {
-    currentOutput = outputLevel;
-}
-
-function getCurrentOutput() {
-    return currentOutput;
-}
-
-function setCurrentSize(rmSize) {
-    currentSize = rmSize;
-}
-
-function getCurrentSize() {
-    return currentSize;
 }
 
 function getLinearScaledValue(minValue, maxValue, paramValue) {

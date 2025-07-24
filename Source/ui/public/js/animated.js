@@ -378,7 +378,7 @@ function createEmitter(options = {}) {
     const emitter = new Emitter()
         .setRate(new Rate(2, 0.2))
         .setInitializers(getStandardInitializers(options))
-
+        .setBehaviours(getStandardBehaviours(options));
     emitter.damping = 0.06;
     return emitter;
 }
@@ -407,10 +407,10 @@ function getStandardBehaviours(options = {}, emitter) {
             options.alpha?.alphaA ?? 1,
             options.alpha?.alphaB ?? 0.75,
         ),
-        new Color(
-            options.color?.colorA ?? new ColorSpan(COLORS.spriteColors),
-            options.color?.colorB ?? new ColorSpan(COLORS.spriteColors)
-        ),
+            new Color(
+                options.color?.colorA ?? new ColorSpan(COLORS.spriteColors),
+                options.color?.colorB ?? new ColorSpan(COLORS.spriteColors)
+            ),
         new Scale(
             options.scale?.scaleA ?? 1,
             options.scale?.scaleB ?? 0.5
@@ -472,7 +472,7 @@ function collideFunction(emitter) {
                     forceBehaviour.force.z *= reverseForceFactor(index);
 
                     particle.addBehaviour(
-                        new Color(new ColorSpan(COLORS.spriteColors), new ColorSpan(COLORS.rainbowColors), 0.22)
+                        new Color(new ColorSpan(COLORS.spriteColors), new ColorSpan(COLORS.rainbowColors), 0.5)
                     );
 
                     //particle.addBehaviour(
@@ -583,6 +583,7 @@ export {
     Life,
     Span,
     Radius,
+    RadialVelocity,
 
     // behaviours
     Force,
