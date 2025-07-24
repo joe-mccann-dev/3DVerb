@@ -397,6 +397,10 @@ function getStandardInitializers(options = {}) {
     ]
 }
 
+function updateInitializer(type, newParams) {
+
+}
+
 function getStandardBehaviours(options = {}, emitter) {
     return [
         new Alpha(
@@ -556,7 +560,6 @@ export {
     animate,
     nebula,
     Vector3D,
-    Force,
     ColorSpan,
     scene,
     environmentMap,
@@ -575,4 +578,11 @@ export {
     objects,
     addToSceneAndObjects,
     DEFAULT_EMITTER_DAMPING,
+
+    // initializers
+    Life,
+    Span,
+
+    // behaviours
+    Force,
 }

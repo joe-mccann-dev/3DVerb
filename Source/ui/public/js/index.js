@@ -131,6 +131,7 @@ function setupBackendEventListeners() {
             .catch(console.error);
     });
 
+    // DAMP EVENT
     window.__JUCE__.backend.addEventListener("dampValue", () => {
         fetch(Juce.getBackendResourceAddress("damp.json"))
             .then((response) => response.json())
@@ -210,45 +211,33 @@ function onOutputChange(output) {
     }
 
     Animated.nebula.emitters.forEach((emitter, emitterIndex) => {
+        const lifeInitializer = emitter.initializers.find(initializer => initializer.type === 'Life');
+        if (lifeInitializer) {
+            lifeInitializer.lifePan = new Animated.Span(lifeScale);
+        }
+
+        const radialVelocity = emitter.initializers.find(initializer => initializer.type === 'RadialVelocity');
+        if (radialVelocity) {
+            radialVelocity.radiusPan = new Animated.Span(speedScale);
+        }
+
+        const forceFloor = 2;
+        const forceCeiling = 12;
+        const baseForce = getLogScaledValue(forceFloor, forceCeiling, speedScale, Math.E);
+
+        const forceZ = baseForce
+        const forceY = baseForce * 0.4;
+        const forceX = emitterIndex < 2 ? -1 * (baseForce * 0.5) : (baseForce * 0.5);
+
+        emitter.behaviours = emitter.behaviours.filter(b => b.type !== 'Force');
+        const newForce = new Animated.Force(forceX, forceY, forceZ);
+        emitter.behaviours.push(newForce);
+
         emitter.damping = (
             output > currentOutput
                 ? Animated.DEFAULT_EMITTER_DAMPING
                 : Animated.DEFAULT_EMITTER_DAMPING * 10
         );
-
-        emitter.setInitializers(Animated.getStandardInitializers({
-            life: lifeScale,
-            radialVelocity: {
-                axis: emitterIndex < 2
-                    ? (leftAxis ?? Animated.leftEmitterRadVelocityAxis())
-                    : (rightAxis ?? Animated.rightEmitterRadVelocityAxis()),
-                speed: speedScale,
-            },
-            radius: radiusScale,
-        }
-        ));
-
-        const baseForceFloor = 2;
-        const baseForceCeiling = 12;
-        const baseForce = getLogScaledValue(baseForceFloor, baseForceCeiling, speedScale, 10);
-        const forceZ = baseForce
-        const forceY = baseForce * 0.4;
-        const forceX = emitterIndex < 2 ? -1 * (baseForce * 0.5) : (baseForce * 0.5);
-        const colors = COLORS.spriteColors;
-        const colorSpan = new Animated.ColorSpan(colors);
-        emitter.setBehaviours(Animated.getStandardBehaviours(
-            {
-                force: { fx: forceX, fy: forceY, fz: forceZ },
-                color: { colorA: colorSpan, colorB: colorSpan },
-                randomDrift: {
-                    driftX: driftScale.x,
-                    driftY: driftScale.y,
-                    driftZ: driftScale.z,
-                }
-
-                //collision: { onCollide: Animated.collideFunction(emitter)}
-            }
-        ));
 
         Animated.collideFunction(emitter);
     });
@@ -357,6 +346,30 @@ function onWidthChange(widthValue) {
 
 function onDampChange(dampValue) {
     setCurrentDamp(dampValue);
+
+    const minScale = 0.5;
+    const maxScale = 1;
+    //higher damping equals smaller scale;
+    const inverseDamping = 1 - dampValue;
+    const dampingScale = getLinearScaledValue(minScale, maxScale, inverseDamping);
+
+    const scaleA = maxScale * dampingScale;
+    const scaleB = minScale * dampingScale;
+
+    Animated.nebula.emitters.forEach((emitter) => {
+        emitter.setBehaviours(Animated.getStandardBehaviours(
+            {
+                scale: { scaleA: scaleA, scaleB: scaleB },
+                randomDrift: {
+                    driftX: driftScale.x,
+                    driftY: driftScale.y,
+                    driftZ: driftScale.z,
+                }
+
+            }
+        ))
+
+    });
 }
 
 function setCurrentDamp(newDamp) {
