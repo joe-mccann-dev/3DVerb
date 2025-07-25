@@ -22,8 +22,6 @@ import ParticleSystem, {
     RandomDrift,
     Gravity,
     ease,
-    Position,
-    PointZone,
 } from 'three-nebula';
 
 //import { ease } from 'three-nebula/src/ease/index.js'
@@ -59,8 +57,6 @@ const emitterLeftX = -140;
 const emitterRightX = 160;
 const emitterY = 10;
 const emitterZ = 10;
-
-const DEFAULT_EMITTER_DAMPING = 0.006;
 
 init();
 
@@ -589,7 +585,6 @@ export {
     resetParticles,
     objects,
     addToSceneAndObjects,
-    DEFAULT_EMITTER_DAMPING,
 
     // initializers
     Life,

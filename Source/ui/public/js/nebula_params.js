@@ -62,7 +62,7 @@ export default class NebulaParams {
         const roomFactor = 0.6
         const combined = dampFactor * inverseDamping + roomFactor * roomSize;
 
-        if (!this.visualParamsObject.isLowOutput) {
+        if (this.visualParamsObject.isLowOutput) {
             return NebulaParams.DEFAULT_LIFE;
         } else {
             return Utility.getLinearScaledValue(
@@ -82,7 +82,7 @@ export default class NebulaParams {
     }
 
     calculateSpeedScale(amplitude) {
-        if (!this.visualParamsObject.isLowOutput) {
+        if (this.visualParamsObject.isLowOutput) {
             return NebulaParams.DEFAULT_SPEED;
         } else {
             const logBase = 2;

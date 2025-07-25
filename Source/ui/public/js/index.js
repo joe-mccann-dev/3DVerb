@@ -189,10 +189,7 @@ function onOutputChange(output) {
         lifeInitializer.lifePan = new Animated.Span(nebulaParams.lifeScale);
 
         const radialVelocity = emitter.initializers.find(initializer => initializer.type === 'RadialVelocity');
-        if (radialVelocity) {
-            radialVelocity.radiusPan = new Animated.Span(nebulaParams.speedScale);
-        }
-        
+        radialVelocity.radiusPan = new Animated.Span(nebulaParams.speedScale);
         
         emitter.behaviours = emitter.behaviours.filter(b => b.type !== 'Force');
         const forceValues = nebulaParams.forceValues(emitterIndex);
@@ -202,14 +199,7 @@ function onOutputChange(output) {
             forceValues.z
         );
 
-
         emitter.behaviours.push(newForce);
-
-        emitter.damping = (
-            output > visualParams.currentOutput
-                ? Animated.DEFAULT_EMITTER_DAMPING
-                : Animated.DEFAULT_EMITTER_DAMPING * 10
-        );
 
         Animated.collideFunction(emitter);
     });
@@ -256,8 +246,8 @@ function onRoomSizeChange(roomSizeValue) {
 
 function onMixChange(mixValue) {
     visualParams.currentMix = mixValue;
-    //const scaleFactor = 4;
-    //scaleAnchorSpheres(mixValue, scaleFactor);
+    const scaleFactor = 4;
+    scaleAnchorSpheres(mixValue, scaleFactor);
 }
 
 function onWidthChange(widthValue) {
