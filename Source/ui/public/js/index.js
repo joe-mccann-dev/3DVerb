@@ -4,6 +4,7 @@ import * as COLORS from './colors.js';
 import * as particleWave from './particle_wave.js'
 import VisualParams from './visual_params.js'
 import NebulaParams from './nebula_params.js'
+import * as Utility from './utility.js';
 
 
 const data = window.__JUCE__.initialisationData;
@@ -25,10 +26,6 @@ let countForParticleWave = 0;
 
 let roomSizeThrottleHandler, mixThrottleHandler, widthThrottleHandler, dampThrottleHandler,
     freezeThrottleHandler, levelsThrottleHandler, outputThrottleHandler;
-// aiming for ~30 FPS. 1000 ms / 30 fps = 33.3333
-const THROTTLE_TIME = 33;
-const SLOW_THROTTLE_TIME = THROTTLE_TIME * 3;
-const DEFAULT_STEP_VALUE = 0.01;
 
 const bypassAndMono = {
     bypass: {
@@ -45,27 +42,27 @@ const sliderParams = {
     gain: {
         element: document.getElementById("gainSlider"),
         state: Juce.getSliderState("GAIN"),
-        stepValue: DEFAULT_STEP_VALUE,
+        stepValue: Utility.DEFAULT_STEP_VALUE,
     },
     roomSize: {
         element: document.getElementById("roomSizeSlider"),
         state: Juce.getSliderState("SIZE"),
-        stepValue: DEFAULT_STEP_VALUE,
+        stepValue: Utility.DEFAULT_STEP_VALUE,
     },
     mix: {
         element: document.getElementById("mixSlider"),
         state: Juce.getSliderState("MIX"),
-        stepValue: DEFAULT_STEP_VALUE,
+        stepValue: Utility.DEFAULT_STEP_VALUE,
     },
     width: {
         element: document.getElementById("widthSlider"),
         state: Juce.getSliderState("WIDTH"),
-        stepValue: DEFAULT_STEP_VALUE,
+        stepValue: Utility.DEFAULT_STEP_VALUE,
     },
     damp: {
         element: document.getElementById("dampSlider"),
         state: Juce.getSliderState("DAMP"),
-        stepValue: DEFAULT_STEP_VALUE,
+        stepValue: Utility.DEFAULT_STEP_VALUE,
     },
 }
 
@@ -250,22 +247,13 @@ function onMixChange(mixValue) {
 }
 
 function onWidthChange(widthValue) {
-    visualParams.currentWidth = widthValue;
+    visualParams.curretWidth = widthValue;
 
     Animated.nebula.emitters.forEach((emitter, emitterIndex) => {
         emitter.initializers = emitter.initializers.filter(initializer => initializer.type !== 'RadialVelocity');
-        //let axis;
-        //if (emitterIndex < 2) {
-        //    axis = nebulaParams.calculateLeftAxisVector();
-        //    nebulaParams.leftAxis = axis;
-        //} else {
-        //    axis = nebulaParams.calculateRightAxisVector();
-        //    nebulaParams.rightAxis = axis;
-        //}
-
         const axis = nebulaParams.calculateLeftOrRightAxisVector(emitterIndex);
-
         const newRadialVelocity = new Animated.RadialVelocity(nebulaParams.speedScale, axis, NebulaParams.velocityTheta);
+
         emitter.initializers.push(newRadialVelocity);
     });
 
@@ -278,24 +266,16 @@ function onDampChange(dampValue) {
     const maxScale = 1;
     //higher damping equals smaller scale;
     const inverseDamping = 1 - dampValue;
-    const dampingScale = getLinearScaledValue(minScale, maxScale, inverseDamping);
+    //const dampingScale = getLinearScaledValue(minScale, maxScale, inverseDamping);
 
-    const scaleA = maxScale * dampingScale;
-    const scaleB = minScale * dampingScale;
+    //const scaleA = maxScale * dampingScale;
+    //const scaleB = minScale * dampingScale;
 }
 
 function onFreezeChange(frozen) {
     freezeAnchorSpheres(frozen);
 }
 
-function getLinearScaledValue(minValue, maxValue, paramValue) {
-    return minValue + (maxValue - minValue) * paramValue;
-}
-
-function getLogScaledValue(minValue, maxValue, paramValue, logBase) {
-    const logScale = Math.log(paramValue + 1) / Math.log(logBase);
-    return minValue + (maxValue - minValue) * logScale;
-}
 
 function scaleSurroundingCube(scale) {
     Animated.surroundingCube.scale.copy(Animated.surroundingCube.userData.originalScale);
@@ -324,7 +304,7 @@ function scaleAnchorSpheresPosition(scale) {
 
         const minX = 10 * particleWave.getCurrentSeparation();
         const maxX = 15 * particleWave.getCurrentSeparation();
-        const xOffset = getLogScaledValue(minX, maxX, scale, Math.E);
+        const xOffset = Utility.getLogScaledValue(minX, maxX, scale, Math.E);
         const sphereXOffset = index < 4 ? -xOffset : xOffset;
 
         const zOffset = currentSeparation;
@@ -366,55 +346,33 @@ function setUserData() {
     Animated.surroundingCube.userData.originalPosition = Animated.surroundingCube.position.clone();
 }
 
-//https://www.freecodecamp.org/news/throttling-in-javascript/
-function throttle(func, delay) {
-    let timeout = null;
-    return (...args) => {
-        if (!timeout) {
-            func(...args);
-            timeout = setTimeout(() => {
-                timeout = null;
-            }, delay);
-        }
-    }
-}
-
-function debounce(func, timeout = THROTTLE_TIME) {
-    let timer;
-    return (...args) => {
-        clearTimeout(timer);
-        timer = setTimeout(() => { func.apply(this, args); }, timeout);
-    };
-}
-
 function initThrottleHandlers() {
-    roomSizeThrottleHandler = debounce((roomSizeValue) => {
+    roomSizeThrottleHandler = Utility.debounce((roomSizeValue) => {
         onRoomSizeChange(roomSizeValue);
     }, 10);
 
-    mixThrottleHandler = throttle((mixValue) => {
+    mixThrottleHandler = Utility.throttle((mixValue) => {
         onMixChange(mixValue);
-    }, SLOW_THROTTLE_TIME);
+    }, Utility.SLOW_THROTTLE_TIME);
 
-    widthThrottleHandler = throttle((widthValue) => {
+    widthThrottleHandler = Utility.throttle((widthValue) => {
         onWidthChange(widthValue);
-    }, SLOW_THROTTLE_TIME);
+    }, Utility.SLOW_THROTTLE_TIME);
 
-    // TODO: place here dampThrottleHandler
-    dampThrottleHandler = throttle((dampValue) => {
+    dampThrottleHandler = Utility.throttle((dampValue) => {
         onDampChange(dampValue);
-    }, SLOW_THROTTLE_TIME)
+    }, Utility.SLOW_THROTTLE_TIME)
 
-    freezeThrottleHandler = throttle((frozen) => {
+    freezeThrottleHandler = Utility.throttle((frozen) => {
         onFreezeChange(frozen);
-    }, SLOW_THROTTLE_TIME);
+    }, Utility.SLOW_THROTTLE_TIME);
 
-    levelsThrottleHandler = throttle((levels) => {
+    levelsThrottleHandler = Utility.throttle((levels) => {
         onLevelsChange(levels);
-    }, THROTTLE_TIME);
-    outputThrottleHandler = throttle((output) => {
+    }, Utility.THROTTLE_TIME);
+    outputThrottleHandler = Utility.throttle((output) => {
         onOutputChange(output);
-    }, THROTTLE_TIME);
+    }, Utility.THROTTLE_TIME);
 }
 
 function setupDOMEventListeners() {
@@ -501,7 +459,4 @@ function setFreezeLabelColor(checked, label) {
 export {
     freeze,
     bypassAndMono,
-    getLinearScaledValue,
-    getLogScaledValue,
-    throttle,
 }

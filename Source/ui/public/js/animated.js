@@ -24,8 +24,6 @@ import ParticleSystem, {
     ease,
 } from 'three-nebula';
 
-//import { ease } from 'three-nebula/src/ease/index.js'
-
 import * as UI from './index.js';
 import * as particleWave from './particle_wave.js'
 import Stats from 'three/addons/libs/stats.module.js';

@@ -124,21 +124,23 @@ export default class NebulaParams {
     }
 
     calculateLeftAxisVector() {
+        const logScale = 20;
         const scale = Utility.getLogScaledValue(
             NebulaParams.minLeftVelocity,
             NebulaParams.maxLeftVelocity,
             this.visualParamsObject.currentWidth,
-            Math.E);
+            logScale);
 
         return new Vector3D(scale, NebulaParams.leftYVelocity, NebulaParams.leftZVelocity);
     }
 
     calculateRightAxisVector() {
+        const logScale = 20;
         const scale = Utility.getLogScaledValue(
             NebulaParams.minRightVelocity,
             NebulaParams.maxRightVelocity,
             this.visualParamsObject.currentWidth,
-            Math.E);
+            logScale);
 
         return new Vector3D(scale, NebulaParams.rightYVelocity, NebulaParams.rightZVelocity);
     }

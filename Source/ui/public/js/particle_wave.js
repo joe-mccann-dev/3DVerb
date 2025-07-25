@@ -1,7 +1,8 @@
 import { BufferGeometry, BufferAttribute, Color, Points, ShaderMaterial, AdditiveBlending, Vector3 } from 'three'
 import * as COLORS from './colors.js';
 import * as UI from './index.js';
-import {environmentMap, camera } from './animated.js'
+import { environmentMap, camera } from './animated.js'
+import * as Utility from './utility.js';
 
 const SEPARATION = 50, AMOUNTX = 32, AMOUNTY = 16;
 const WAVE_X_POS = 50, WAVE_Y_POS = 500, WAVE_Z_POS = 50;
@@ -118,14 +119,14 @@ function animateParticles(levels, count = 0) {
 
                 const avgAmp = getAverageAmplitude();
                 const positionFloor = 2;
-                const positionMultiplier = positionFloor + UI.getLogScaledValue((2 * level), (4 * level), ix, 10);
+                const positionMultiplier = positionFloor + Utility.getLogScaledValue((2 * level), (4 * level), ix, 10);
                 positionArray[positionIndex + 1] = y_pos +
                                                     ( avgAmp * positionMultiplier * Math.sin((ix + count))) +
                                                     ( avgAmp * positionMultiplier * Math.sin((iy + count)));
 
                 const scaleFloor = 12;
                 // scale particle based on corresponding level 
-                const scaleMultiplier = UI.getLogScaledValue((20 * level), (60 * level), ix, 10);
+                const scaleMultiplier = Utility.getLogScaledValue((20 * level), (60 * level), ix, 10);
                 scaleArray[particleIndex] = scaleFloor + scaleMultiplier;
 
                 const lightness = 50 + 50 * level;
@@ -161,7 +162,7 @@ function setSineWaveAmplitude(output) {
     const convertedOutput = (-1 * output);
     const min = 1;
     const max = 6;
-    const amplitudeScale = UI.getLogScaledValue(min, max, convertedOutput, 5);
+    const amplitudeScale = Utility.getLogScaledValue(min, max, convertedOutput, 5);
     amplitude = amplitudeScale * (currentSeparation) * (1 / convertedOutput);
 }
 
