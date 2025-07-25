@@ -30,7 +30,7 @@ export default class VisualParams {
 
         const reductionFactor = 6;
 
-        const result = this.#isLoudOutput
+        return this.isLoudOutput
             ? reductionFactor * newOutput
             : newOutput;
 

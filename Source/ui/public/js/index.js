@@ -254,14 +254,16 @@ function onWidthChange(widthValue) {
 
     Animated.nebula.emitters.forEach((emitter, emitterIndex) => {
         emitter.initializers = emitter.initializers.filter(initializer => initializer.type !== 'RadialVelocity');
-        let axis;
-        if (emitterIndex < 2) {
-            axis = nebulaParams.calculateLeftAxisVector();
-            nebulaParams.leftAxis = axis;
-        } else {
-            axis = nebulaParams.calculateRightAxisVector();
-            nebulaParams.rightAxis = axis;
-        }
+        //let axis;
+        //if (emitterIndex < 2) {
+        //    axis = nebulaParams.calculateLeftAxisVector();
+        //    nebulaParams.leftAxis = axis;
+        //} else {
+        //    axis = nebulaParams.calculateRightAxisVector();
+        //    nebulaParams.rightAxis = axis;
+        //}
+
+        const axis = nebulaParams.calculateLeftOrRightAxisVector(emitterIndex);
 
         const newRadialVelocity = new Animated.RadialVelocity(nebulaParams.speedScale, axis, NebulaParams.velocityTheta);
         emitter.initializers.push(newRadialVelocity);

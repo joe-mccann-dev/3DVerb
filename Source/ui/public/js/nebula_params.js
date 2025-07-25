@@ -1,3 +1,4 @@
+import { Vector3 } from 'three';
 import * as Utility from './utility.js'
 import ParticleSystem, { Vector3D } from 'three-nebula';
 export default class NebulaParams {
@@ -6,6 +7,8 @@ export default class NebulaParams {
 
     static minLife = 4;
     static maxLife = 16;
+    static dampingPercentage = 0.4;
+    static roomSizePercentage = 0.6;
 
     static DEFAULT_LIFE = 0.2;
     static DEFAULT_SPEED = 0.2;
@@ -33,11 +36,19 @@ export default class NebulaParams {
     static rightZVelocity = 10;
     static velocityTheta = 20;
 
-    #lifeScale
-    #speedScale
-    #radiusScale
-    #leftAxis
-    #rightAxis
+    #lifeScale = NebulaParams.DEFAULT_LIFE;
+    #speedScale = NebulaParams.DEFAULT_SPEED;
+    #radiusScale = NebulaParams.minRadius;
+    #leftAxis = new Vector3(
+        NebulaParams.minLeftVelocity,
+        NebulaParams.leftYVelocity,
+        NebulaParams.leftZVelocity
+    );
+    #rightAxis = new Vector3(
+        NebulaParams.minRightVelocity,
+        NebulaParams.rightYVelocity,
+        NebulaParams.rightZVelocity
+    )
 
     #visualParamsObject
 
@@ -47,58 +58,48 @@ export default class NebulaParams {
 
     get visualParamsObject() { return this.#visualParamsObject }
 
-    get lifeScale() {
-        return this.#lifeScale;
-    }
-    set lifeScale(newLifeScale) {
-        this.#lifeScale = newLifeScale
-    }
-
     calculateLifeScale() {
         const roomSize = this.visualParamsObject.currentSize;
         const damping = this.visualParamsObject.currentDamp;
         const inverseDamping = 1 - damping;
-        const dampFactor = 0.4;
-        const roomFactor = 0.6
-        const combined = dampFactor * inverseDamping + roomFactor * roomSize;
+        const combined = NebulaParams.dampingPercentage * inverseDamping +
+                         NebulaParams.roomSizePercentage * roomSize;
 
-        if (this.visualParamsObject.isLowOutput) {
-            return NebulaParams.DEFAULT_LIFE;
-        } else {
-            return Utility.getLinearScaledValue(
+        return this.visualParamsObject.isLowOutput
+            ? NebulaParams.DEFAULT_LIFE
+            : Utility.getLinearScaledValue(
                 NebulaParams.minLife,
                 NebulaParams.maxLife,
                 combined
             );
-        }
     }
 
-    get speedScale() {
-        return this.#speedScale;
+    set lifeScale(newLifeScale) {
+        this.#lifeScale = newLifeScale
+    }
+
+    get lifeScale() {
+        return this.#lifeScale;
+    }
+
+    calculateSpeedScale(amplitude) {
+        const logBase = 2;
+
+        return this.visualParamsObject.isLowOutput
+            ? NebulaParams.DEFAULT_SPEED
+            : Utility.getLogScaledValue(
+                NebulaParams.minSpeed,
+                NebulaParams.maxSpeed,
+                amplitude,
+                logBase);
     }
 
     set speedScale(newSpeedScale) {
         this.#speedScale = newSpeedScale;
     }
 
-    calculateSpeedScale(amplitude) {
-        if (this.visualParamsObject.isLowOutput) {
-            return NebulaParams.DEFAULT_SPEED;
-        } else {
-            const logBase = 2;
-            return Utility.getLogScaledValue(
-                NebulaParams.minSpeed,
-                NebulaParams.maxSpeed,
-                amplitude,
-                logBase);
-        }
-    }
-
-    get radiusScale() {
-        return this.#radiusScale;
-    }
-    set radiusScale(newRadiusScale) {
-        this.#radiusScale = newRadiusScale
+    get speedScale() {
+        return this.#speedScale;
     }
 
     calculateRadius() {
@@ -108,12 +109,18 @@ export default class NebulaParams {
             this.visualParamsObject.currentSize);
     }
 
-    get leftAxis() {
-        return this.#leftAxis;
+    set radiusScale(newRadiusScale) {
+        this.#radiusScale = newRadiusScale
     }
 
-    set leftAxis(newLeftAxis) {
-        this.#leftAxis = newLeftAxis;
+    get radiusScale() {
+        return this.#radiusScale;
+    }
+
+    calculateLeftOrRightAxisVector(emitterIndex) {
+        return emitterIndex < 2
+            ? this.calculateLeftAxisVector()
+            : this.calculateRightAxisVector();
     }
 
     calculateLeftAxisVector() {
@@ -126,13 +133,6 @@ export default class NebulaParams {
         return new Vector3D(scale, NebulaParams.leftYVelocity, NebulaParams.leftZVelocity);
     }
 
-    get rightAxis() {   
-        return this.#rightAxis;
-    }
-    set rightAxis(newRightAxis) {
-        this.#rightAxis = newRightAxis
-    }
-
     calculateRightAxisVector() {
         const scale = Utility.getLogScaledValue(
             NebulaParams.minRightVelocity,
@@ -141,6 +141,22 @@ export default class NebulaParams {
             Math.E);
 
         return new Vector3D(scale, NebulaParams.rightYVelocity, NebulaParams.rightZVelocity);
+    }
+
+    get leftAxis() {
+        return this.#leftAxis;
+    }
+
+    set leftAxis(newLeftAxis) {
+        this.#leftAxis = newLeftAxis;
+    }
+
+
+    get rightAxis() {   
+        return this.#rightAxis;
+    }
+    set rightAxis(newRightAxis) {
+        this.#rightAxis = newRightAxis
     }
 
     get baseForce() {
