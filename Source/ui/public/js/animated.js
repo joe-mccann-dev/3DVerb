@@ -27,9 +27,8 @@ import ParticleSystem, {
 import * as UI from './index.js';
 import * as particleWave from './particle_wave.js'
 import Stats from 'three/addons/libs/stats.module.js';
-
+import * as Utility from './utility.js';
 import * as COLORS from './colors.js';
-const threeColor = THREE.Color;
 
 let camera, scene, renderer;
 let cubeTextureLoader, environmentMap, textureLoader, alphaMap;
@@ -206,6 +205,44 @@ function makeSphere(geometry, position, color = COLORS.sphereColor) {
     return sphere;
 }
 
+function scaleAnchorSpheres(mixValue, scaleFactor) {
+    spheres.forEach((sphere) => {
+        const sphereSize = sphereRadius + (mixValue * scaleFactor);
+        sphere.scale.copy(sphere.userData.originalScale);
+        sphere.scale.multiplyScalar(sphereSize);
+    });
+}
+
+function scaleAnchorSpheresPosition(scale) {
+    const currentSeparation = particleWave.getCurrentSeparation();
+    spheres.forEach((sphere, index) => {
+
+        sphere.position.copy(sphere.userData.originalPosition);
+
+        const minX = 10 * particleWave.getCurrentSeparation();
+        const maxX = 15 * particleWave.getCurrentSeparation();
+        const xOffset = Utility.getLogScaledValue(minX, maxX, scale, Math.E);
+        const sphereXOffset = index < 4 ? -xOffset : xOffset;
+
+        const zOffset = currentSeparation;
+        const sphereZOffset = sphere.position.z < 0 ? -zOffset : zOffset;
+
+        const sphereXScale = scale * (sphere.position.x + sphereXOffset);
+        const sphereZScale = scale * (sphere.position.z + sphereZOffset);
+
+        sphere.position.set(sphereXScale, sphere.position.y, sphereZScale);
+    });
+}
+
+function freezeAnchorSpheres(frozen) {
+    spheres.forEach((sphere) => {
+        frozen
+            ? sphere.material.color.copy(new THREE.Color(COLORS.freezeColor))
+            : sphere.material.color.copy(sphere.userData.color);
+            
+    });
+}
+
 function addSurroundingCube() {
     const cubeWidthSegments = 20;
     const cubeHeightSegments = 20; 
@@ -231,6 +268,18 @@ function makeSurroundingCube(geometry, position) {
 
     return cube;
 }
+
+function scaleSurroundingCube(scale) {
+    surroundingCube.scale.copy(surroundingCube.userData.originalScale);
+    surroundingCube.position.copy(surroundingCube.userData.originalPosition);
+
+    surroundingCube.scale.multiplyScalar(scale);
+    surroundingCube.userData.scale = surroundingCube.scale;
+
+    surroundingCube.position.multiplyScalar(scale);
+    surroundingCube.userData.position = surroundingCube.position;
+}
+
 function addPlanes() {
     const planeGeometry = new THREE.PlaneGeometry(500, 400, 4, 4);
     const verticalPlaneGeometry = new THREE.PlaneGeometry(500, 250, 4, 4);
@@ -393,10 +442,6 @@ function getStandardInitializers(options = {}) {
     ]
 }
 
-function updateInitializer(type, newParams) {
-
-}
-
 function getStandardBehaviours(options = {}, emitter) {
     return [
         new Alpha(
@@ -513,6 +558,27 @@ function collideFunction(emitter) {
     }
 }
 
+function setUserData() {
+    spheres.forEach((sphere) => {
+        if (!sphere.userData.color) {
+            sphere.userData.color = sphere.material.color.clone();
+        }
+
+        sphere.userData.originalScale = sphere.scale.clone();
+        sphere.userData.originalPosition = sphere.position.clone();
+    });
+
+    nebula.emitters.forEach((emitter) => {
+        emitter.userData = {};
+        emitter.userData.collidedParticles = [];
+
+    })
+
+    pointLight.userData.originalIntensity = pointLight.intensity;
+    surroundingCube.userData.originalScale = surroundingCube.scale.clone();
+    surroundingCube.userData.originalPosition = surroundingCube.position.clone();
+}
+
 function reverseVelocityFactor(index, multiplier = 1) {
     return (-1.0) * (multiplier * Math.sin((1/index) + Math.random()));
 }
@@ -570,10 +636,13 @@ export {
     environmentMap,
     camera,
     pointLight,
-    threeColor,
     spheres,
     sphereRadius,
     surroundingCube,
+    scaleSurroundingCube,
+    scaleAnchorSpheres,
+    scaleAnchorSpheresPosition,
+    freezeAnchorSpheres,
     cubeDepth,
     getStandardInitializers,
     getStandardBehaviours,
@@ -583,6 +652,8 @@ export {
     resetParticles,
     objects,
     addToSceneAndObjects,
+    setUserData,
+    ease,
 
     // initializers
     Life,
@@ -594,5 +665,5 @@ export {
     Force,
     RandomDrift,
 
-    ease,
+   
 }

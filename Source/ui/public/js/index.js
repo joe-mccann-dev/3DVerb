@@ -17,8 +17,6 @@ const undoButton = document.getElementById("undoButton");
 const redoButton = document.getElementById("redoButton");
 const undoRedoCtrl = Juce.getNativeFunction("webUndoRedo");
 
-const freezeColor = new Animated.threeColor(COLORS.freezeColor);
-
 const visualParams = new VisualParams();
 const nebulaParams = new NebulaParams(visualParams);
 
@@ -72,7 +70,7 @@ const freeze = {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-    setUserData();
+    Animated.setUserData();
     setupDOMEventListeners();
     initThrottleHandlers();
     setupBackendEventListeners();
@@ -216,8 +214,8 @@ function onRoomSizeChange(roomSizeValue) {
         particleWave.setInitialValuesForAttrs(separationScaleFactor, particleWave.vectors[location], wave);
     }
 
-    scaleSurroundingCube(visualParams.cubeScale);
-    scaleAnchorSpheresPosition(visualParams.sphereScale);
+    Animated.scaleSurroundingCube(visualParams.cubeScale);
+    Animated.scaleAnchorSpheresPosition(visualParams.sphereScale);
 
     nebulaParams.radiusScale = nebulaParams.calculateRadius();
 
@@ -243,7 +241,7 @@ function onRoomSizeChange(roomSizeValue) {
 function onMixChange(mixValue) {
     visualParams.currentMix = mixValue;
     const scaleFactor = 4;
-    scaleAnchorSpheres(mixValue, scaleFactor);
+    Animated.scaleAnchorSpheres(mixValue, scaleFactor);
 }
 
 function onWidthChange(widthValue) {
@@ -273,77 +271,7 @@ function onDampChange(dampValue) {
 }
 
 function onFreezeChange(frozen) {
-    freezeAnchorSpheres(frozen);
-}
-
-
-function scaleSurroundingCube(scale) {
-    Animated.surroundingCube.scale.copy(Animated.surroundingCube.userData.originalScale);
-    Animated.surroundingCube.position.copy(Animated.surroundingCube.userData.originalPosition);
-
-    Animated.surroundingCube.scale.multiplyScalar(scale);
-    Animated.surroundingCube.userData.scale = Animated.surroundingCube.scale;
-
-    Animated.surroundingCube.position.multiplyScalar(scale);
-    Animated.surroundingCube.userData.position = Animated.surroundingCube.position;
-}
-
-function scaleAnchorSpheres(mixValue, scaleFactor) {
-    Animated.spheres.forEach((sphere) => {
-        const sphereSize = Animated.sphereRadius + (mixValue * scaleFactor);
-        sphere.scale.copy(sphere.userData.originalScale);
-        sphere.scale.multiplyScalar(sphereSize);
-    });
-}
-
-function scaleAnchorSpheresPosition(scale) {
-    const currentSeparation = particleWave.getCurrentSeparation();
-    Animated.spheres.forEach((sphere, index) => {
-
-        sphere.position.copy(sphere.userData.originalPosition);
-
-        const minX = 10 * particleWave.getCurrentSeparation();
-        const maxX = 15 * particleWave.getCurrentSeparation();
-        const xOffset = Utility.getLogScaledValue(minX, maxX, scale, Math.E);
-        const sphereXOffset = index < 4 ? -xOffset : xOffset;
-
-        const zOffset = currentSeparation;
-        const sphereZOffset = sphere.position.z < 0 ? -zOffset : zOffset;
-
-        const sphereXScale = scale * (sphere.position.x + sphereXOffset);
-        const sphereZScale = scale * (sphere.position.z + sphereZOffset);
-
-        sphere.position.set(sphereXScale, sphere.position.y, sphereZScale);
-    });
-}
-
-function freezeAnchorSpheres(frozen) {
-    Animated.spheres.forEach((sphere) => {
-        frozen ?
-            sphere.material.color.copy(freezeColor) :
-            sphere.material.color.copy(sphere.userData.color);
-    });
-}
-
-function setUserData() {
-    Animated.spheres.forEach((sphere) => {
-        if (!sphere.userData.color) {
-            sphere.userData.color = sphere.material.color.clone();
-        }
-
-        sphere.userData.originalScale = sphere.scale.clone();
-        sphere.userData.originalPosition = sphere.position.clone();
-    });
-
-    Animated.nebula.emitters.forEach((emitter) => {
-        emitter.userData = {};
-        emitter.userData.collidedParticles = [];
-
-    })
-
-    Animated.pointLight.userData.originalIntensity = Animated.pointLight.intensity;
-    Animated.surroundingCube.userData.originalScale = Animated.surroundingCube.scale.clone();
-    Animated.surroundingCube.userData.originalPosition = Animated.surroundingCube.position.clone();
+   Animated.freezeAnchorSpheres(frozen);
 }
 
 function initThrottleHandlers() {
