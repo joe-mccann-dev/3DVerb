@@ -198,7 +198,6 @@ function onOutputChange(output) {
             forceValues.y,
             forceValues.z
         );
-
         emitter.behaviours.push(newForce);
 
         Animated.collideFunction(emitter);
@@ -253,19 +252,20 @@ function onMixChange(mixValue) {
 function onWidthChange(widthValue) {
     visualParams.currentWidth = widthValue;
 
-    //Animated.nebula.emitters.forEach((emitter, emitterIndex) => {
-    //    emitter.initializers = emitter.initializers.filter(initializer => initializer.type !== 'RadialVelocity');
-    //    let axis;
-    //    if (emitterIndex < 2) {
-    //        axis = nebulaParams.calculateLeftAxisVector();
-    //        nebulaParams.leftAxis = axis;
-    //    } else {
-    //        axis = nebulaParams.calculateRightAxisVector();
-    //        nebulaParams.rightAxis = axis;
-    //    }
-    //    const newRadialVelocity = new Animated.RadialVelocity(nebulaParams.speedScale, axis, nebulaParams.velocityTheta);
-    //    emitter.initializers.push(newRadialVelocity);
-    //});
+    Animated.nebula.emitters.forEach((emitter, emitterIndex) => {
+        emitter.initializers = emitter.initializers.filter(initializer => initializer.type !== 'RadialVelocity');
+        let axis;
+        if (emitterIndex < 2) {
+            axis = nebulaParams.calculateLeftAxisVector();
+            nebulaParams.leftAxis = axis;
+        } else {
+            axis = nebulaParams.calculateRightAxisVector();
+            nebulaParams.rightAxis = axis;
+        }
+
+        const newRadialVelocity = new Animated.RadialVelocity(nebulaParams.speedScale, axis, NebulaParams.velocityTheta);
+        emitter.initializers.push(newRadialVelocity);
+    });
 
 }
 
