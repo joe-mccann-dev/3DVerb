@@ -2,6 +2,9 @@ import * as Juce from "./juce/index.js";
 import * as Animated from "./animated.js";
 import * as COLORS from './colors.js';
 import * as particleWave from './particle_wave.js'
+import VisualParams from './visual_params.js'
+import NebulaParams from './nebula_params.js'
+
 
 const data = window.__JUCE__.initialisationData;
 
@@ -15,9 +18,9 @@ const undoRedoCtrl = Juce.getNativeFunction("webUndoRedo");
 
 const freezeColor = new Animated.threeColor(COLORS.freezeColor);
 
-let currentOutput, currentSize, currentMix, currentWidth, currentDamp;
-let leftAxis, rightAxis;
-let lifeScale, speedScale, radiusScale;
+const visualParams = new VisualParams();
+const nebulaParams = new NebulaParams(visualParams);
+
 let countForParticleWave = 0;
 
 let roomSizeThrottleHandler, mixThrottleHandler, widthThrottleHandler, dampThrottleHandler,
@@ -94,10 +97,10 @@ function setupBackendEventListeners() {
         fetch(Juce.getBackendResourceAddress("roomSize.json"))
             .then((response) => response.json())
             .then((roomSizeData) => {
-                if (currentSize != roomSizeData.roomSize) {
+                if (visualParams.currentSize != roomSizeData.roomSize) {
                     roomSizeThrottleHandler(roomSizeData.roomSize);
                 }
-                currentSize = roomSizeData.roomSize;
+                visualParams.currentSize = roomSizeData.roomSize;
             })
             .catch(console.error);
     });
@@ -107,10 +110,10 @@ function setupBackendEventListeners() {
         fetch(Juce.getBackendResourceAddress("mix.json"))
             .then((response) => response.json())
             .then((mixData) => {
-                if (currentMix != mixData.mix) {
+                if (visualParams.currentMix != mixData.mix) {
                     mixThrottleHandler(mixData.mix);
                 }
-                currentMix = mixData.mix;
+                visualParams.currentMix = mixData.mix;
             })
             .catch(console.error);
 
@@ -121,10 +124,10 @@ function setupBackendEventListeners() {
         fetch(Juce.getBackendResourceAddress("width.json"))
             .then((response) => response.json())
             .then((widthData) => {
-                if (currentWidth != widthData.width) {
+                if (visualParams.currentWidth != widthData.width) {
                     widthThrottleHandler(widthData.width);
                 }
-                currentWidth = widthData.width;
+                visualParams.currentWidth = widthData.width;
             })
             .catch(console.error);
     });
@@ -134,10 +137,10 @@ function setupBackendEventListeners() {
         fetch(Juce.getBackendResourceAddress("damp.json"))
             .then((response) => response.json())
             .then((dampData) => {
-                if (currentDamp != dampData.damp) {
+                if (visualParams.currentDamp != dampData.damp) {
                     dampThrottleHandler(dampData.damp);
                 }
-                currentDamp = dampData.damp;
+                visualParams.currentDamp = dampData.damp;
 
             })
             .catch(console.error);
@@ -169,64 +172,41 @@ function onLevelsChange(levels) {
 }
 
 function onOutputChange(output) {
-    currentOutput = output;
-
-    const isOutputBelowThreshold = !freeze.element.checked &&
-                                        currentOutput <= -50;
-    const isLoudOutput = currentOutput > -12;
+    visualParams.currentOutput = visualParams.calculateOutput(output);
     
-    // sine wave too big when passing audio mastered at modern levels
-    // inverse nature of output means multiplying output decreases amplitude in setSineWaveAmplitude()
-    if (isLoudOutput) { output = output * 6 }
-
-    particleWave.setSineWaveAmplitude(output);
+    particleWave.setSineWaveAmplitude(visualParams.currentOutput);
     let amplitude = particleWave.getAmplitude();
     particleWave.updateAmpQueue(amplitude);
+
     amplitude = particleWave.getAverageAmplitude();
 
-    const minSpeed = 20;
-    const maxSpeed = 80;
-    let speedMultiplier = amplitude;
-    const speed = getLogScaledValue(minSpeed, maxSpeed, speedMultiplier, 2);
+    nebulaParams.speedScale = nebulaParams.calculateSpeedScale(amplitude);
+    nebulaParams.lifeScale = nebulaParams.calculateLifeScale();
 
-    const minLife = 4;
-    const maxLife = 16;
-    const rmSize = currentSize;
-    const damping = currentDamp;
-    const inverseDamping = 1 - damping;
-    const combined = 0.4 * inverseDamping + 0.6 * rmSize;
-    const life = getLinearScaledValue(minLife, maxLife, combined);
-
-    if (isOutputBelowThreshold) {
-        const reducedLifeAndSpeedVal = 0.2
-        lifeScale = reducedLifeAndSpeedVal;
-        speedScale = reducedLifeAndSpeedVal;
-    } else {
-        lifeScale = life;
-        speedScale = speed;
-    }
-
+    // TODO: Move this to a method in Animated.js
     Animated.nebula.emitters.forEach((emitter, emitterIndex) => {
         const lifeInitializer = emitter.initializers.find(initializer => initializer.type === 'Life');
-        lifeInitializer.lifePan = new Animated.Span(lifeScale);
+        lifeInitializer.lifePan = new Animated.Span(nebulaParams.lifeScale);
 
         const radialVelocity = emitter.initializers.find(initializer => initializer.type === 'RadialVelocity');
-        radialVelocity.radiusPan = new Animated.Span(speedScale);
-
-        const forceFloor = 2;
-        const forceCeiling = 12;
-        const baseForce = getLogScaledValue(forceFloor, forceCeiling, speedScale, Math.E);
-
-        const forceZ = baseForce
-        const forceY = baseForce * 0.4;
-        const forceX = emitterIndex < 2 ? -1 * (baseForce * 0.5) : (baseForce * 0.5);
-
+        if (radialVelocity) {
+            radialVelocity.radiusPan = new Animated.Span(nebulaParams.speedScale);
+        }
+        
+        
         emitter.behaviours = emitter.behaviours.filter(b => b.type !== 'Force');
-        const newForce = new Animated.Force(forceX, forceY, forceZ);
+        const forceValues = nebulaParams.forceValues(emitterIndex);
+        const newForce = new Animated.Force(
+            forceValues.x,
+            forceValues.y,
+            forceValues.z
+        );
+
+
         emitter.behaviours.push(newForce);
 
         emitter.damping = (
-            output > currentOutput
+            output > visualParams.currentOutput
                 ? Animated.DEFAULT_EMITTER_DAMPING
                 : Animated.DEFAULT_EMITTER_DAMPING * 10
         );
@@ -236,15 +216,12 @@ function onOutputChange(output) {
 }
 
 function onRoomSizeChange(roomSizeValue) {
-    currentSize = roomSizeValue;
 
-    // prevent particles from "floating" outside cuboid when decreasing room size
-    Animated.nebula.emitters.forEach((emitter) => {
-        emitter.particles.forEach((particle) => {
-            particle.dead = true;
-        });
-    });
+    visualParams.currentSize = roomSizeValue;
 
+    Animated.resetParticles();
+
+    // TODO: refactor into particle wave own method
     const floor = 20;
     const separationScaleFactor = floor + (particleWave.SEPARATION * roomSizeValue);
 
@@ -253,81 +230,57 @@ function onRoomSizeChange(roomSizeValue) {
         particleWave.setInitialValuesForAttrs(separationScaleFactor, particleWave.vectors[location], wave);
     }
 
-    const minRadius = 30;
-    const maxRadius = 80;
-    radiusScale = getLinearScaledValue(minRadius, maxRadius, roomSizeValue);
-  
-    const min = 0.50;
-    const max = 1.0;
-    const cubeScale = getLinearScaledValue(min, max, roomSizeValue);
+    scaleSurroundingCube(visualParams.cubeScale);
+    scaleAnchorSpheresPosition(visualParams.sphereScale);
 
-    const sphereMin = 0.5;
-    const sphereMax = 1.5;
-    const sphereScale = getLogScaledValue(sphereMin, sphereMax, roomSizeValue, 10);
-
-    scaleSurroundingCube(cubeScale);
-    scaleAnchorSpheresPosition(sphereScale);
-
-    const minDriftX = 30;
-    const maxDriftX = 100;
-    const driftXScale = getLinearScaledValue(minDriftX, maxDriftX, roomSizeValue);
-
-    const minDriftY = 50;
-    const maxDriftY = 150;
-    const driftYScale = getLinearScaledValue(minDriftY, maxDriftY, roomSizeValue);
-
-    const minDriftZ = 50;
-    const maxDriftZ = 200;
-    const driftZScale = getLinearScaledValue(minDriftZ, maxDriftZ, roomSizeValue);
+    nebulaParams.radiusScale = nebulaParams.calculateRadius();
 
     Animated.nebula.emitters.forEach((emitter) => {
-        emitter.initializers = emitter.initializers.filter(initializer => initializer.type !== 'Radius');
-        const newRadius = new Animated.Radius(radiusScale);
-        emitter.initializers.push(newRadius);
+        emitter.initializers = emitter.initializers.filter((initializer) => initializer.type !== 'Radius');
+        const newRadiusInitializer = new Animated.Radius(nebulaParams.radiusScale);
+        emitter.initializers.push(newRadiusInitializer);
 
         emitter.behaviours = emitter.behaviours.filter(b => b.type !== 'RandomDrift');
-        const newRandomDrift = new Animated.RandomDrift(
-            driftXScale,
-            driftYScale,
-            driftZScale,
-            0.2,
-            3,
+        const driftValues = nebulaParams.driftValues;
+        const newRandomDriftBehaviour = new Animated.RandomDrift(
+            driftValues.x,
+            driftValues.y,
+            driftValues.z,
+            0.2, // drift delay
+            3, // life
             Animated.ease.easeOutSine);
 
-        emitter.behaviours.push(newRandomDrift);
+        emitter.behaviours.push(newRandomDriftBehaviour);
     });
 }
 
 function onMixChange(mixValue) {
-    const scaleFactor = 4;
-    scaleAnchorSpheres(mixValue, scaleFactor);
+    visualParams.currentMix = mixValue;
+    //const scaleFactor = 4;
+    //scaleAnchorSpheres(mixValue, scaleFactor);
 }
 
 function onWidthChange(widthValue) {
-    const leftMin = 150;
-    const leftMax = -600;
-    const rightMin = -150;
-    const rightMax = 600;
+    visualParams.currentWidth = widthValue;
 
-    // using log for less sensitive scale slider
-    const leftAxisScale = getLogScaledValue(leftMin, leftMax, widthValue, Math.E);
-    const rightAxisScale = getLogScaledValue(rightMin, rightMax, widthValue, Math.E);
-
-    leftAxis = new Animated.Vector3D(leftAxisScale, -100, 10);
-    rightAxis = new Animated.Vector3D(rightAxisScale, 100, 10);
-
-    const theta = 20;
-    Animated.nebula.emitters.forEach((emitter, emitterIndex) => {
-        emitter.initializers = emitter.initializers.filter(initializer => initializer.type !== 'RadialVelocity');
-        const leftOrRightAxis = emitterIndex < 2 ? leftAxis : rightAxis;
-        const newRadialVelocity = new Animated.RadialVelocity(speedScale, leftOrRightAxis, theta);
-        emitter.initializers.push(newRadialVelocity);
-    });
+    //Animated.nebula.emitters.forEach((emitter, emitterIndex) => {
+    //    emitter.initializers = emitter.initializers.filter(initializer => initializer.type !== 'RadialVelocity');
+    //    let axis;
+    //    if (emitterIndex < 2) {
+    //        axis = nebulaParams.calculateLeftAxisVector();
+    //        nebulaParams.leftAxis = axis;
+    //    } else {
+    //        axis = nebulaParams.calculateRightAxisVector();
+    //        nebulaParams.rightAxis = axis;
+    //    }
+    //    const newRadialVelocity = new Animated.RadialVelocity(nebulaParams.speedScale, axis, nebulaParams.velocityTheta);
+    //    emitter.initializers.push(newRadialVelocity);
+    //});
 
 }
 
 function onDampChange(dampValue) {
-    currentDamp = dampValue;
+    visualParams.currentDamp = dampValue;
 
     const minScale = 0.5;
     const maxScale = 1;

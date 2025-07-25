@@ -22,6 +22,8 @@ import ParticleSystem, {
     RandomDrift,
     Gravity,
     ease,
+    Position,
+    PointZone,
 } from 'three-nebula';
 
 //import { ease } from 'three-nebula/src/ease/index.js'
@@ -430,7 +432,7 @@ function getStandardBehaviours(options = {}, emitter) {
             options.randomDrift?.driftY ?? 120,
             options.randomDrift?.driftZ ?? 250,
             options.randomDrift?.delay ?? 0.2,
-            options.randomDrift?.lift ?? 3,
+            options.randomDrift?.life ?? 3,
             options.randomDrift?.ease ?? ease.easeOutSine
         )
     ]
@@ -532,6 +534,15 @@ function rightEmitterRadVelocityAxis() {
     return new Vector3D(200, 50, 10);
 }
 
+// prevent particles from "floating" outside cuboid when decreasing room size
+function resetParticles() {
+    nebula.emitters.forEach((emitter) => {
+        emitter.particles.forEach((particle) => {
+            particle.dead = true;
+        });
+    });
+}
+
 function handleBypassOrFreezeChecked(time) {
     if (UI.bypassAndMono.bypass.element.checked) {
         pointLight.intensity = 0;
@@ -575,6 +586,7 @@ export {
     collideFunction,
     leftEmitterRadVelocityAxis,
     rightEmitterRadVelocityAxis,
+    resetParticles,
     objects,
     addToSceneAndObjects,
     DEFAULT_EMITTER_DAMPING,
