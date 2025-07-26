@@ -29,6 +29,7 @@ import * as particleWave from './particle_wave.js'
 import Stats from 'three/addons/libs/stats.module.js';
 import * as Utility from './utility.js';
 import * as COLORS from './colors.js';
+import NebulaSystem from './nebula_system.js';
 
 let camera, scene, renderer;
 let cubeTextureLoader, environmentMap, textureLoader, alphaMap;
@@ -48,12 +49,7 @@ const cubeDepth = cubeHeight * 1.2;
 const planes = [];
 const lines = [];
 
-const nebula = {};
-
-const emitterLeftX = -140;
-const emitterRightX = 160;
-const emitterY = 10;
-const emitterZ = 10;
+let nebulaSystem;
 
 init();
 
@@ -67,7 +63,7 @@ function init() {
     addSpheres();
     addPlanes();
     addLines();
-    configNebula();
+    nebulaSystem = new NebulaSystem(scene, THREE, surroundingCube)
     
     for (const location in particleWave.waves) {
         scene.add(particleWave.waves[location]);
@@ -348,13 +344,13 @@ function addToSceneAndObjects(objectToAdd) {
     objects.push(objectToAdd);
 }
 
-function animate(time, theta = 0, emitterRadius = 32) {
+function animate(time, theta = 0, emitterRadius = 16) {
     time *= 0.001;
     
     if (!bypassIsChecked()) {
-        animateNebulaEmitterPositions(theta += 0.13, emitterRadius);
         rotateSpheres(time);
-        nebula.system.update();
+        nebulaSystem.animateEmitterPositions(theta, emitterRadius);
+        nebulaSystem.particleSystem.update();
     }
 
     stats.update();
@@ -363,212 +359,16 @@ function animate(time, theta = 0, emitterRadius = 32) {
     requestAnimationFrame((time) => animate(time, theta, emitterRadius));
 }
 
-function configNebula() {
-    nebula.system = new ParticleSystem();
-    const spriteMap = new THREE.TextureLoader().load('assets/PNG/flare_01.png');
-    const spriteMaterial = new THREE.SpriteMaterial({
-        map: spriteMap,
-        color: COLORS.spriteColor,
-        blending: THREE.AdditiveBlending,
-        fog: true,
-    });
-    nebula.sprite = new THREE.Sprite(spriteMaterial);
-
-    createNebulaEmitters();
-    nebula.emitters.forEach((emitter) => {
-        nebula.system.addEmitter(emitter);
-    });
-    nebula.system.addRenderer(new SpriteRenderer(scene, THREE));
-}
-
-function createNebulaEmitters() {
-    nebula.emitters = [];
-    nebula.emitterLeft0 = createEmitter();
-    nebula.emitterLeft1 = createEmitter();
-    nebula.emitterRight0 = createEmitter( { radialVelocity: { axis: new Vector3D(200, 0, 10) } });
-    nebula.emitterRight1 = createEmitter( { radialVelocity: { axis: new Vector3D(200, 0, 10) } });
-
-    nebula.emitters.push(nebula.emitterLeft0);
-    nebula.emitters.push(nebula.emitterLeft1);
-    nebula.emitters.push(nebula.emitterRight0);
-    nebula.emitters.push(nebula.emitterRight1);
-}
-
-function animateNebulaEmitterPositions(theta, emitterRadius) {
-    nebula.emitterLeft0.position.x = emitterLeftX + emitterRadius * Math.cos(theta);
-    nebula.emitterLeft0.position.y = emitterY + emitterRadius * Math.sin(theta);
-    nebula.emitterLeft0.position.z = emitterZ;
-
-    nebula.emitterLeft1.position.x = emitterLeftX + emitterRadius * Math.cos(theta + Math.PI / 2);
-    nebula.emitterLeft1.position.y = emitterY + emitterRadius * Math.cos(theta + Math.PI / 2);
-    nebula.emitterLeft1.position.z = emitterZ;
-
-    nebula.emitterRight0.position.x = emitterRightX + emitterRadius * Math.cos(theta);
-    nebula.emitterRight0.position.y = emitterY + emitterRadius * Math.sin(theta);
-    nebula.emitterRight0.position.z = emitterZ;
-
-    nebula.emitterRight1.position.x = emitterRightX + emitterRadius * Math.cos(theta + Math.PI / 2);
-    nebula.emitterRight1.position.y = emitterY + emitterRadius * Math.cos(theta + Math.PI / 2);
-    nebula.emitterRight1.position.z = emitterZ;
-}
-
-function createEmitter(options = {}) {
-    const emitter = new Emitter()
-        .setRate(new Rate(2, 0.2))
-        .setInitializers(getStandardInitializers(options))
-        .setBehaviours(getStandardBehaviours(options));
-    return emitter;
-}
-
-function getStandardInitializers(options = {}) {
-    return [
-        new Mass(options.mass ?? new Span(2, 4), new Span(20, 40)),
-        new Life(options.life ?? 5),
-        new Body(nebula.sprite),
-        new Radius(options.radius ?? 80),
-        new RadialVelocity(
-            options.radialVelocity?.speed ?? new Span(20, 60),
-            options.radialVelocity?.axis ?? leftEmitterRadVelocityAxis(),
-            options.radialVelocity?.theta ?? 20,
-        )
-    ]
-}
-
-function getStandardBehaviours(options = {}, emitter) {
-    return [
-        new Alpha(
-            options.alpha?.alphaA ?? 1,
-            options.alpha?.alphaB ?? 0.75,
-        ),
-            new Color(
-                options.color?.colorA ?? new ColorSpan(COLORS.spriteColors),
-                options.color?.colorB ?? new ColorSpan(COLORS.spriteColors)
-            ),
-        new Scale(
-            options.scale?.scaleA ?? 1,
-            options.scale?.scaleB ?? 0.5
-        ),
-        new Collision(
-            options.collision?.emitter ?? emitter,
-            options.collision?.useMass ?? true,
-        ),
-        new Gravity(1.2),
-        new Force(
-            options.force?.fx ?? 0.2,
-            options.force?.fy ?? 0.2,
-            options.force?.fz ?? 0.2,
-        ),
-        new RandomDrift(
-            options.randomDrift?.driftX ?? 50,
-            options.randomDrift?.driftY ?? 120,
-            options.randomDrift?.driftZ ?? 250,
-            options.randomDrift?.delay ?? 0.2,
-            options.randomDrift?.life ?? 3,
-            options.randomDrift?.ease ?? ease.easeOutSine
-        )
-    ]
-}
-
-function collideFunction(emitter) {
-    if (emitter) {
-        const cubeHalfDepth = cubeDepth * 0.5;
-        const cubeHalfHeight = cubeHeight * 0.5;
-        const cubeHalfWidth = cubeWidth * 0.5;
-
-        const cubeScaleVector3 = surroundingCube.userData.scale;
-        const reflectionBuffer = 80;
-        const MAX_VELOCITY = 250;
-
-        if (cubeScaleVector3) {
-            const cubeScaleZ = cubeScaleVector3.z;
-            const cubeScaleY = cubeScaleVector3.y;
-            const cubeScaleX = cubeScaleVector3.x;
-
-            const cubeLeftFaceX = (surroundingCube.position.x) - (cubeHalfWidth * cubeScaleX);
-            const cubeRightFaceX = (surroundingCube.position.x) + (cubeHalfWidth * cubeScaleX)
-
-            const cubeTopFaceY = (surroundingCube.position.y + (cubeHalfHeight * cubeScaleY));
-            const cubeBottomFaceY = (surroundingCube.position.y - (cubeHalfHeight * cubeScaleY));
-
-            const cubeFrontFaceZ = (surroundingCube.position.z + (cubeHalfDepth * cubeScaleZ));
-            const cubeBackFaceZ = (surroundingCube.position.z - (cubeHalfDepth * cubeScaleZ));
-
-            
-
-            emitter.particles.forEach((particle, index) => {
-                const forceBehaviour = particle.behaviours.find((behaviour) => {
-                    return behaviour.type === "Force";
-                });
-
-                if (particle.position.z >= cubeFrontFaceZ - reflectionBuffer) {
-                    particle.velocity.z *= reverseVelocityFactor(index);
-                    forceBehaviour.force.z *= reverseForceFactor(index);
-
-                    particle.addBehaviour(
-                        new Color(new ColorSpan(COLORS.spriteColors), new ColorSpan(COLORS.rainbowColors), 0.5)
-                    );
-
-                    //particle.addBehaviour(
-                    //    new Alpha(0.2, 1)
-                    //)
-                }
-
-                if (particle.position.z <= cubeBackFaceZ + reflectionBuffer) {
-                    particle.velocity.z *= reverseVelocityFactor(index);  
-                    forceBehaviour.force.z *= reverseForceFactor(index);
-                }
-
-                if (particle.position.y >= cubeTopFaceY - reflectionBuffer) {
-                    particle.velocity.y *= reverseVelocityFactor(index, 2 + Math.random());
-                    forceBehaviour.force.y *= reverseForceFactor(index);
-
-                }
-                
-                if (particle.position.y <= cubeBottomFaceY + reflectionBuffer) {
-                    particle.velocity.y *= reverseVelocityFactor(index, 2 + Math.random());
-                    forceBehaviour.force.y *= reverseForceFactor(index);
-                }
-
-                if (particle.position.x <= cubeLeftFaceX + reflectionBuffer) {
-                    particle.velocity.x *= reverseVelocityFactor(index, 2 + Math.random());
-                    forceBehaviour.force.x *= reverseForceFactor(index);
-                }
-
-                if (particle.position.x >= cubeRightFaceX - reflectionBuffer) {
-                    particle.velocity.x *= reverseVelocityFactor(index, 2 + Math.random());
-                    forceBehaviour.force.x *= reverseForceFactor(index);
-                }
-
-                particle.velocity.clampLength(0, MAX_VELOCITY);
-
-                if (particle.position.x < cubeLeftFaceX - reflectionBuffer ||
-                      particle.position.x > cubeRightFaceX + reflectionBuffer) {
-                    particle.dead = true;
-                }
-            });
-        }
-    }
-}
-
-// prevent particles from "floating" outside cuboid when decreasing room size
-function resetParticles() {
-    nebula.emitters.forEach((emitter) => {
-        emitter.particles.forEach((particle) => {
-            particle.dead = true;
-        });
-    });
-}
-
 function freezeAnchorSpheres() {
     spheres.forEach((sphere) => {
         sphere.material.color.copy(new THREE.Color(COLORS.freezeColor));
     });
 
-    stopEmitting();
+    nebulaSystem.stopEmitting();
 }
 
 function unFreezeAnchorSpheres() {
-    resumeEmitting();
+    nebulaSystem.resumeEmitting();
     spheres.forEach((sphere) => {
         sphere.material.color.copy(sphere.userData.color);
     });
@@ -577,7 +377,7 @@ function unFreezeAnchorSpheres() {
 function handleBypassChecked() {
     if (!bypassIsChecked()) { return; }
 
-    stopEmitting();
+    nebulaSystem.stopEmitting();
     pointLight.intensity = 0;
     spheres.forEach((sphere) => {
         sphere.rotation.x = 0;
@@ -588,7 +388,7 @@ function handleBypassChecked() {
 function handleBypassNotChecked() {
     if (bypassIsChecked()) { return; }
 
-    resumeEmitting();
+    nebulaSystem.resumeEmitting();
 }
 
 function rotateSpheres(time) {
@@ -601,18 +401,6 @@ function rotateSpheres(time) {
     }
 }
 
-function stopEmitting() {
-    nebula.emitters.forEach(emitter => emitter.stopEmit());
-}
-
-function resumeEmitting() {
-    nebula.emitters.forEach((emitter) => {
-        if (!emitter.isEmitting) {
-            emitter.emit();
-        }
-    });
-}
-
 function setUserData() {
     spheres.forEach((sphere) => {
         if (!sphere.userData.color) {
@@ -623,30 +411,9 @@ function setUserData() {
         sphere.userData.originalPosition = sphere.position.clone();
     });
 
-    nebula.emitters.forEach((emitter) => {
-        emitter.userData = {};
-        emitter.userData.collidedParticles = [];
-
-    })
-
     pointLight.userData.originalIntensity = pointLight.intensity;
     surroundingCube.userData.originalScale = surroundingCube.scale.clone();
     surroundingCube.userData.originalPosition = surroundingCube.position.clone();
-}
-
-function reverseVelocityFactor(index, multiplier = 1) {
-    return (-1.0) * (multiplier * Math.sin((1/index) + Math.random()));
-}
-
-function reverseForceFactor(index, multiplier = 1) {
-    return (-1.0) * (multiplier * Math.cos((1/index) + Math.random()));
-}
-
-function leftEmitterRadVelocityAxis() {
-    return new Vector3D(-200, 50, 10);
-}
-function rightEmitterRadVelocityAxis() {
-    return new Vector3D(200, 50, 10);
 }
 
 function bypassIsChecked() {
@@ -659,9 +426,7 @@ function freezeIsChecked() {
 
 export {
     animate,
-    nebula,
-    Vector3D,
-    ColorSpan,
+    nebulaSystem,
     scene,
     environmentMap,
     camera,
@@ -672,13 +437,6 @@ export {
     scaleSurroundingCube,
     scaleAnchorSpheres,
     scaleAnchorSpheresPosition,
-    cubeDepth,
-    getStandardInitializers,
-    getStandardBehaviours,
-    collideFunction,
-    leftEmitterRadVelocityAxis,
-    rightEmitterRadVelocityAxis,
-    resetParticles,
     objects,
     addToSceneAndObjects,
     setUserData,
@@ -693,7 +451,6 @@ export {
     Span,
     Radius,
     RadialVelocity,
-
     // behaviours
     Force,
     RandomDrift,

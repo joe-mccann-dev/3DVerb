@@ -180,8 +180,9 @@ function onOutputChange(output) {
     nebulaParams.speedScale = nebulaParams.calculateSpeedScale(amplitude);
     nebulaParams.lifeScale = nebulaParams.calculateLifeScale();
 
-    // TODO: Move this to a method in Animated.js
-    Animated.nebula.emitters.forEach((emitter, emitterIndex) => {
+    // TODO: Move this to a method in NebulaSystem
+    // nebulaSystem.updateLifeRadiusForce
+    Animated.nebulaSystem.emitters.forEach((emitter, emitterIndex) => {
         const lifeInitializer = emitter.initializers.find(initializer => initializer.type === 'Life');
         lifeInitializer.lifePan = new Animated.Span(nebulaParams.lifeScale);
 
@@ -197,7 +198,7 @@ function onOutputChange(output) {
         );
         emitter.behaviours.push(newForce);
 
-        Animated.collideFunction(emitter);
+        Animated.nebulaSystem.handleParticlesCollidingWithCube(emitter);
     });
 }
 
@@ -205,7 +206,7 @@ function onRoomSizeChange(roomSizeValue) {
 
     visualParams.currentSize = roomSizeValue;
 
-    Animated.resetParticles();
+    Animated.nebulaSystem.resetParticles();
 
     // TODO: refactor into particle wave own method
     const floor = 20;
@@ -221,7 +222,7 @@ function onRoomSizeChange(roomSizeValue) {
 
     nebulaParams.radiusScale = nebulaParams.calculateRadius();
 
-    Animated.nebula.emitters.forEach((emitter) => {
+    Animated.nebulaSystem.emitters.forEach((emitter) => {
         emitter.initializers = emitter.initializers.filter((initializer) => initializer.type !== 'Radius');
         const newRadiusInitializer = new Animated.Radius(nebulaParams.radiusScale);
         emitter.initializers.push(newRadiusInitializer);
@@ -249,7 +250,7 @@ function onMixChange(mixValue) {
 function onWidthChange(widthValue) {
     visualParams.curretWidth = widthValue;
 
-    Animated.nebula.emitters.forEach((emitter, emitterIndex) => {
+    Animated.nebulaSystem.emitters.forEach((emitter, emitterIndex) => {
         emitter.initializers = emitter.initializers.filter(initializer => initializer.type !== 'RadialVelocity');
         const axis = nebulaParams.calculateLeftOrRightAxisVector(emitterIndex);
         const newRadialVelocity = new Animated.RadialVelocity(nebulaParams.speedScale, axis, NebulaParams.velocityTheta);
