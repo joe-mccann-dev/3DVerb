@@ -2,28 +2,6 @@
 import * as THREE from 'three';
 import * as promises from './threeDModels.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import ParticleSystem, {
-    Emitter,
-    Rate,
-    Span,
-    Body,
-    Mass,
-    Radius,
-    Life,
-    RadialVelocity,
-    Vector3D,
-    Alpha,
-    Scale,
-    Color,
-    SpriteRenderer,
-    Collision,
-    Force,
-    ColorSpan,
-    RandomDrift,
-    Gravity,
-    ease,
-} from 'three-nebula';
-
 import * as UI from './index.js';
 import * as particleWave from './particle_wave.js'
 import Stats from 'three/addons/libs/stats.module.js';
@@ -440,18 +418,8 @@ export {
     objects,
     addToSceneAndObjects,
     setUserData,
-    ease,
     handleBypassChecked,
     handleBypassNotChecked,
     freezeAnchorSpheres,
     unFreezeAnchorSpheres,
-
-    // initializers
-    Life,
-    Span,
-    Radius,
-    RadialVelocity,
-    // behaviours
-    Force,
-    RandomDrift,
 }

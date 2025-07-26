@@ -221,7 +221,9 @@ export default class NebulaParams {
         return {
             x: this.driftX(),
             y: this.driftY(),
-            z: this.driftZ()
+            z: this.driftZ(),
+            delay: 0.2,
+            life: 3,
         }
     }
 

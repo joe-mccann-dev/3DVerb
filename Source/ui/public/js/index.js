@@ -180,26 +180,7 @@ function onOutputChange(output) {
     nebulaParams.speedScale = nebulaParams.calculateSpeedScale(amplitude);
     nebulaParams.lifeScale = nebulaParams.calculateLifeScale();
 
-    // TODO: Move this to a method in NebulaSystem
-    // nebulaSystem.updateLifeRadiusForce
-    Animated.nebulaSystem.emitters.forEach((emitter, emitterIndex) => {
-        const lifeInitializer = emitter.initializers.find(initializer => initializer.type === 'Life');
-        lifeInitializer.lifePan = new Animated.Span(nebulaParams.lifeScale);
-
-        const radialVelocity = emitter.initializers.find(initializer => initializer.type === 'RadialVelocity');
-        radialVelocity.radiusPan = new Animated.Span(nebulaParams.speedScale);
-        
-        emitter.behaviours = emitter.behaviours.filter(b => b.type !== 'Force');
-        const forceValues = nebulaParams.forceValues(emitterIndex);
-        const newForce = new Animated.Force(
-            forceValues.x,
-            forceValues.y,
-            forceValues.z
-        );
-        emitter.behaviours.push(newForce);
-
-        Animated.nebulaSystem.handleParticlesCollidingWithCube(emitter);
-    });
+    Animated.nebulaSystem.handleOutputChange(nebulaParams)
 }
 
 function onRoomSizeChange(roomSizeValue) {
@@ -222,23 +203,8 @@ function onRoomSizeChange(roomSizeValue) {
 
     nebulaParams.radiusScale = nebulaParams.calculateRadius();
 
-    Animated.nebulaSystem.emitters.forEach((emitter) => {
-        emitter.initializers = emitter.initializers.filter((initializer) => initializer.type !== 'Radius');
-        const newRadiusInitializer = new Animated.Radius(nebulaParams.radiusScale);
-        emitter.initializers.push(newRadiusInitializer);
+    Animated.nebulaSystem.handleRoomSizeChange(nebulaParams);
 
-        emitter.behaviours = emitter.behaviours.filter(b => b.type !== 'RandomDrift');
-        const driftValues = nebulaParams.driftValues;
-        const newRandomDriftBehaviour = new Animated.RandomDrift(
-            driftValues.x,
-            driftValues.y,
-            driftValues.z,
-            0.2, // drift delay
-            3, // life
-            Animated.ease.easeOutSine);
-
-        emitter.behaviours.push(newRandomDriftBehaviour);
-    });
 }
 
 function onMixChange(mixValue) {
@@ -250,14 +216,7 @@ function onMixChange(mixValue) {
 function onWidthChange(widthValue) {
     visualParams.curretWidth = widthValue;
 
-    Animated.nebulaSystem.emitters.forEach((emitter, emitterIndex) => {
-        emitter.initializers = emitter.initializers.filter(initializer => initializer.type !== 'RadialVelocity');
-        const axis = nebulaParams.calculateLeftOrRightAxisVector(emitterIndex);
-        const newRadialVelocity = new Animated.RadialVelocity(nebulaParams.speedScale, axis, NebulaParams.velocityTheta);
-
-        emitter.initializers.push(newRadialVelocity);
-    });
-
+    Animated.nebulaSystem.handleWidthChange(nebulaParams);
 }
 
 function onDampChange(dampValue) {

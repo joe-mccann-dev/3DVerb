@@ -21,6 +21,7 @@ import ParticleSystem, {
 } from 'three-nebula';
 
 import * as COLORS from './colors.js';
+import NebulaParams from './nebula_params.js';
 
 export default class NebulaSystem {
 
@@ -107,6 +108,57 @@ export default class NebulaSystem {
 
     addEmitterToParticleSystem(emitter) {
         this.#particleSystem.addEmitter(emitter);
+    }
+
+    handleOutputChange(nebulaParams) {
+        this.#emitters.forEach((emitter, emitterIndex) => {
+            const lifeInitializer = emitter.initializers.find(initializer => initializer.type === 'Life');
+            lifeInitializer.lifePan = new Span(nebulaParams.lifeScale);
+
+            const radialVelocity = emitter.initializers.find(initializer => initializer.type === 'RadialVelocity');
+            radialVelocity.radiusPan = new Span(nebulaParams.speedScale);
+
+            emitter.behaviours = emitter.behaviours.filter(b => b.type !== 'Force');
+            const forceValues = nebulaParams.forceValues(emitterIndex);
+            const newForce = new Force(
+                forceValues.x,
+                forceValues.y,
+                forceValues.z
+            );
+            emitter.behaviours.push(newForce);
+
+            this.handleParticlesCollidingWithCube(emitter);
+        });
+    }
+
+    handleRoomSizeChange(nebulaParams) {
+        this.#emitters.forEach((emitter) => {
+            emitter.initializers = emitter.initializers.filter((initializer) => initializer.type !== 'Radius');
+            const newRadiusInitializer = new Radius(nebulaParams.radiusScale);
+            emitter.initializers.push(newRadiusInitializer);
+
+            emitter.behaviours = emitter.behaviours.filter(b => b.type !== 'RandomDrift');
+            const driftValues = nebulaParams.driftValues;
+            const newRandomDriftBehaviour = new RandomDrift(
+                driftValues.x,
+                driftValues.y,
+                driftValues.z,
+                driftValues.delay,
+                driftValues.life,
+                ease.easeOutSine);
+
+            emitter.behaviours.push(newRandomDriftBehaviour);
+        });
+    }
+
+    handleWidthChange(nebulaParams) {
+        this.#emitters.forEach((emitter, emitterIndex) => {
+            emitter.initializers = emitter.initializers.filter(initializer => initializer.type !== 'RadialVelocity');
+            const axis = nebulaParams.calculateLeftOrRightAxisVector(emitterIndex);
+            const newRadialVelocity = new RadialVelocity(nebulaParams.speedScale, axis, NebulaParams.velocityTheta);
+
+            emitter.initializers.push(newRadialVelocity);
+        });
     }
 
     handleParticlesCollidingWithCube(emitter) {
