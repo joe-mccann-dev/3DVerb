@@ -163,6 +163,8 @@ function setupBackendEventListeners() {
 
 function onLevelsChange(levels) {
     // send updated magnitudes to particle animation function
+    if (bypassAndMono.bypass.element.checked) { return; }
+
     particleWave.animateParticles(levels.slice(1, levels.length), countForParticleWave += 0.1);
 }
 
@@ -271,7 +273,9 @@ function onDampChange(dampValue) {
 }
 
 function onFreezeChange(frozen) {
-   Animated.freezeAnchorSpheres(frozen);
+    frozen
+        ? Animated.freezeAnchorSpheres()
+        : Animated.unFreezeAnchorSpheres();
 }
 
 function initThrottleHandlers() {
@@ -328,7 +332,12 @@ function setupDOMEventListeners() {
     bypassAndMono.bypass.element.oninput = function () {
         bypassAndMono.bypass.state.setValue(this.checked);
         Animated.pointLight.intensity = Animated.pointLight.userData.originalIntensity;
+
+        this.checked
+            ? Animated.handleBypassChecked()
+            : Animated.handleBypassNotChecked();
     }
+
     bypassAndMono.bypass.state.valueChangedEvent.addListener(() => {
         bypassAndMono.bypass.element.checked = bypassToggleState.getValue();
     })

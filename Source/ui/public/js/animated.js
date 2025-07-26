@@ -234,15 +234,6 @@ function scaleAnchorSpheresPosition(scale) {
     });
 }
 
-function freezeAnchorSpheres(frozen) {
-    spheres.forEach((sphere) => {
-        frozen
-            ? sphere.material.color.copy(new THREE.Color(COLORS.freezeColor))
-            : sphere.material.color.copy(sphere.userData.color);
-            
-    });
-}
-
 function addSurroundingCube() {
     const cubeWidthSegments = 20;
     const cubeHeightSegments = 20; 
@@ -359,12 +350,14 @@ function addToSceneAndObjects(objectToAdd) {
 
 function animate(time, theta = 0, emitterRadius = 32) {
     time *= 0.001;
-
-    animateNebulaEmitterPositions(theta += 0.13, emitterRadius);
-    handleBypassOrFreezeChecked(time);
+    
+    if (!bypassIsChecked()) {
+        animateNebulaEmitterPositions(theta += 0.13, emitterRadius);
+        rotateSpheres(time);
+        nebula.system.update();
+    }
 
     stats.update();
-    nebula.system.update();
     controls.update();
     renderer.render(scene, camera);
     requestAnimationFrame((time) => animate(time, theta, emitterRadius));
@@ -424,7 +417,6 @@ function createEmitter(options = {}) {
         .setRate(new Rate(2, 0.2))
         .setInitializers(getStandardInitializers(options))
         .setBehaviours(getStandardBehaviours(options));
-    emitter.damping = 0.06;
     return emitter;
 }
 
@@ -558,6 +550,69 @@ function collideFunction(emitter) {
     }
 }
 
+// prevent particles from "floating" outside cuboid when decreasing room size
+function resetParticles() {
+    nebula.emitters.forEach((emitter) => {
+        emitter.particles.forEach((particle) => {
+            particle.dead = true;
+        });
+    });
+}
+
+function freezeAnchorSpheres() {
+    spheres.forEach((sphere) => {
+        sphere.material.color.copy(new THREE.Color(COLORS.freezeColor));
+    });
+
+    stopEmitting();
+}
+
+function unFreezeAnchorSpheres() {
+    resumeEmitting();
+    spheres.forEach((sphere) => {
+        sphere.material.color.copy(sphere.userData.color);
+    });
+}
+
+function handleBypassChecked() {
+    if (!bypassIsChecked()) { return; }
+
+    stopEmitting();
+    pointLight.intensity = 0;
+    spheres.forEach((sphere) => {
+        sphere.rotation.x = 0;
+        sphere.rotation.y = 0;
+    });
+}
+
+function handleBypassNotChecked() {
+    if (bypassIsChecked()) { return; }
+
+    resumeEmitting();
+}
+
+function rotateSpheres(time) {
+    if (!freezeIsChecked() && !bypassIsChecked()) {
+        spheres.forEach((sphere, index) => {
+            const speed = 1 + index * 0.1;
+            const rotation = time * speed;
+            sphere.rotation.y = rotation;
+        });
+    }
+}
+
+function stopEmitting() {
+    nebula.emitters.forEach(emitter => emitter.stopEmit());
+}
+
+function resumeEmitting() {
+    nebula.emitters.forEach((emitter) => {
+        if (!emitter.isEmitting) {
+            emitter.emit();
+        }
+    });
+}
+
 function setUserData() {
     spheres.forEach((sphere) => {
         if (!sphere.userData.color) {
@@ -594,37 +649,12 @@ function rightEmitterRadVelocityAxis() {
     return new Vector3D(200, 50, 10);
 }
 
-// prevent particles from "floating" outside cuboid when decreasing room size
-function resetParticles() {
-    nebula.emitters.forEach((emitter) => {
-        emitter.particles.forEach((particle) => {
-            particle.dead = true;
-        });
-    });
+function bypassIsChecked() {
+    return UI.bypassAndMono.bypass.element.checked;
 }
 
-function handleBypassOrFreezeChecked(time) {
-    if (UI.bypassAndMono.bypass.element.checked) {
-        pointLight.intensity = 0;
-        spheres.forEach((sphere) => {
-            sphere.rotation.x = 0;
-            sphere.rotation.y = 0;
-        });
-        nebula.emitters.forEach(emitter => emitter.stopEmit());
-    } else {
-        nebula.emitters.forEach((emitter) => {
-            if (!emitter.isEmitting) {
-                emitter.emit();
-            }
-        });
-    }
-    if (!UI.freeze.element.checked && !UI.bypassAndMono.bypass.element.checked) {
-        spheres.forEach((sphere, index) => {
-            const speed = 1 + index * 0.1;
-            const rotation = time * speed;
-            sphere.rotation.y = rotation;
-        });
-    }
+function freezeIsChecked() {
+    return UI.freeze.element.checked;
 }
 
 export {
@@ -642,7 +672,6 @@ export {
     scaleSurroundingCube,
     scaleAnchorSpheres,
     scaleAnchorSpheresPosition,
-    freezeAnchorSpheres,
     cubeDepth,
     getStandardInitializers,
     getStandardBehaviours,
@@ -654,6 +683,10 @@ export {
     addToSceneAndObjects,
     setUserData,
     ease,
+    handleBypassChecked,
+    handleBypassNotChecked,
+    freezeAnchorSpheres,
+    unFreezeAnchorSpheres,
 
     // initializers
     Life,
@@ -664,6 +697,4 @@ export {
     // behaviours
     Force,
     RandomDrift,
-
-   
 }

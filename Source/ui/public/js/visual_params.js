@@ -21,10 +21,10 @@ export default class VisualParams {
         this.#currentOutput = newOutput;
     }
 
+    // attenuate incoming output if necessary
+    // particleWave sine wave too big when passing audio mastered at modern levels
+    // inverse nature of output means multiplying output decreases amplitude in setSineWaveAmplitude()
     calculateOutput(newOutput) {
-        // attenuate incoming output if necessary
-        // particleWave sine wave too big when passing audio mastered at modern levels
-        // inverse nature of output means multiplying output decreases amplitude in setSineWaveAmplitude()
         this.isLoudOutput = newOutput;
         this.isLowOutput = newOutput;
 
