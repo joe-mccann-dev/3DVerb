@@ -157,6 +157,16 @@ function getCurrentSeparation() {
     return currentSeparation;
 }
 
+function scaleParticleSeparation(roomSize) {
+    const floor = 30;
+    const separationScaleFactor = floor + (SEPARATION * roomSize);
+
+    for (const location in waves) {
+        const wave = waves[location];
+        setInitialValuesForAttrs(separationScaleFactor, vectors[location], wave);
+    }
+}
+
 function setSineWaveAmplitude(output) {
     // convert negative decibels to positive; take reciprocal
     const convertedOutput = (-1 * output);
@@ -197,6 +207,7 @@ export {
     SEPARATION,
     setCurrentSeparation,
     getCurrentSeparation,
+    scaleParticleSeparation,
     setSineWaveAmplitude,
     getAmplitude,
     amplitude,

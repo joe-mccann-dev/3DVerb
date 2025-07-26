@@ -134,6 +134,7 @@ export default class NebulaSystem {
     }
 
     handleRoomSizeChange() {
+        this.resetParticles();
         this.#emitters.forEach((emitter) => {
             emitter.initializers = emitter.initializers.filter((initializer) => initializer.type !== 'Radius');
             const newRadiusInitializer = new Radius(this.#nebulaParams.radiusScale);

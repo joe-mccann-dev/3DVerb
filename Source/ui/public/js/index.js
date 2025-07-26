@@ -179,20 +179,14 @@ function onOutputChange(output) {
 
 function onRoomSizeChange(roomSizeValue) {
     Animated.visualParams.currentSize = roomSizeValue;
-    Animated.nebulaSystem.resetParticles();
 
-    // TODO: refactor into particle wave own method
-    const floor = 20;
-    const separationScaleFactor = floor + (particleWave.SEPARATION * roomSizeValue);
-
-    for (const location in particleWave.waves) {
-        const wave = particleWave.waves[location];
-        particleWave.setInitialValuesForAttrs(separationScaleFactor, particleWave.vectors[location], wave);
-    }
+    particleWave.scaleParticleSeparation(Animated.visualParams.currentSize);
 
     Animated.scaleSurroundingCube(Animated.visualParams.cubeScale);
     Animated.scaleAnchorSpheresPosition(Animated.visualParams.sphereScale);
+
     Animated.nebulaParams.radiusScale = Animated.nebulaParams.calculateRadius();
+    Animated.nebulaSystem.resetParticles();
     Animated.nebulaSystem.handleRoomSizeChange();
 }
 
