@@ -7,6 +7,8 @@ import * as particleWave from './particle_wave.js'
 import Stats from 'three/addons/libs/stats.module.js';
 import * as Utility from './utility.js';
 import * as COLORS from './colors.js';
+import VisualParams from './visual_params.js'
+import NebulaParams from './nebula_params.js'
 import NebulaSystem from './nebula_system.js';
 
 let camera, scene, renderer;
@@ -27,6 +29,8 @@ const cubeDepth = cubeHeight * 1.2;
 const planes = [];
 const lines = [];
 
+const visualParams = new VisualParams();
+const nebulaParams = new NebulaParams(visualParams);
 let nebulaSystem;
 
 init();
@@ -41,7 +45,7 @@ function init() {
     addSpheres();
     addPlanes();
     addLines();
-    nebulaSystem = new NebulaSystem(scene, THREE, surroundingCube)
+    nebulaSystem = new NebulaSystem(nebulaParams, scene, THREE, surroundingCube)
     
     for (const location in particleWave.waves) {
         scene.add(particleWave.waves[location]);
@@ -405,6 +409,8 @@ function freezeIsChecked() {
 export {
     animate,
     nebulaSystem,
+    visualParams,
+    nebulaParams,
     scene,
     environmentMap,
     camera,

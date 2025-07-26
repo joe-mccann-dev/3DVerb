@@ -2,10 +2,7 @@ import * as Juce from "./juce/index.js";
 import * as Animated from "./animated.js";
 import * as COLORS from './colors.js';
 import * as particleWave from './particle_wave.js'
-import VisualParams from './visual_params.js'
-import NebulaParams from './nebula_params.js'
 import * as Utility from './utility.js';
-
 
 const data = window.__JUCE__.initialisationData;
 
@@ -16,9 +13,6 @@ const data = window.__JUCE__.initialisationData;
 const undoButton = document.getElementById("undoButton");
 const redoButton = document.getElementById("redoButton");
 const undoRedoCtrl = Juce.getNativeFunction("webUndoRedo");
-
-const visualParams = new VisualParams();
-const nebulaParams = new NebulaParams(visualParams);
 
 let countForParticleWave = 0;
 
@@ -92,10 +86,10 @@ function setupBackendEventListeners() {
         fetch(Juce.getBackendResourceAddress("roomSize.json"))
             .then((response) => response.json())
             .then((roomSizeData) => {
-                if (visualParams.currentSize != roomSizeData.roomSize) {
+                if (Animated.visualParams.currentSize != roomSizeData.roomSize) {
                     roomSizeThrottleHandler(roomSizeData.roomSize);
                 }
-                visualParams.currentSize = roomSizeData.roomSize;
+                Animated.visualParams.currentSize = roomSizeData.roomSize;
             })
             .catch(console.error);
     });
@@ -105,10 +99,10 @@ function setupBackendEventListeners() {
         fetch(Juce.getBackendResourceAddress("mix.json"))
             .then((response) => response.json())
             .then((mixData) => {
-                if (visualParams.currentMix != mixData.mix) {
+                if (Animated.visualParams.currentMix != mixData.mix) {
                     mixThrottleHandler(mixData.mix);
                 }
-                visualParams.currentMix = mixData.mix;
+                Animated.visualParams.currentMix = mixData.mix;
             })
             .catch(console.error);
 
@@ -119,10 +113,10 @@ function setupBackendEventListeners() {
         fetch(Juce.getBackendResourceAddress("width.json"))
             .then((response) => response.json())
             .then((widthData) => {
-                if (visualParams.currentWidth != widthData.width) {
+                if (Animated.visualParams.currentWidth != widthData.width) {
                     widthThrottleHandler(widthData.width);
                 }
-                visualParams.currentWidth = widthData.width;
+                Animated.visualParams.currentWidth = widthData.width;
             })
             .catch(console.error);
     });
@@ -132,10 +126,10 @@ function setupBackendEventListeners() {
         fetch(Juce.getBackendResourceAddress("damp.json"))
             .then((response) => response.json())
             .then((dampData) => {
-                if (visualParams.currentDamp != dampData.damp) {
+                if (Animated.visualParams.currentDamp != dampData.damp) {
                     dampThrottleHandler(dampData.damp);
                 }
-                visualParams.currentDamp = dampData.damp;
+                Animated.visualParams.currentDamp = dampData.damp;
 
             })
             .catch(console.error);
@@ -169,24 +163,22 @@ function onLevelsChange(levels) {
 }
 
 function onOutputChange(output) {
-    visualParams.currentOutput = visualParams.calculateOutput(output);
+    Animated.visualParams.currentOutput = Animated.visualParams.calculateOutput(output);
     
-    particleWave.setSineWaveAmplitude(visualParams.currentOutput);
+    particleWave.setSineWaveAmplitude(Animated.visualParams.currentOutput);
     let amplitude = particleWave.getAmplitude();
     particleWave.updateAmpQueue(amplitude);
 
     amplitude = particleWave.getAverageAmplitude();
 
-    nebulaParams.speedScale = nebulaParams.calculateSpeedScale(amplitude);
-    nebulaParams.lifeScale = nebulaParams.calculateLifeScale();
+    Animated.nebulaParams.speedScale = Animated.nebulaParams.calculateSpeedScale(amplitude);
+    Animated.nebulaParams.lifeScale = Animated.nebulaParams.calculateLifeScale();
 
-    Animated.nebulaSystem.handleOutputChange(nebulaParams)
+    Animated.nebulaSystem.handleOutputChange()
 }
 
 function onRoomSizeChange(roomSizeValue) {
-
-    visualParams.currentSize = roomSizeValue;
-
+    Animated.visualParams.currentSize = roomSizeValue;
     Animated.nebulaSystem.resetParticles();
 
     // TODO: refactor into particle wave own method
@@ -198,29 +190,25 @@ function onRoomSizeChange(roomSizeValue) {
         particleWave.setInitialValuesForAttrs(separationScaleFactor, particleWave.vectors[location], wave);
     }
 
-    Animated.scaleSurroundingCube(visualParams.cubeScale);
-    Animated.scaleAnchorSpheresPosition(visualParams.sphereScale);
-
-    nebulaParams.radiusScale = nebulaParams.calculateRadius();
-
-    Animated.nebulaSystem.handleRoomSizeChange(nebulaParams);
-
+    Animated.scaleSurroundingCube(Animated.visualParams.cubeScale);
+    Animated.scaleAnchorSpheresPosition(Animated.visualParams.sphereScale);
+    Animated.nebulaParams.radiusScale = Animated.nebulaParams.calculateRadius();
+    Animated.nebulaSystem.handleRoomSizeChange();
 }
 
 function onMixChange(mixValue) {
-    visualParams.currentMix = mixValue;
+    Animated.visualParams.currentMix = mixValue;
     const scaleFactor = 4;
     Animated.scaleAnchorSpheres(mixValue, scaleFactor);
 }
 
 function onWidthChange(widthValue) {
-    visualParams.curretWidth = widthValue;
-
-    Animated.nebulaSystem.handleWidthChange(nebulaParams);
+    Animated.visualParams.curretWidth = widthValue;
+    Animated.nebulaSystem.handleWidthChange();
 }
 
 function onDampChange(dampValue) {
-    visualParams.currentDamp = dampValue;
+    Animated.visualParams.currentDamp = dampValue;
 
     const minScale = 0.5;
     const maxScale = 1;
