@@ -1,6 +1,5 @@
 import { BufferGeometry, BufferAttribute, Color, Points, ShaderMaterial, AdditiveBlending, Vector3 } from 'three'
 import * as COLORS from './colors.js';
-import * as UI from './index.js';
 import { environmentMap, camera } from './animated.js'
 import * as Utility from './utility.js';
 

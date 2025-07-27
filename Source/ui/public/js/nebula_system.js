@@ -44,30 +44,19 @@ export default class NebulaSystem {
         this.#scene = scene;
         this.#THREE = threeModule;
         this.#particleSystem = new ParticleSystem();
-        this.#sprite = this.createSprite();
-        this.#emitters = this.createEmitters();
+        this.#sprite = this.#createSprite();
+        this.#emitters = this.#createEmitters();
   
-        this.#particleSystem.addRenderer(new SpriteRenderer(this.#scene, this.#THREE));
+        this.#particleSystem.addRenderer(
+            new SpriteRenderer(
+                this.#scene,
+                this.#THREE));
         this.#surroundingCube = surroundingCube;
     }
 
+    // << PUBLIC >>
     get particleSystem() {
         return this.#particleSystem;
-    }
-
-    createSprite() {
-        const spriteMap = new this.#THREE.TextureLoader().load('assets/PNG/flare_01.png');
-        const spriteMaterial = new this.#THREE.SpriteMaterial({
-            map: spriteMap,
-            color: COLORS.spriteColor,
-            blending: this.#THREE.AdditiveBlending,
-            fog: true,
-        });
-        return new this.#THREE.Sprite(spriteMaterial);
-    }
-
-    get emitters() {
-        return this.#emitters;
     }
 
     animateEmitterPositions(theta, emitterRadius) {
@@ -87,31 +76,6 @@ export default class NebulaSystem {
         }
     }
 
-    createEmitters() {
-        const result = [];
-        for (let i = 0; i < NebulaSystem.NUM_EMITTERS; i++) {
-            if (i < 2) {
-                result.push(this.createEmitter())
-            } else {
-                result.push(this.createEmitter({ radialVelocity: { axis: new Vector3D(200, 0, 10) } }));
-            }
-        }
-        return result;
-    }
-
-    createEmitter(options = {}) {
-        const emitter = new Emitter()
-            .setRate(new Rate(2, 0.2))
-            .setInitializers(this.getStandardInitializers(options))
-            .setBehaviours(this.getStandardBehaviours(options));
-        this.addEmitterToParticleSystem(emitter);
-        return emitter;
-    }
-
-    addEmitterToParticleSystem(emitter) {
-        this.#particleSystem.addEmitter(emitter);
-    }
-
     handleOutputChange() {
         this.#emitters.forEach((emitter, emitterIndex) => {
             const lifeInitializer = emitter.initializers.find(initializer => initializer.type === 'Life');
@@ -129,7 +93,7 @@ export default class NebulaSystem {
             );
             emitter.behaviours.push(newForce);
 
-            this.handleParticlesCollidingWithCube(emitter);
+            this.#handleParticlesCollidingWithCube(emitter);
         });
     }
 
@@ -164,7 +128,66 @@ export default class NebulaSystem {
         });
     }
 
-    handleParticlesCollidingWithCube(emitter) {
+    // prevent particles from "floating" outside cuboid when decreasing room size
+    resetParticles() {
+        this.#emitters.forEach((emitter) => {
+            emitter.particles.forEach((particle) => {
+                particle.dead = true;
+            });
+        });
+    }
+
+    stopEmitting() {
+        this.#emitters.forEach(emitter => emitter.stopEmit());
+    }
+
+    resumeEmitting() {
+        this.#emitters.forEach((emitter) => {
+            if (!emitter.isEmitting) {
+                emitter.emit();
+            }
+        });
+    }
+
+    // << PRIVATE >>
+    #createSprite() {
+        const spriteMap = new this.#THREE.TextureLoader().load('assets/PNG/flare_01.png');
+        const spriteMaterial = new this.#THREE.SpriteMaterial({
+            map: spriteMap,
+            color: COLORS.spriteColor,
+            blending: this.#THREE.AdditiveBlending,
+            fog: true,
+        });
+        return new this.#THREE.Sprite(spriteMaterial);
+    }
+
+    #createEmitters() {
+        const result = [];
+        for (let i = 0; i < NebulaSystem.NUM_EMITTERS; i++) {
+            if (i < 2) {
+                result.push(this.#createEmitter())
+            } else {
+                result.push(this.#createEmitter({ radialVelocity: { axis: new Vector3D(200, 0, 10) } }));
+            }
+        }
+        return result;
+    }
+
+    #createEmitter(options = {}) {
+        const emitter = new Emitter()
+            .setRate(new Rate(2, 0.2))
+            .setInitializers(this.#getStandardInitializers(options))
+            .setBehaviours(this.#getStandardBehaviours(options));
+
+        this.#addEmitterToParticleSystem(emitter);
+        return emitter;
+    }
+
+    #addEmitterToParticleSystem(emitter) {
+        this.#particleSystem.addEmitter(emitter);
+    }
+
+    #handleParticlesCollidingWithCube(emitter) {
         if (emitter) {
             const cubeGeometryParams = this.#surroundingCube.geometry.parameters;
             const cubeHalfDepth = cubeGeometryParams.depth * 0.5;
@@ -195,8 +218,8 @@ export default class NebulaSystem {
                     });
 
                     if (particle.position.z >= cubeFrontFaceZ - reflectionBuffer) {
-                        particle.velocity.z *= this.reverseVelocityFactor(index);
-                        forceBehaviour.force.z *= this.reverseForceFactor(index);
+                        particle.velocity.z *= this.#reverseVelocityFactor(index);
+                        forceBehaviour.force.z *= this.#reverseForceFactor(index);
 
                         particle.addBehaviour(
                             new Color(new ColorSpan(COLORS.spriteColors), new ColorSpan(COLORS.rainbowColors), 0.5)
@@ -204,29 +227,29 @@ export default class NebulaSystem {
                     }
 
                     if (particle.position.z <= cubeBackFaceZ + reflectionBuffer) {
-                        particle.velocity.z *= this.reverseVelocityFactor(index);
-                        forceBehaviour.force.z *= this.reverseForceFactor(index);
+                        particle.velocity.z *= this.#reverseVelocityFactor(index);
+                        forceBehaviour.force.z *= this.#reverseForceFactor(index);
                     }
 
                     if (particle.position.y >= cubeTopFaceY - reflectionBuffer) {
-                        particle.velocity.y *= this.reverseVelocityFactor(index, 2 + Math.random());
-                        forceBehaviour.force.y *= this.reverseForceFactor(index);
+                        particle.velocity.y *= this.#reverseVelocityFactor(index, 2 + Math.random());
+                        forceBehaviour.force.y *= this.#reverseForceFactor(index);
 
                     }
 
                     if (particle.position.y <= cubeBottomFaceY + reflectionBuffer) {
-                        particle.velocity.y *= this.reverseVelocityFactor(index, 2 + Math.random());
-                        forceBehaviour.force.y *= this.reverseForceFactor(index);
+                        particle.velocity.y *= this.#reverseVelocityFactor(index, 2 + Math.random());
+                        forceBehaviour.force.y *= this.#reverseForceFactor(index);
                     }
 
                     if (particle.position.x <= cubeLeftFaceX + reflectionBuffer) {
-                        particle.velocity.x *= this.reverseVelocityFactor(index, 2 + Math.random());
-                        forceBehaviour.force.x *= this.reverseForceFactor(index);
+                        particle.velocity.x *= this.#reverseVelocityFactor(index, 2 + Math.random());
+                        forceBehaviour.force.x *= this.#reverseForceFactor(index);
                     }
 
                     if (particle.position.x >= cubeRightFaceX - reflectionBuffer) {
-                        particle.velocity.x *= this.reverseVelocityFactor(index, 2 + Math.random());
-                        forceBehaviour.force.x *= this.reverseForceFactor(index);
+                        particle.velocity.x *= this.#reverseVelocityFactor(index, 2 + Math.random());
+                        forceBehaviour.force.x *= this.#reverseForceFactor(index);
                     }
 
                     particle.velocity.clampLength(0, MAX_VELOCITY);
@@ -240,15 +263,15 @@ export default class NebulaSystem {
         }
     }
 
-    reverseVelocityFactor(index, multiplier = 1) {
+    #reverseVelocityFactor(index, multiplier = 1) {
         return (-1.0) * (multiplier * Math.sin((1 / index) + Math.random()));
     }
 
-    reverseForceFactor(index, multiplier = 1) {
+    #reverseForceFactor(index, multiplier = 1) {
         return (-1.0) * (multiplier * Math.cos((1 / index) + Math.random()));
     }
 
-    getStandardInitializers(options = {}) {
+    #getStandardInitializers(options = {}) {
         return [
             new Mass(options.mass ?? new Span(2, 4), new Span(20, 40)),
             new Life(options.life ?? 5),
@@ -262,7 +285,7 @@ export default class NebulaSystem {
         ];
     }
 
-    getStandardBehaviours(options = {}, emitter) {
+    #getStandardBehaviours(options = {}, emitter) {
         return [
             new Alpha(
                 options.alpha?.alphaA ?? 1,
@@ -295,26 +318,5 @@ export default class NebulaSystem {
                 options.randomDrift?.ease ?? ease.easeOutSine
             )
         ];
-    }
-
-    // prevent particles from "floating" outside cuboid when decreasing room size
-    resetParticles() {
-        this.#emitters.forEach((emitter) => {
-            emitter.particles.forEach((particle) => {
-                particle.dead = true;
-            });
-        });
-    }
-
-    stopEmitting() {
-        this.#emitters.forEach(emitter => emitter.stopEmit());
-    }
-
-    resumeEmitting() {
-        this.#emitters.forEach((emitter) => {
-            if (!emitter.isEmitting) {
-                emitter.emit();
-            }
-        });
     }
 }
