@@ -6,9 +6,9 @@ export default class NebulaParams {
     static maxSpeed = 80;
 
     static minLife = 4;
-    static maxLife = 16;
-    static dampingPercentage = 0.4;
-    static roomSizePercentage = 0.6;
+    static maxLife = 10;
+    static dampingPercentage = 0.7;
+    static roomSizePercentage = 0.3;
 
     static DEFAULT_LIFE = 0.2;
     static DEFAULT_SPEED = 0.2;
@@ -39,11 +39,13 @@ export default class NebulaParams {
     #lifeScale = NebulaParams.DEFAULT_LIFE;
     #speedScale = NebulaParams.DEFAULT_SPEED;
     #radiusScale = NebulaParams.minRadius;
+
     #leftAxis = new Vector3(
         NebulaParams.minLeftVelocity,
         NebulaParams.leftYVelocity,
         NebulaParams.leftZVelocity
     );
+
     #rightAxis = new Vector3(
         NebulaParams.minRightVelocity,
         NebulaParams.rightYVelocity,
@@ -56,22 +58,30 @@ export default class NebulaParams {
         this.#visualParamsObject = visualParams
     }
 
-    get visualParamsObject() { return this.#visualParamsObject }
+    // << PUBLIC >>
 
-    calculateLifeScale() {
-        const roomSize = this.visualParamsObject.currentSize;
-        const damping = this.visualParamsObject.currentDamp;
+    // used in nebulaSystem.handleOutputChange();
+    // in onOutputChange(), pass an output scale to make output connected to life
+    calculateLifeScale(outputScale = 1) {
+        const roomSize = this.#visualParamsObject.currentSize;
+        const damping = this.#visualParamsObject.currentDamp;
+        
         const inverseDamping = 1 - damping;
-        const combined = NebulaParams.dampingPercentage * inverseDamping +
-                         NebulaParams.roomSizePercentage * roomSize;
+        const combined = outputScale * (NebulaParams.dampingPercentage * inverseDamping +
+            NebulaParams.roomSizePercentage * roomSize);
 
-        return this.visualParamsObject.isLowOutput
+
+        const newLifeScale = this.#visualParamsObject.isLowOutput
             ? NebulaParams.DEFAULT_LIFE
             : Utility.getLinearScaledValue(
                 NebulaParams.minLife,
                 NebulaParams.maxLife,
                 combined
             );
+        
+        //console.log("newLifeScale modified by outputScale: ", newLifeScale);
+
+        return newLifeScale;
     }
 
     set lifeScale(newLifeScale) {
@@ -82,10 +92,11 @@ export default class NebulaParams {
         return this.#lifeScale;
     }
 
+    // used in onOutputChange()
     calculateSpeedScale(amplitude) {
         const logBase = 2;
 
-        return this.visualParamsObject.isLowOutput
+        return this.#visualParamsObject.isLowOutput
             ? NebulaParams.DEFAULT_SPEED
             : Utility.getLogScaledValue(
                 NebulaParams.minSpeed,
@@ -102,11 +113,12 @@ export default class NebulaParams {
         return this.#speedScale;
     }
 
+    // used in onRoomSizeChange()
     calculateRadius() {
         return Utility.getLinearScaledValue(
             NebulaParams.minRadius,
             NebulaParams.maxRadius,
-            this.visualParamsObject.currentSize);
+            this.#visualParamsObject.currentSize);
     }
 
     set radiusScale(newRadiusScale) {
@@ -116,53 +128,47 @@ export default class NebulaParams {
     get radiusScale() {
         return this.#radiusScale;
     }
-
-    calculateLeftOrRightAxisVector(emitterIndex) {
-        return emitterIndex < 2
-            ? this.calculateLeftAxisVector()
-            : this.calculateRightAxisVector();
+    // used in onOutputChanged()
+    forceValues(index) {
+        return {
+            x: this.forceX(index),
+            y: this.forceY(),
+            z: this.forceZ()
+        }
     }
 
-    calculateLeftAxisVector() {
+    // used in onWidthChange()
+    calculateLeftOrRightAxisVector(emitterIndex) {
+        return emitterIndex < 2
+            ? this.#calculateLeftAxisVector()
+            : this.#calculateRightAxisVector();
+    }
+
+    #calculateLeftAxisVector() {
         const logScale = 20;
         const scale = Utility.getLogScaledValue(
             NebulaParams.minLeftVelocity,
             NebulaParams.maxLeftVelocity,
-            this.visualParamsObject.currentWidth,
+            this.#visualParamsObject.currentWidth,
             logScale);
 
-        return new Vector3D(scale, NebulaParams.leftYVelocity, NebulaParams.leftZVelocity);
+        this.#leftAxis = new Vector3D(scale, NebulaParams.leftYVelocity, NebulaParams.leftZVelocity);
+        return this.#leftAxis;
     }
 
-    calculateRightAxisVector() {
+    #calculateRightAxisVector() {
         const logScale = 20;
         const scale = Utility.getLogScaledValue(
             NebulaParams.minRightVelocity,
             NebulaParams.maxRightVelocity,
-            this.visualParamsObject.currentWidth,
+            this.#visualParamsObject.currentWidth,
             logScale);
 
-        return new Vector3D(scale, NebulaParams.rightYVelocity, NebulaParams.rightZVelocity);
-    }
-
-    get leftAxis() {
-        return this.#leftAxis;
-    }
-
-    set leftAxis(newLeftAxis) {
-        this.#leftAxis = newLeftAxis;
-    }
-
-
-    get rightAxis() {   
+        this.#rightAxis = new Vector3D(scale, NebulaParams.rightYVelocity, NebulaParams.rightZVelocity);
         return this.#rightAxis;
-    }
-    set rightAxis(newRightAxis) {
-        this.#rightAxis = newRightAxis
     }
 
     get baseForce() {
-        //console.log("this.speedScale: ", this.speedScale);
         return Utility.getLogScaledValue(
             NebulaParams.forceFloor,
             NebulaParams.forceCeiling,
@@ -185,19 +191,11 @@ export default class NebulaParams {
         return this.baseForce;
     }
 
-    forceValues(index) {
-        return {
-            x: this.forceX(index),
-            y: this.forceY(),
-            z: this.forceZ()
-        }
-    }
-
     driftX() { 
         return this.scaledDriftValue(
             NebulaParams.minDriftX,
             NebulaParams.maxDriftX,
-            this.visualParamsObject.currentSize
+            this.#visualParamsObject.currentSize
         )
     }
 
@@ -205,7 +203,7 @@ export default class NebulaParams {
         return this.scaledDriftValue(
             NebulaParams.minDriftY,
             NebulaParams.maxDriftY,
-            this.visualParamsObject.currentSize
+            this.#visualParamsObject.currentSize
         )
     }
 
@@ -213,7 +211,7 @@ export default class NebulaParams {
         return this.scaledDriftValue(
             NebulaParams.minDriftZ,
             NebulaParams.maxDriftZ,
-            this.visualParamsObject.currentSize
+            this.#visualParamsObject.currentSize
         )
     }
 

@@ -90,7 +90,7 @@ function initCamera() {
     camera.lookAt(new THREE.Vector3(172, 80, -20));
     controls = new OrbitControls(camera, renderer.domElement);
     controls.autoRotateSpeed = 0.1;
-    controls.autoRotate = true;
+    //controls.autoRotate = true;
     //controls.addEventListener('change', () => {
     //    console.log('position:', camera.position);
     //    console.log('target:', controls.target);

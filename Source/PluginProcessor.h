@@ -138,11 +138,14 @@ namespace webview_plugin
                 auto fftDataIndex = juce::jlimit(0, fftSize / 2, (int)(skewedProportionX * (float)fftSize * 0.5f));
                 auto decibelsAtIndex = juce::Decibels::gainToDecibels(fftData.at(fftDataIndex));
                 auto sourceValue = juce::jlimit(mindB, maxdB, decibelsAtIndex) - juce::Decibels::gainToDecibels((float)fftSize);
-                auto level = juce::jmap(sourceValue, // sourceValue
+                auto level = juce::jmap(
+                    sourceValue, // sourceValue
                     mindB, // sourceRangeMin
                     maxdB, // sourceRangeMax
                     0.0f,  // targetRangeMin
                     1.0f); // targetRangeMax
+                // guarantee level between 0 and 1;
+                level = juce::jlimit(0.0f, 1.0f, level);
                 levels.add(level);
             }
         }

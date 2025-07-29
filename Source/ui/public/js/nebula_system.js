@@ -22,6 +22,7 @@ import ParticleSystem, {
 
 import * as COLORS from './colors.js';
 import NebulaParams from './nebula_params.js';
+import * as Utility from './utility.js';
 
 export default class NebulaSystem {
 
@@ -76,12 +77,22 @@ export default class NebulaSystem {
         }
     }
 
-    handleOutputChange() {
-        this.#emitters.forEach((emitter, emitterIndex) => {
-            const lifeInitializer = emitter.initializers.find(initializer => initializer.type === 'Life');
-            lifeInitializer.lifePan = new Span(this.#nebulaParams.lifeScale);
+    handleOutputChange(amplitude, currentOutput) {
+        const outputScaleForLife = Utility.getLogScaledValue(1, amplitude, (1 / -currentOutput), 10)
+        //console.log("outputScaleForLife: ", outputScaleForLife);
 
-            const radialVelocity = emitter.initializers.find(initializer => initializer.type === 'RadialVelocity');
+        this.#nebulaParams.lifeScale = this.#nebulaParams.calculateLifeScale(outputScaleForLife);
+        this.#nebulaParams.speedScale = this.#nebulaParams.calculateSpeedScale(amplitude);
+
+        //console.log("this.#nebulaParams.lifeScale: ", this.#nebulaParams.lifeScale);
+
+        this.#emitters.forEach((emitter, emitterIndex) => {
+            emitter.initializers = emitter.initializers.filter((i) => i.type !== 'Life');
+            const newLifeInitializer = new Life(this.#nebulaParams.lifeScale);
+
+            emitter.initializers.push(newLifeInitializer);
+
+            const radialVelocity = emitter.initializers.find(i => i.type === 'RadialVelocity');
             radialVelocity.radiusPan = new Span(this.#nebulaParams.speedScale);
 
             emitter.behaviours = emitter.behaviours.filter(b => b.type !== 'Force');
@@ -99,10 +110,23 @@ export default class NebulaSystem {
 
     handleRoomSizeChange() {
         this.resetParticles();
+
+        this.#nebulaParams.radiusScale = this.#nebulaParams.calculateRadius();
+        this.#nebulaParams.lifeScale = this.#nebulaParams.calculateLifeScale();
+
         this.#emitters.forEach((emitter) => {
-            emitter.initializers = emitter.initializers.filter((initializer) => initializer.type !== 'Radius');
+            emitter.initializers = emitter.initializers.filter((i) => i.type !== 'Radius' && i !== 'Life' );
             const newRadiusInitializer = new Radius(this.#nebulaParams.radiusScale);
+            const newLifeInitializer = new Life(this.#nebulaParams.lifeScale);
+
+            console.log("newLifeScale in roomSizeChange: ", this.#nebulaParams.lifeScale);
+
             emitter.initializers.push(newRadiusInitializer);
+            emitter.initializers.push(newLifeInitializer);
+
+            const lifeInitializer = emitter.initializers.find(i => i.type === 'Life');
+            lifeInitializer.lifePan = new Span(this.#nebulaParams.lifeScale);
+
 
             emitter.behaviours = emitter.behaviours.filter(b => b.type !== 'RandomDrift');
             const driftValues = this.#nebulaParams.driftValues;

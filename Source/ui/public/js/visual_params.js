@@ -28,13 +28,12 @@ export default class VisualParams {
         this.isLoudOutput = newOutput;
         this.isLowOutput = newOutput;
 
-        const reductionFactor = 6;
+        return newOutput;
+        //const reductionFactor = 6;
 
-        return this.isLoudOutput
-            ? reductionFactor * newOutput
-            : newOutput;
-
-        return result;
+        //return this.isLoudOutput
+        //    ? reductionFactor * newOutput
+        //    : newOutput;
     }
 
     get isLoudOutput() { return this.#isLoudOutput; }

@@ -3,7 +3,7 @@ import * as COLORS from './colors.js';
 import { environmentMap, camera } from './animated.js'
 import * as Utility from './utility.js';
 
-const SEPARATION = 50, AMOUNTX = 32, AMOUNTY = 16;
+const SEPARATION = 56, AMOUNTX = 32, AMOUNTY = 16;
 const WAVE_X_POS = 50, WAVE_Y_POS = 500, WAVE_Z_POS = 50;
 const WAVE_Y_POS_BOTTOM = -500;
 
@@ -17,7 +17,7 @@ const scales = new Float32Array(numParticles);
 const colors = new Float32Array(numParticles * 3);
 let currentSeparation = SEPARATION;
 let amplitude = -999;
-const maxAmps = 10;
+const maxAmps = 5;
 const ampQueue = [];
 
 function setupParticles() {
@@ -99,6 +99,8 @@ function animateParticles(levels, count = 0) {
         let positionIndex = 0;
         let particleIndex = 0;
 
+        //console.log("levels.length: ", levels.length);
+
         for (let ix = 0; ix < AMOUNTX; ix++) {
             const freqPosition = ix / (AMOUNTX - 1);
 
@@ -112,21 +114,45 @@ function animateParticles(levels, count = 0) {
             }
 
             for (let iy = 0; iy < AMOUNTY; iy++) {
-                const level = levels[particleIndex];
-                // animate y_position based on corresponding level
+
+                const level = Math.max(0, levels[particleIndex]);
+
+                // animate y_position based on corresponding level and amplitude
                 const y_pos = vectors[location].y;
-
                 const avgAmp = getAverageAmplitude();
-                const positionFloor = 2;
-                const positionMultiplier = positionFloor + Utility.getLogScaledValue((2 * level), (4 * level), ix, 10);
-                positionArray[positionIndex + 1] = y_pos +
-                                                    ( avgAmp * positionMultiplier * Math.sin((ix + count))) +
-                                                    ( avgAmp * positionMultiplier * Math.sin((iy + count)));
 
-                const scaleFloor = 12;
-                // scale particle based on corresponding level 
-                const scaleMultiplier = Utility.getLogScaledValue((20 * level), (60 * level), ix, 10);
-                scaleArray[particleIndex] = scaleFloor + scaleMultiplier;
+                
+                const scaleFloor = 10;
+                const positionFloor = 15;
+
+                const freqBias = (ix / (AMOUNTX )) ** 0.2; // Bias scaling toward high freqs
+                const perceptualLevel = 1.2 * Math.pow(level, 0.6); // Boost responsiveness perception
+                const linearScale = Utility.getLinearScaledValue(freqBias, avgAmp, perceptualLevel);
+
+                const positionLevelScale = level * 1.4 * getCurrentSeparation();
+                const scaleLevelScale = level * 1.2 * getCurrentSeparation();
+
+                const positionMultiplier = positionFloor + linearScale + positionLevelScale;
+                
+                positionArray[positionIndex + 1] = y_pos +
+                                                    ( positionMultiplier * Math.sin((ix + count))) +
+                                                    ( positionMultiplier * Math.sin((iy + count)));
+
+                // animate scale based on corresponding level
+                const scaleMultiplier = scaleFloor + linearScale + scaleLevelScale;
+
+                scaleArray[particleIndex] = scaleMultiplier;
+
+                //if (particleIndex === 0) {
+                //    console.log({
+                //        level,
+                //        perceptualLevel,
+                //        avgAmp,
+                //        linearScale,
+                //        positionMultiplier,
+                //        scaleMultiplier
+                //    });
+                //}
 
                 const lightness = 50 + 50 * level;
                 const color = new Color().setHSL(hue / 360, 1, lightness / 100);
@@ -167,12 +193,14 @@ function scaleParticleSeparation(roomSize) {
 }
 
 function setSineWaveAmplitude(output) {
-    // convert negative decibels to positive; take reciprocal
-    const convertedOutput = (-1 * output);
-    const min = 1;
-    const max = 6;
-    const amplitudeScale = Utility.getLogScaledValue(min, max, convertedOutput, 5);
-    amplitude = amplitudeScale * (currentSeparation) * (1 / convertedOutput);
+    const convertedOutput = -1 * output;
+    const minAmp = 4;
+    const maxAmp = 16;
+    const multiplier = currentSeparation * (1 / convertedOutput); // as convertedOutput increases, multiplier decreases
+    const logBase = Math.E;
+    amplitude = Utility.getLogScaledValue(minAmp, maxAmp, multiplier, logBase);
+    //console.log("amplitude: ", amplitude);
+    return amplitude
 }
 
 function getAmplitude() {

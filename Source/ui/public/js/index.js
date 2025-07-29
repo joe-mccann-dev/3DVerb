@@ -159,7 +159,13 @@ function onLevelsChange(levels) {
     // send updated magnitudes to particle animation function
     if (bypassAndMono.bypass.element.checked) { return; }
 
-    particleWave.animateParticles(levels.slice(1, levels.length), countForParticleWave += 0.1);
+    const maxLevel = Math.max(0, ...levels)
+    const minOscillation = 0.1;
+    const reductionExp = 2;
+    const clampedLevel = Math.min(Math.max(maxLevel, 0), 1);
+    countForParticleWave += minOscillation + Math.pow(clampedLevel, reductionExp);
+
+    particleWave.animateParticles(levels, countForParticleWave);
 }
 
 function onOutputChange(output) {
@@ -170,11 +176,7 @@ function onOutputChange(output) {
     particleWave.updateAmpQueue(amplitude);
 
     amplitude = particleWave.getAverageAmplitude();
-
-    Animated.nebulaParams.speedScale = Animated.nebulaParams.calculateSpeedScale(amplitude);
-    Animated.nebulaParams.lifeScale = Animated.nebulaParams.calculateLifeScale();
-
-    Animated.nebulaSystem.handleOutputChange()
+    Animated.nebulaSystem.handleOutputChange(amplitude, Animated.visualParams.currentOutput);
 }
 
 function onRoomSizeChange(roomSizeValue) {
@@ -185,8 +187,6 @@ function onRoomSizeChange(roomSizeValue) {
     Animated.scaleSurroundingCube(Animated.visualParams.cubeScale);
     Animated.scaleAnchorSpheresPosition(Animated.visualParams.sphereScale);
 
-    Animated.nebulaParams.radiusScale = Animated.nebulaParams.calculateRadius();
-    Animated.nebulaSystem.resetParticles();
     Animated.nebulaSystem.handleRoomSizeChange();
 }
 
@@ -197,7 +197,7 @@ function onMixChange(mixValue) {
 }
 
 function onWidthChange(widthValue) {
-    Animated.visualParams.curretWidth = widthValue;
+    Animated.visualParams.currentWidth = widthValue;
     Animated.nebulaSystem.handleWidthChange();
 }
 
