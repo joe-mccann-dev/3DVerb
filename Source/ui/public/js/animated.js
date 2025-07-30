@@ -24,7 +24,7 @@ let sphereRadius;
 let surroundingCube;
 const cubeWidth = 1500;
 const cubeHeight = 600;
-const cubeDepth = cubeHeight * 1.2;
+const cubeDepth = cubeHeight * 1.5;
 
 const planes = [];
 const lines = [];
@@ -222,12 +222,11 @@ function addSurroundingCube() {
 
 function makeSurroundingCube(geometry, position) {
     const cubeMaterial = new THREE.MeshStandardMaterial({
-        color: COLORS.skyBlueColor,
         envMap: environmentMap,
-        envMapIntensity: 50.0,
+        envMapIntensity: 500.0,
         transparent: true,
         alphaMap: alphaMap,
-        opacity: 0.95,
+        opacity: 0.6,
         depthWrite: false
     });
     const cube = new THREE.Mesh(geometry, cubeMaterial);
