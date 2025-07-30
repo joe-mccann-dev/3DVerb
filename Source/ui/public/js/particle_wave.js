@@ -2,7 +2,7 @@ import * as COLORS from './colors.js';
 import * as Utility from './utility.js';
 
 export default class ParticleWave {
-    static SEPARATION = 56;
+    static SEPARATION = 50;
     static AMOUNTX = 32;
     static AMOUNTY = 16;
     static NUM_PARTICLES = ParticleWave.AMOUNTX * ParticleWave.AMOUNTY;

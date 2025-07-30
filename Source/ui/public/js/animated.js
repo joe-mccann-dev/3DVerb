@@ -117,9 +117,9 @@ function addPointLight() {
 }
 
 function addSpheres() {
-    sphereRadius = 5.2;
-    const sphereWidthSegments = 16;
-    const sphereHeightSegments = 20;
+    sphereRadius = 5;
+    const sphereWidthSegments = 12;
+    const sphereHeightSegments = 12;
     const sphereGeometry = new THREE.SphereGeometry(sphereRadius, sphereWidthSegments, sphereHeightSegments);
 
     const positionArray = particleWave.waves.top.geometry.attributes.position.array;
@@ -160,14 +160,14 @@ function addSpheres() {
     );
 }
 
-function makeSphere(geometry, position, color = COLORS.sphereColor) {
+function makeSphere(geometry, position, color = COLORS.skyBlueColor) {
     const material = new THREE.MeshStandardMaterial({
         color: color,
         envMap: environmentMap,
         //alphaMap: alphaMap,
         transparent: true,
         opacity: 0.9,
-        envMapIntensity: 12.0,
+        envMapIntensity: 80.0,
         depthWrite: false,
         wireframe: true,
     });

@@ -1,7 +1,6 @@
 import * as Juce from "./juce/index.js";
 import * as Animated from "./animated.js";
 import * as COLORS from './colors.js';
-//import ParticleWave from './particle_wave.js'
 import * as Utility from './utility.js';
 
 const data = window.__JUCE__.initialisationData;
@@ -14,10 +13,10 @@ const undoButton = document.getElementById("undoButton");
 const redoButton = document.getElementById("redoButton");
 const undoRedoCtrl = Juce.getNativeFunction("webUndoRedo");
 
-let countForParticleWave = 0;
-
 let roomSizeThrottleHandler, mixThrottleHandler, widthThrottleHandler, dampThrottleHandler,
     freezeThrottleHandler, levelsThrottleHandler, outputThrottleHandler;
+
+let countForParticleWave = 0;
 
 const bypassAndMono = {
     bypass: {
@@ -190,7 +189,7 @@ function onRoomSizeChange(roomSizeValue) {
 
 function onMixChange(mixValue) {
     Animated.visualParams.currentMix = mixValue;
-    const scaleFactor = 4;
+    const scaleFactor = 10;
     Animated.scaleAnchorSpheres(mixValue, scaleFactor);
 }
 
