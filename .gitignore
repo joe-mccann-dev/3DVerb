@@ -1,5 +1,5 @@
 **/Builds
-**/Source/ui/public/node_modules/
+**/Source/UI/node_modules/
 **/JuceLibraryCode
 !**/JuceLibraryCode/modules
 **/.vs
