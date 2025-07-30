@@ -1,5 +1,5 @@
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
-import { environmentMap, addToSceneAndObjects } from './animated.js';
+import { environmentMap, scene } from './animated.js';
 
 const loader = new GLTFLoader();
 const speakersPromise = new Promise((resolve, reject) => {
@@ -64,20 +64,10 @@ const soundPanelPromise = new Promise((resolve, reject) => {
 });
 
 function addModelsToScene() {
-    speakersPromise.then((speakers) => {
-        speakers.forEach((speaker) => {
-            addToSceneAndObjects(speaker);
-        });
-    });
-    carpetPromise.then((carpet) => {
-        addToSceneAndObjects(carpet);
-    });
-    lampPromise.then((lamp) => {
-        addToSceneAndObjects(lamp);
-    });
-    soundPanelPromise.then((soundPanel) => {
-        addToSceneAndObjects(soundPanel);
-    });
+    speakersPromise.then(speakers => speakers.forEach(speaker => scene.add(speaker)));
+    carpetPromise.then(carpet => scene.add(carpet));
+    lampPromise.then(lamp => scene.add(lamp));
+    soundPanelPromise.then(soundPanel => scene.add(soundPanel));
 }
 
 export {

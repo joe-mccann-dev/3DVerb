@@ -17,8 +17,6 @@ let visualizer, visualizerStyle, canvas, stats;
 let aspect, controls;
 let pointLight;
 
-const objects = [];
-
 const spheres = [];
 let sphereRadius;
 let surroundingCube;
@@ -179,7 +177,7 @@ function makeSphere(geometry, position, color = COLORS.sphereColor) {
     sphere.receiveShadow = true;
     sphere.metalness = 40;
 
-    addToSceneAndObjects(sphere);
+    scene.add(sphere);
     return sphere;
 }
 
@@ -217,7 +215,7 @@ function addSurroundingCube() {
     const cubeHeightSegments = 20; 
     const cubeGeometry = new THREE.BoxGeometry(cubeWidth, cubeHeight, cubeDepth, cubeWidthSegments, cubeHeightSegments);
     surroundingCube = makeSurroundingCube(cubeGeometry, new THREE.Vector3(50, 50, 50));
-    addToSceneAndObjects(surroundingCube);
+    scene.add(surroundingCube);
 }
 
 function makeSurroundingCube(geometry, position) {
@@ -276,7 +274,7 @@ function makePlane(geometry, color, position, rotation) {
     plane.position.set(position.x, position.y, position.z);
     plane.castShadow = true;
 
-    addToSceneAndObjects(plane);
+    scene.add(plane);
     return plane;
 }
 
@@ -314,13 +312,8 @@ function makeLine(src_x, dest_x, src_y, dest_y, src_z, dest_z, color = COLORS.bo
     line.castShadow = true;
     line.receiveShadow = true;
 
-    addToSceneAndObjects(line);
+    scene.add(line);
     return line;
-}
-
-function addToSceneAndObjects(objectToAdd) {
-    scene.add(objectToAdd);
-    objects.push(objectToAdd);
 }
 
 function animate(time, theta = 0, emitterRadius = 16) {
@@ -419,8 +412,6 @@ export {
     scaleSurroundingCube,
     scaleAnchorSpheres,
     scaleAnchorSpheresPosition,
-    objects,
-    addToSceneAndObjects,
     setUserData,
     handleBypassChecked,
     handleBypassNotChecked,
