@@ -1,4 +1,3 @@
-import { Vector3 } from 'three';
 import * as Utility from './utility.js'
 import ParticleSystem, { Vector3D } from 'three-nebula';
 export default class NebulaParams {
@@ -40,13 +39,13 @@ export default class NebulaParams {
     #speedScale = NebulaParams.DEFAULT_SPEED;
     #radiusScale = NebulaParams.minRadius;
 
-    #leftAxis = new Vector3(
+    #leftAxis = new Vector3D(
         NebulaParams.minLeftVelocity,
         NebulaParams.leftYVelocity,
         NebulaParams.leftZVelocity
     );
 
-    #rightAxis = new Vector3(
+    #rightAxis = new Vector3D(
         NebulaParams.minRightVelocity,
         NebulaParams.rightYVelocity,
         NebulaParams.rightZVelocity

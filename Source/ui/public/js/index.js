@@ -170,13 +170,11 @@ function onLevelsChange(levels) {
 
 function onOutputChange(output) {
     Animated.visualParams.currentOutput = Animated.visualParams.calculateOutput(output);
-    
-    const currentAmplitude = Animated.particleWave.calculateSineWaveAmplitude(output);
-    Animated.particleWave.amplitude = currentAmplitude;
-    Animated.particleWave.updateAmpQueue(Animated.particleWave.amplitude);
-    const avgAmplitude = Animated.particleWave.getAverageAmplitude();
 
-    Animated.nebulaSystem.handleOutputChange(avgAmplitude, Animated.visualParams.currentOutput);
+    const currentOutput = Animated.visualParams.currentOutput;
+    const avgAmplitude = Animated.particleWave.getAverageAmplitude(currentOutput);
+
+    Animated.nebulaSystem.handleOutputChange(avgAmplitude, currentOutput);
 }
 
 function onRoomSizeChange(roomSizeValue) {

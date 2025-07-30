@@ -147,7 +147,7 @@ export default class NebulaSystem {
             emitter.initializers = emitter.initializers.filter(initializer => initializer.type !== 'RadialVelocity');
             const axis = this.#nebulaParams.calculateLeftOrRightAxisVector(emitterIndex);
             const newRadialVelocity = new RadialVelocity(this.#nebulaParams.speedScale, axis, NebulaParams.velocityTheta);
-
+            //console.log(newRadialVelocity.dir);
             emitter.initializers.push(newRadialVelocity);
         });
     }

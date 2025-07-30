@@ -16,6 +16,8 @@ export default class ParticleWave {
     static WAVE_Z_POS = 50;
     static WAVE_Y_POS_BOTTOM = -500;
     static MAX_AMPS = 5;
+    static SMOOTHING_FACTOR = 0.8;
+    static MIN_SCALE_AND_POSITION_FLOOR = 8;
 
     #waves = {};
     #vectors = {};
@@ -23,6 +25,7 @@ export default class ParticleWave {
     #amplitude = -999;
     #ampQueue = [];
     #smoothedLevels = [];
+
     #camera;
     #environmentMap;
     #THREE;
@@ -32,10 +35,7 @@ export default class ParticleWave {
         this.#environmentMap = environmentMap;
         this.#THREE = three;
         this.#setupParticles();
-
-        for (const location in this.#waves) {
-            scene.add(this.#waves[location]);
-        }
+        Object.values(this.#waves).forEach(wave => scene.add(wave));
     }
 
     // << PUBLIC >>
@@ -47,6 +47,7 @@ export default class ParticleWave {
         return this.#currentSeparation;
     }
 
+    // << used in onLevelsChange() in index.js >> 
     animateParticles(levels, count = 0) {
         if (this.#smoothedLevels.length !== levels.length) {
             for (let i = 0; i < levels.length; i++) {
@@ -59,6 +60,7 @@ export default class ParticleWave {
 
         for (const location in this.#waves) {
             const wave = this.#waves[location];
+            const locationVectorY = this.#vectors[location].y;
 
             const positionArray = wave.geometry.attributes.position.array;
             const colorArray = wave.geometry.attributes.color.array;
@@ -69,57 +71,40 @@ export default class ParticleWave {
 
             for (let ix = 0; ix < ParticleWave.AMOUNTX; ix++) {
                 const freqPosition = ix / (ParticleWave.AMOUNTX - 1);
-
                 const hue = this.#calculateHue(freqPosition);
 
+                const sinX = Math.sin(ix + count);
                 for (let iy = 0; iy < ParticleWave.AMOUNTY; iy++) {
                     // prevent large jumps up or down in scale;
-                    const smoothingFactor = 0.8;
-                    this.#smoothedLevels[particleIndex] = this.#smoothedLevels[particleIndex] *
-                        smoothingFactor +
-                        levels[particleIndex] * 0.1;
-
+                    this.#smoothedLevels[particleIndex] = this.#calculateSmoothedLevel(levels, particleIndex)
                     const smoothedLevel = this.#smoothedLevels[particleIndex];
 
-                    const minFloor = 8;
-                    const floor = minFloor + avgAmp ** 0.5;
+                    const multiplier = this.#calculateMultiplier(avgAmp, ix, smoothedLevel, separation);
+                    positionArray[positionIndex + 1] = this.#calculateYPosition(locationVectorY, multiplier, sinX, iy, count)
+                    scaleArray[particleIndex] = this.#calculateScale(multiplier, avgAmp);
 
-                    const linearScale = (ix / ParticleWave.AMOUNTX);
-                    const levelScale = (smoothedLevel ** (1 / Math.E)) * 0.8 * separation;
-                    const multiplier = floor + linearScale + levelScale;
-
-                    const y_pos = this.#vectors[location].y;
-                    positionArray[positionIndex + 1] = y_pos +
-                        multiplier * Math.sin(ix + count) +
-                        multiplier * Math.sin(iy + count);
-
-                    scaleArray[particleIndex] = multiplier + avgAmp ** 0.5;;
-
-                    const lightness = 20 + 40 * smoothedLevel;
-                    const color = new this.#THREE.Color().setHSL(hue / 360, 1, lightness / 100);
-                    colorArray[positionIndex] = color.r;
-                    colorArray[positionIndex + 1] = color.g;
-                    colorArray[positionIndex + 2] = color.b;
+                    this.#updateColors(smoothedLevel, hue, colorArray, positionIndex);
 
                     positionIndex += 3;
                     particleIndex++;
                 }
             }
 
-            wave.geometry.attributes.position.needsUpdate = true;
-            wave.geometry.attributes.scale.needsUpdate = true;
-            wave.geometry.attributes.color.needsUpdate = true;
+            this.#requireAttrsUpdate(wave)
         }
     }
 
-    getAverageAmplitude() {
-        if (ampQueue.length === 0) { return 0; }
+    // << used in onOutputChange() callback in index.js >> 
+    getAverageAmplitude(output) {
+        if (this.#ampQueue.length === 0) { return 0; }
 
-        return ampQueue.reduce((a, b) => {
-            return a + b;
-        }, 0) / ampQueue.length;
+        this.#amplitude = this.#calculateSineWaveAmplitude(output)
+        this.#updateAmpQueue(this.#amplitude);
+
+        return this.#ampQueue.reduce((a, b) => a + b, 0) / this.#ampQueue.length;
     }
 
+    // << used in onRoomSizeChange() callback in index.js >>
     scaleParticleSeparation(roomSize) {
         const floor = 30;
         const separationScaleFactor = floor + (ParticleWave.SEPARATION * roomSize);
@@ -130,44 +115,7 @@ export default class ParticleWave {
         }
     }
 
-    updateAmpQueue(newAmp) {
-        this.#ampQueue.push(newAmp);
-        if (this.#ampQueue.length > ParticleWave.MAX_AMPS) {
-            this.#ampQueue.shift();
-        }
-    }
-
-    calculateSineWaveAmplitude(output) {
-        const convertedOutput = -1 * output;
-        const minAmp = 4;
-        const maxAmp = 16;
-        // as convertedOutput increases, multiplier decreases
-        const multiplier = this.#currentSeparation * (1 / convertedOutput); 
-        const logBase = Math.E;
-        this.#amplitude = Utility.getLogScaledValue(minAmp, maxAmp, multiplier, logBase);
-        return this.#amplitude
-    }
-
-    set amplitude(newAmp) {
-        this.#amplitude = newAmp;
-    }
-
-    get amplitude() {
-        return this.#amplitude;
-    }
-
-    getAverageAmplitude() {
-    if (this.#ampQueue.length === 0) {
-        return 0;
-    }
-
-    return this.#ampQueue.reduce((a, b) => {
-        return a + b;
-    }, 0) / this.#ampQueue.length;
-}
-
     // << PRIVATE >>
-
     #setupParticles() {
         const shaderMaterial = new this.#THREE.ShaderMaterial({
             uniforms: {
@@ -234,7 +182,66 @@ export default class ParticleWave {
         }
     }
 
+    // << used in this.getAverageAmplitude() >>
+    #updateAmpQueue(newAmp) {
+        this.#ampQueue.push(newAmp);
+        if (this.#ampQueue.length > ParticleWave.MAX_AMPS) {
+            this.#ampQueue.shift();
+        }
+    }
+
+    #calculateSineWaveAmplitude(output) {
+        const convertedOutput = -1 * output;
+        const minAmp = 4;
+        const maxAmp = 16;
+        // as convertedOutput increases, multiplier decreases
+        const multiplier = this.#currentSeparation * (1 / convertedOutput);
+        const logBase = Math.E;
+        this.#amplitude = Utility.getLogScaledValue(minAmp, maxAmp, multiplier, logBase);
+        return this.#amplitude
+    }
+
+    // << used in this.animateParticles() >>
     #calculateHue(freqPosition) {
         return 0 + (180 * freqPosition);
+    }
+
+    #calculateSmoothedLevel(levels, particleIndex) {
+        return this.#smoothedLevels[particleIndex] *
+            ParticleWave.SMOOTHING_FACTOR +
+            levels[particleIndex] * 0.1;
+    }
+
+    #calculateMultiplier(avgAmp, ix, smoothedLevel, separation) {
+        const floor = ParticleWave.MIN_SCALE_AND_POSITION_FLOOR + avgAmp ** 0.5;
+        const linearScale = (ix / ParticleWave.AMOUNTX);
+        const levelScale = (smoothedLevel ** (1 / Math.E)) * ParticleWave.SMOOTHING_FACTOR * separation;
+
+        return floor + linearScale + levelScale;
+    }
+
+    #calculateYPosition(location, multiplier, sinX, iy, count) {
+        const sinY = Math.sin(iy + count);
+        return location +
+            multiplier * sinX +
+            multiplier * sinY
+    }
+
+    #calculateScale(multiplier, avgAmp) {
+        return multiplier + avgAmp ** 0.5;
+    }
+
+    #updateColors(smoothedLevel, hue, colorArray, positionIndex) {
+        const lightness = 20 + 40 * smoothedLevel;
+        const color = new this.#THREE.Color().setHSL(hue / 360, 1, lightness / 100);
+        colorArray[positionIndex] = color.r;
+        colorArray[positionIndex + 1] = color.g;
+        colorArray[positionIndex + 2] = color.b;
+    }
+
+    #requireAttrsUpdate(wave) {
+        wave.geometry.attributes.position.needsUpdate = true;
+        wave.geometry.attributes.scale.needsUpdate = true;
+        wave.geometry.attributes.color.needsUpdate = true;
     }
 }
