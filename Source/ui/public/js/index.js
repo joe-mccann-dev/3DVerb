@@ -1,7 +1,7 @@
 import * as Juce from "./juce/index.js";
 import * as Animated from "./animated.js";
 import * as COLORS from './colors.js';
-import * as particleWave from './particle_wave.js'
+//import ParticleWave from './particle_wave.js'
 import * as Utility from './utility.js';
 
 const data = window.__JUCE__.initialisationData;
@@ -165,24 +165,24 @@ function onLevelsChange(levels) {
     const clampedLevel = Math.min(Math.max(maxLevel, 0), 1);
     countForParticleWave += minOscillation + Math.pow(clampedLevel, reductionExp);
 
-    particleWave.animateParticles(levels, countForParticleWave);
+    Animated.particleWave.animateParticles(levels, countForParticleWave);
 }
 
 function onOutputChange(output) {
     Animated.visualParams.currentOutput = Animated.visualParams.calculateOutput(output);
     
-    particleWave.setSineWaveAmplitude(Animated.visualParams.currentOutput);
-    let amplitude = particleWave.getAmplitude();
-    particleWave.updateAmpQueue(amplitude);
+    const currentAmplitude = Animated.particleWave.calculateSineWaveAmplitude(output);
+    Animated.particleWave.amplitude = currentAmplitude;
+    Animated.particleWave.updateAmpQueue(Animated.particleWave.amplitude);
+    const avgAmplitude = Animated.particleWave.getAverageAmplitude();
 
-    amplitude = particleWave.getAverageAmplitude();
-    Animated.nebulaSystem.handleOutputChange(amplitude, Animated.visualParams.currentOutput);
+    Animated.nebulaSystem.handleOutputChange(avgAmplitude, Animated.visualParams.currentOutput);
 }
 
 function onRoomSizeChange(roomSizeValue) {
     Animated.visualParams.currentSize = roomSizeValue;
 
-    particleWave.scaleParticleSeparation(Animated.visualParams.currentSize);
+    Animated.particleWave.scaleParticleSeparation(Animated.visualParams.currentSize);
 
     Animated.scaleSurroundingCube(Animated.visualParams.cubeScale);
     Animated.scaleAnchorSpheresPosition(Animated.visualParams.sphereScale);

@@ -3,7 +3,7 @@ import * as THREE from 'three';
 import * as promises from './threeDModels.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import * as UI from './index.js';
-import * as particleWave from './particle_wave.js'
+import ParticleWave from './particle_wave.js'
 import Stats from 'three/addons/libs/stats.module.js';
 import * as Utility from './utility.js';
 import * as COLORS from './colors.js';
@@ -31,6 +31,7 @@ const lines = [];
 
 const visualParams = new VisualParams();
 const nebulaParams = new NebulaParams(visualParams);
+let particleWave;
 let nebulaSystem;
 
 init();
@@ -40,17 +41,16 @@ function init() {
     initRenderer();
     initCamera();
     addPointLight();
-    particleWave.setupParticles();
     addSurroundingCube();
+   
+    nebulaSystem = new NebulaSystem(nebulaParams, scene, THREE, surroundingCube)
+    particleWave = new ParticleWave(camera, environmentMap, THREE, scene);
+
     addSpheres();
     addPlanes();
     addLines();
-    nebulaSystem = new NebulaSystem(nebulaParams, scene, THREE, surroundingCube)
-    
-    for (const location in particleWave.waves) {
-        scene.add(particleWave.waves[location]);
-    }
     promises.addModelsToScene();
+
     requestAnimationFrame(animate);
 }
 
@@ -192,13 +192,13 @@ function scaleAnchorSpheres(mixValue, scaleFactor) {
 }
 
 function scaleAnchorSpheresPosition(scale) {
-    const currentSeparation = particleWave.getCurrentSeparation();
+    const currentSeparation = particleWave.currentSeparation;
     spheres.forEach((sphere, index) => {
 
         sphere.position.copy(sphere.userData.originalPosition);
 
-        const minX = 10 * particleWave.getCurrentSeparation();
-        const maxX = 15 * particleWave.getCurrentSeparation();
+        const minX = 10 * currentSeparation;
+        const maxX = 15 * currentSeparation;
         const xOffset = Utility.getLogScaledValue(minX, maxX, scale, Math.E);
         const sphereXOffset = index < 4 ? -xOffset : xOffset;
 
@@ -408,6 +408,7 @@ export {
     nebulaSystem,
     visualParams,
     nebulaParams,
+    particleWave,
     scene,
     environmentMap,
     camera,
