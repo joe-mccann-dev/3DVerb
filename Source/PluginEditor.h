@@ -43,26 +43,6 @@ namespace webview_plugin
 
 		juce::UndoManager& undoManager;
 
-		// BEGIN NATIVE GUI
-		juce::Slider gainSlider{ "gain slider" };
-		juce::SliderParameterAttachment gainSliderAttachment;
-
-		juce::ToggleButton bypassButton{ "Bypass" };
-		juce::ButtonParameterAttachment bypassButtonAttachment;
-
-		juce::ToggleButton monoButton{ "mono" };
-		juce::ButtonParameterAttachment monoButtonAttachment;
-
-		//juce::Slider widthSlider{ "widthSlider" };
-		//juce::SliderParameterAttachment widthSliderAttachment;
-
-
-		juce::TextButton runJavaScriptButton{ "Run some JavaScript" };
-		juce::TextButton emitJavaScriptButton{ "Emit JavaScript event" };
-		juce::Label labelUpdatedFromJavaScript{ "label", "To be updated from JavaScript" };
-		// END NATIVE GUI
-
-
 		// BEGIN WEB VIEW
 		juce::WebSliderRelay webGainRelay;
 		juce::WebToggleButtonRelay webBypassRelay;
@@ -86,9 +66,6 @@ namespace webview_plugin
 		juce::WebSliderParameterAttachment webWidthSliderAttachment;
 		juce::WebSliderParameterAttachment webDampSliderAttachment;
 		juce::WebSliderParameterAttachment webFreezeSliderAttachment;
-
-
-
 		// END WEBVIEW
 
 		JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ReverbulizerAudioProcessorEditor)

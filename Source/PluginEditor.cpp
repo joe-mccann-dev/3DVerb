@@ -62,10 +62,6 @@ namespace webview_plugin
         undoManager(um),
         audioProcessor(p),
 
-        gainSliderAttachment{ *audioProcessor.apvts.getParameter(id::GAIN.getParamID()), gainSlider, &undoManager },
-        bypassButtonAttachment { *audioProcessor.apvts.getParameter(id::BYPASS.getParamID()), bypassButton, &undoManager },
-        monoButtonAttachment { *audioProcessor.apvts.getParameter(id::MONO.getParamID()), monoButton, &undoManager },
-
         webGainRelay{id::GAIN.getParamID()},
         webBypassRelay{ id::BYPASS.getParamID() },
         webMonoRelay{id::MONO.getParamID() },
@@ -134,40 +130,9 @@ namespace webview_plugin
 
         addAndMakeVisible(webView);
 
-        //webView.goToURL("https://google.com");
         //webView.goToURL(webView.getResourceProviderRoot());
         webView.goToURL(LOCAL_VITE_SERVER);
-
-        runJavaScriptButton.onClick = [this] {
-            constexpr auto JAVASCRIPT_TO_RUN{ "console.log(\"Hello from C++!\")" };
-            webView.evaluateJavascript(
-                JAVASCRIPT_TO_RUN,
-                [](juce::WebBrowserComponent::EvaluationResult result) {
-                    if (const auto* resultPtr = result.getResult()) {
-                        std::cout << "JavaScript evaluation result: " << resultPtr->toString() << std::endl;
-                    }
-                    else {
-                        std::cout << "JavaScript evaluation failed: " << result.getError()->message << std::endl;
-                    }
-                }
-            );
-        };
-        addAndMakeVisible(runJavaScriptButton);
         
-
-        emitJavaScriptButton.onClick = [this] {
-            static const juce::Identifier EVENT_ID{ "exampleEvent" };
-            webView.emitEventIfBrowserIsVisible(EVENT_ID, audioProcessor.apvts.getParameter(id::MIX.getParamID())->getCurrentValueAsText());
-        };
-        addAndMakeVisible(emitJavaScriptButton);
-
-        addAndMakeVisible(labelUpdatedFromJavaScript);
-        
-        addAndMakeVisible(gainSlider);
-        gainSlider.setSliderStyle(juce::Slider::SliderStyle::LinearBar);
-
-        addAndMakeVisible(bypassButton);
-        addAndMakeVisible(monoButton);
 
         setResizable(true, true);
         setSize(1366, 768);
@@ -182,14 +147,7 @@ namespace webview_plugin
     void ReverbulizerAudioProcessorEditor::resized()
     {
         auto bounds = getLocalBounds();
-        //const int amountToRemove = getWidth() / 2;
         webView.setBounds(bounds);
-        //runJavaScriptButton.setBounds(bounds.removeFromTop(50).reduced(5));
-        //emitJavaScriptButton.setBounds(bounds.removeFromTop(50).reduced(5));
-        //labelUpdatedFromJavaScript.setBounds(bounds.removeFromTop(50).reduced(5));
-        //gainSlider.setBounds(bounds.removeFromTop(50).reduced(5));
-        //bypassButton.setBounds(bounds.removeFromTop(50).reduced(10));
-        //monoButton.setBounds(bounds.removeFromTop(50).reduced(10));
     }
 
     void ReverbulizerAudioProcessorEditor::timerCallback()
@@ -224,8 +182,6 @@ namespace webview_plugin
         char keyVal{ static_cast<char>(args[0].toString()[0]) };
         bool undoCommand{ keyVal == 'Z' };
         undoCommand ? completion("Undo key combo pressed") : completion("Redo key combo pressed");
-
-        labelUpdatedFromJavaScript.setText(undoCommand ? "Web action undone" : "Web action redone", juce::dontSendNotification);
 
         const juce::KeyPress& kp{ keyVal, juce::ModifierKeys::ctrlModifier, 0 };
         keyPressed(kp);
