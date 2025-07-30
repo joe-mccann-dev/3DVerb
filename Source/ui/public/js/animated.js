@@ -1,6 +1,6 @@
 
 import * as THREE from 'three';
-import * as promises from './threeDModels.js';
+import * as models from './threeDModels.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import * as UI from './index.js';
 import ParticleWave from './particle_wave.js'
@@ -27,10 +27,7 @@ const cubeDepth = cubeHeight * 1.5;
 const planes = [];
 const lines = [];
 
-const visualParams = new VisualParams();
-const nebulaParams = new NebulaParams(visualParams);
-let particleWave;
-let nebulaSystem;
+let visualParams, nebulaParams, nebulaSystem, particleWave;
 
 init();
 
@@ -40,15 +37,11 @@ function init() {
     initCamera();
     addPointLight();
     addSurroundingCube();
-   
-    nebulaSystem = new NebulaSystem(nebulaParams, scene, THREE, surroundingCube)
-    particleWave = new ParticleWave(camera, environmentMap, THREE, scene);
-
+    initAnimationClasses();
+    models.addModelsToScene();
     addSpheres();
     addPlanes();
-    addLines();
-    promises.addModelsToScene();
-
+    addLines()
     requestAnimationFrame(animate);
 }
 
@@ -94,6 +87,14 @@ function initCamera() {
     //    console.log('target:', controls.target);
     //});
 }
+
+function initAnimationClasses() {
+    visualParams = new VisualParams();
+    nebulaParams = new NebulaParams(visualParams);
+    nebulaSystem = new NebulaSystem(nebulaParams, scene, THREE, surroundingCube)
+    particleWave = new ParticleWave(camera, environmentMap, THREE, scene);
+}
+
 function addPointLight() {
     pointLight = new THREE.PointLight(0xc9c893, 200000);
     pointLight.position.set(-30, 90, -10);

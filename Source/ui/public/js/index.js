@@ -169,7 +169,7 @@ function onLevelsChange(levels) {
 }
 
 function onOutputChange(output) {
-    Animated.visualParams.currentOutput = Animated.visualParams.calculateOutput(output);
+    Animated.visualParams.currentOutput = output;
 
     const currentOutput = Animated.visualParams.currentOutput;
     const avgAmplitude = Animated.particleWave.getAverageAmplitude(currentOutput);

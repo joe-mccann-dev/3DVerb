@@ -17,23 +17,11 @@ export default class VisualParams {
     #currentDamp = 0.5;
 
     get currentOutput() { return this.#currentOutput; }
-    set currentOutput(newOutput) {
-        this.#currentOutput = newOutput;
-    }
 
-    // attenuate incoming output if necessary
-    // particleWave sine wave too big when passing audio mastered at modern levels
-    // inverse nature of output means multiplying output decreases amplitude in setSineWaveAmplitude()
-    calculateOutput(newOutput) {
+    set currentOutput(newOutput) {
         this.isLoudOutput = newOutput;
         this.isLowOutput = newOutput;
-
-        return newOutput;
-        //const reductionFactor = 6;
-
-        //return this.isLoudOutput
-        //    ? reductionFactor * newOutput
-        //    : newOutput;
+        this.#currentOutput = newOutput;
     }
 
     get isLoudOutput() { return this.#isLoudOutput; }
