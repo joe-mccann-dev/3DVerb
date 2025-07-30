@@ -161,7 +161,7 @@ function onLevelsChange(levels) {
 
     const maxLevel = Math.max(0, ...levels)
     const minOscillation = 0.1;
-    const reductionExp = 2;
+    const reductionExp = 1.67;
     const clampedLevel = Math.min(Math.max(maxLevel, 0), 1);
     countForParticleWave += minOscillation + Math.pow(clampedLevel, reductionExp);
 

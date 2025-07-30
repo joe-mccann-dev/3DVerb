@@ -95,6 +95,9 @@ function animateParticles(levels, count = 0) {
         }
     }
 
+    const avgAmp = getAverageAmplitude();
+    const currentSeparation = getCurrentSeparation();
+
     for (const location in waves) {
         const wave = waves[location];
 
@@ -108,14 +111,7 @@ function animateParticles(levels, count = 0) {
         for (let ix = 0; ix < AMOUNTX; ix++) {
             const freqPosition = ix / (AMOUNTX - 1);
 
-            let hue;
-            if (freqPosition < 0.3) {
-                hue = 30 * freqPosition / 0.3;
-            } else if (freqPosition < 0.7) {
-                hue = 90 + 90 * (freqPosition - 0.3) / 0.4;
-            } else {
-                hue = 240 + 40 * (freqPosition - 0.7) / 0.3;
-            }
+            const hue = calculateHue(freqPosition);
 
             for (let iy = 0; iy < AMOUNTY; iy++) {
                 // prevent large jumps up or down in scale;
@@ -125,27 +121,23 @@ function animateParticles(levels, count = 0) {
                                                 levels[particleIndex] * 0.1;
 
                 const smoothedLevel = smoothedLevels[particleIndex];
-                const y_pos = vectors[location].y;
-                const avgAmp = getAverageAmplitude();
-
+            
                 const minFloor = 8;
                 const floor = minFloor + avgAmp ** 0.5;
 
                 const linearScale = (ix / AMOUNTX);
-                const levelScale = (smoothedLevel ** (1 / Math.E)) * 0.8 * getCurrentSeparation();
-
+                const levelScale = (smoothedLevel ** (1 / Math.E)) * 0.8 * currentSeparation;
                 const multiplier = floor + linearScale + levelScale;
 
-                positionArray[positionIndex + 1] =
-                    y_pos +
-                    multiplier * Math.sin(ix + count) +
-                    multiplier * Math.sin(iy + count);
+                const y_pos = vectors[location].y;
+                positionArray[positionIndex + 1] = y_pos +
+                                                   multiplier * Math.sin(ix + count) +
+                                                   multiplier * Math.sin(iy + count);
 
-                scaleArray[particleIndex] = multiplier;
+                scaleArray[particleIndex] = multiplier + avgAmp ** 0.5;;
 
-                const lightness = 25 + 50 * smoothedLevel;
+                const lightness = 50 + 50 * smoothedLevel;
                 const color = new Color().setHSL(hue / 360, 1, lightness / 100);
-
                 colorArray[positionIndex] = color.r;
                 colorArray[positionIndex + 1] = color.g;
                 colorArray[positionIndex + 2] = color.b;
@@ -159,6 +151,11 @@ function animateParticles(levels, count = 0) {
         wave.geometry.attributes.scale.needsUpdate = true;
         wave.geometry.attributes.color.needsUpdate = true;
     }
+}
+
+// scale first half of color wheel from red (0) to cyan ( 180)
+function calculateHue(freqPosition) { 
+    return 0 + (180 * freqPosition);
 }
 
 function setCurrentSeparation(newSeparation) {
@@ -210,7 +207,6 @@ function getAverageAmplitude() {
         return a + b;
     }, 0) / ampQueue.length;
 }
-
 
 export {
     waves,
