@@ -9,6 +9,8 @@ const spriteColor = 0xffffff;
 const freezeColor = 0x60a5fa;
 const particleColor = 0xfafaf0;
 const skyBlueColor = 0x3f4569;
+const darkBlueColor = 0x23244b;
+const indigoColor = 0x4B0082;
 
 // emitter colors that expect different format
 const darkGreen = '#1f2300';
@@ -52,6 +54,8 @@ export {
     freezeColor,
     particleColor,
     skyBlueColor,
+    darkBlueColor,
+    indigoColor,
     // emitter colors
     darkGreen,
     skyBlue,

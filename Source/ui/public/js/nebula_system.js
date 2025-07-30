@@ -245,9 +245,9 @@ export default class NebulaSystem {
                         particle.velocity.z *= this.#reverseVelocityFactor(index);
                         forceBehaviour.force.z *= this.#reverseForceFactor(index);
 
-                        particle.addBehaviour(
-                            new Color(new ColorSpan(COLORS.spriteColors), new ColorSpan(COLORS.rainbowColors), 0.5)
-                        );
+                        //particle.addBehaviour(
+                        //    new Color(new ColorSpan(COLORS.spriteColors), new ColorSpan(COLORS.rainbowColors), 0.5)
+                        //);
                     }
 
                     if (particle.position.z <= cubeBackFaceZ + reflectionBuffer) {

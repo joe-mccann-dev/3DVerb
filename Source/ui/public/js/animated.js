@@ -68,7 +68,7 @@ function initScene() {
     scene.background = environmentMap;
     scene.environment = environmentMap;
     textureLoader = new THREE.TextureLoader;
-    alphaMap = textureLoader.load('assets/sky_grayscale.png');
+    alphaMap = textureLoader.load('assets/peakpx.png');
 }
 
 function initRenderer() {
@@ -90,7 +90,7 @@ function initCamera() {
     camera.lookAt(new THREE.Vector3(172, 80, -20));
     controls = new OrbitControls(camera, renderer.domElement);
     controls.autoRotateSpeed = 0.1;
-    //controls.autoRotate = true;
+    controls.autoRotate = true;
     //controls.addEventListener('change', () => {
     //    console.log('position:', camera.position);
     //    console.log('target:', controls.target);
@@ -222,14 +222,12 @@ function addSurroundingCube() {
 
 function makeSurroundingCube(geometry, position) {
     const cubeMaterial = new THREE.MeshStandardMaterial({
-        color: COLORS.sidePlaneColor,
+        color: COLORS.skyBlueColor,
         envMap: environmentMap,
-        envMapIntensity: 100.0,
-        metalness: 1.0,
-        roughness: 0.18,
-        alphaMap: alphaMap,
+        envMapIntensity: 50.0,
         transparent: true,
-        opacity: 0.8,
+        alphaMap: alphaMap,
+        opacity: 0.95,
         depthWrite: false
     });
     const cube = new THREE.Mesh(geometry, cubeMaterial);
@@ -262,7 +260,7 @@ function addPlanes() {
 
         // speaker stands
         makePlane(speakerStandGeometry, COLORS.speakerStandColor, new THREE.Vector3(-140, -20, -20), horizontalPlaneRotation),
-        makePlane(speakerStandGeometry, COLORS.speakerStandColor, new THREE.Vector3(160, -20, -20), horizontalPlaneRotation)
+        makePlane(speakerStandGeometry, COLORS.speakerStandColor, new THREE.Vector3(160, -20, -20), horizontalPlaneRotation),
     );
 }
 

@@ -33,8 +33,6 @@ function setupParticles() {
         fragmentShader: document.getElementById('fragmentshader').textContent,
         transparent: true,
         blending: AdditiveBlending,
-        //depthTest: false,
-
     });
 
     const buffGeometryTop = createBuffGeometry(positions, scales, colors);
@@ -54,7 +52,7 @@ function setupParticles() {
 
 function createBuffGeometry(positions, scales, colors) {
     const geometry = new BufferGeometry();
-    geometry.setAttribute('position', new BufferAttribute(positions, 3));
+    geometry.setAttribute('position', new BufferAttribute(positions, 3)); 
     geometry.setAttribute('scale', new BufferAttribute(scales, 1));
     geometry.setAttribute('color', new BufferAttribute(colors, 3));
 
@@ -136,7 +134,7 @@ function animateParticles(levels, count = 0) {
 
                 scaleArray[particleIndex] = multiplier + avgAmp ** 0.5;;
 
-                const lightness = 50 + 50 * smoothedLevel;
+                const lightness = 20 + 30 * smoothedLevel;
                 const color = new Color().setHSL(hue / 360, 1, lightness / 100);
                 colorArray[positionIndex] = color.r;
                 colorArray[positionIndex + 1] = color.g;
