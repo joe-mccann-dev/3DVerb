@@ -340,7 +340,7 @@ namespace webview_plugin
             jassert(current.exists());
         }
 
-        return current.getChildFile("Source/ui/public/");
+        return current.getChildFile("Source/UI/");
     }
 
     juce::File getDLLDirectory()
