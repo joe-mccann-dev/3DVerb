@@ -19,6 +19,7 @@ let currentSeparation = SEPARATION;
 let amplitude = -999;
 const maxAmps = 5;
 const ampQueue = [];
+const smoothedLevels = [];
 
 function setupParticles() {
     const shaderMaterial = new ShaderMaterial({
@@ -88,6 +89,11 @@ function setInitialValuesForAttrs(separation, wavePosition, wave = waves.top) {
 
 // sine wave animation inspired by https://github.com/mrdoob/three.js/blob/master/examples/webgl_points_waves.html
 function animateParticles(levels, count = 0) {
+    if (smoothedLevels.length !== levels.length) {
+        for (let i = 0; i < levels.length; i++) {
+            smoothedLevels[i] = levels[i];
+        }
+    }
 
     for (const location in waves) {
         const wave = waves[location];
@@ -98,8 +104,6 @@ function animateParticles(levels, count = 0) {
 
         let positionIndex = 0;
         let particleIndex = 0;
-
-        //console.log("levels.length: ", levels.length);
 
         for (let ix = 0; ix < AMOUNTX; ix++) {
             const freqPosition = ix / (AMOUNTX - 1);
@@ -114,57 +118,40 @@ function animateParticles(levels, count = 0) {
             }
 
             for (let iy = 0; iy < AMOUNTY; iy++) {
+                // prevent large jumps up or down in scale;
+                const smoothingFactor = 0.7;
+                smoothedLevels[particleIndex] = smoothedLevels[particleIndex] *
+                                                smoothingFactor + 
+                                                levels[particleIndex] * 0.1;
 
-                const level = Math.max(0, levels[particleIndex]);
-
-                // animate y_position based on corresponding level and amplitude
+                const smoothedLevel = smoothedLevels[particleIndex];
                 const y_pos = vectors[location].y;
                 const avgAmp = getAverageAmplitude();
 
-                
-                const scaleFloor = 10;
-                const positionFloor = 15;
+                const minFloor = 8;
+                const floor = minFloor + avgAmp ** 0.5;
 
-                const freqBias = (ix / (AMOUNTX )) ** 0.2; // Bias scaling toward high freqs
-                const perceptualLevel = 1.2 * Math.pow(level, 0.6); // Boost responsiveness perception
-                const linearScale = Utility.getLinearScaledValue(freqBias, avgAmp, perceptualLevel);
+                const linearScale = (ix / AMOUNTX);
+                const levelScale = (smoothedLevel ** (1 / Math.E)) * 0.8 * getCurrentSeparation();
 
-                const positionLevelScale = level * 1.4 * getCurrentSeparation();
-                const scaleLevelScale = level * 1.2 * getCurrentSeparation();
+                const multiplier = floor + linearScale + levelScale;
 
-                const positionMultiplier = positionFloor + linearScale + positionLevelScale;
-                
-                positionArray[positionIndex + 1] = y_pos +
-                                                    ( positionMultiplier * Math.sin((ix + count))) +
-                                                    ( positionMultiplier * Math.sin((iy + count)));
+                positionArray[positionIndex + 1] =
+                    y_pos +
+                    multiplier * Math.sin(ix + count) +
+                    multiplier * Math.sin(iy + count);
 
-                // animate scale based on corresponding level
-                const scaleMultiplier = scaleFloor + linearScale + scaleLevelScale;
+                scaleArray[particleIndex] = multiplier;
 
-                scaleArray[particleIndex] = scaleMultiplier;
-
-                //if (particleIndex === 0) {
-                //    console.log({
-                //        level,
-                //        perceptualLevel,
-                //        avgAmp,
-                //        linearScale,
-                //        positionMultiplier,
-                //        scaleMultiplier
-                //    });
-                //}
-
-                const lightness = 50 + 50 * level;
+                const lightness = 25 + 50 * smoothedLevel;
                 const color = new Color().setHSL(hue / 360, 1, lightness / 100);
 
                 colorArray[positionIndex] = color.r;
                 colorArray[positionIndex + 1] = color.g;
                 colorArray[positionIndex + 2] = color.b;
 
-                // positions held in 1D array; skip to next set of three
                 positionIndex += 3;
                 particleIndex++;
-
             }
         }
 
