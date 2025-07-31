@@ -17,12 +17,12 @@
 
 namespace webview_plugin
 {
-	class ReverbulizerAudioProcessorEditor : public juce::AudioProcessorEditor,
+	class ThreeDVerbAudioProcessorEditor : public juce::AudioProcessorEditor,
 		private juce::Timer
 	{
 	public:
-		ReverbulizerAudioProcessorEditor(ReverbulizerAudioProcessor&, juce::UndoManager& um);
-		~ReverbulizerAudioProcessorEditor() override;
+		ThreeDVerbAudioProcessorEditor(ThreeDVerbAudioProcessor&, juce::UndoManager& um);
+		~ThreeDVerbAudioProcessorEditor() override;
 
 		//==============================================================================
 		//void paint(juce::Graphics&) override;
@@ -39,7 +39,7 @@ namespace webview_plugin
 			juce::WebBrowserComponent::NativeFunctionCompletion completion);
 		// This reference is provided as a quick way for your editor to
 		// access the processor object that created it.
-		ReverbulizerAudioProcessor& audioProcessor;
+		ThreeDVerbAudioProcessor& audioProcessor;
 
 		juce::UndoManager& undoManager;
 
@@ -68,7 +68,7 @@ namespace webview_plugin
 		juce::WebSliderParameterAttachment webFreezeSliderAttachment;
 		// END WEBVIEW
 
-		JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ReverbulizerAudioProcessorEditor)
+		JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ThreeDVerbAudioProcessorEditor)
 	};
 
 	juce::File getResourceDirectory();

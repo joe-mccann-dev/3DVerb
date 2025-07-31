@@ -49,7 +49,7 @@ namespace webview_plugin
             return layout;
         }
     }
-    ReverbulizerAudioProcessor::ReverbulizerAudioProcessor()
+    ThreeDVerbAudioProcessor::ThreeDVerbAudioProcessor()
 #ifndef JucePlugin_PreferredChannelConfigurations
         : AudioProcessor(BusesProperties()
 #if ! JucePlugin_IsMidiEffect
@@ -75,17 +75,17 @@ namespace webview_plugin
     {
     }
 
-    ReverbulizerAudioProcessor::~ReverbulizerAudioProcessor()
+    ThreeDVerbAudioProcessor::~ThreeDVerbAudioProcessor()
     {
     }
 
     //==============================================================================
-    const juce::String ReverbulizerAudioProcessor::getName() const
+    const juce::String ThreeDVerbAudioProcessor::getName() const
     {
         return JucePlugin_Name;
     }
 
-    bool ReverbulizerAudioProcessor::acceptsMidi() const
+    bool ThreeDVerbAudioProcessor::acceptsMidi() const
     {
         #if JucePlugin_WantsMidiInput
             return true;
@@ -94,7 +94,7 @@ namespace webview_plugin
         #endif
     }
 
-    bool ReverbulizerAudioProcessor::producesMidi() const
+    bool ThreeDVerbAudioProcessor::producesMidi() const
     {
         #if JucePlugin_ProducesMidiOutput
             return true;
@@ -103,7 +103,7 @@ namespace webview_plugin
         #endif
     }
 
-    bool ReverbulizerAudioProcessor::isMidiEffect() const
+    bool ThreeDVerbAudioProcessor::isMidiEffect() const
     {
         #if JucePlugin_IsMidiEffect
             return true;
@@ -112,37 +112,37 @@ namespace webview_plugin
         #endif
     }
 
-    double ReverbulizerAudioProcessor::getTailLengthSeconds() const
+    double ThreeDVerbAudioProcessor::getTailLengthSeconds() const
     {
         return 0.0;
     }
 
-    int ReverbulizerAudioProcessor::getNumPrograms()
+    int ThreeDVerbAudioProcessor::getNumPrograms()
     {
         return 1;   // NB: some hosts don't cope very well if you tell them there are 0 programs,
         // so this should be at least 1, even if you're not really implementing programs.
     }
 
-    int ReverbulizerAudioProcessor::getCurrentProgram()
+    int ThreeDVerbAudioProcessor::getCurrentProgram()
     {
         return 0;
     }
 
-    void ReverbulizerAudioProcessor::setCurrentProgram(int index)
+    void ThreeDVerbAudioProcessor::setCurrentProgram(int index)
     {
     }
 
-    const juce::String ReverbulizerAudioProcessor::getProgramName(int index)
+    const juce::String ThreeDVerbAudioProcessor::getProgramName(int index)
     {
         return {};
     }
 
-    void ReverbulizerAudioProcessor::changeProgramName(int index, const juce::String& newName)
+    void ThreeDVerbAudioProcessor::changeProgramName(int index, const juce::String& newName)
     {
     }
 
     //==============================================================================
-    void ReverbulizerAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
+    void ThreeDVerbAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
     {
         // Use this method as the place to do any pre-playback
         // initialisation that you need..
@@ -159,14 +159,14 @@ namespace webview_plugin
         reverb.prepare(spec);
     }
 
-    void ReverbulizerAudioProcessor::releaseResources()
+    void ThreeDVerbAudioProcessor::releaseResources()
     {
         // When playback stops, you can use this as an opportunity to free up any
         // spare memory, etc.
     }
 
     #ifndef JucePlugin_PreferredChannelConfigurations
-    bool ReverbulizerAudioProcessor::isBusesLayoutSupported(const BusesLayout& layouts) const
+    bool ThreeDVerbAudioProcessor::isBusesLayoutSupported(const BusesLayout& layouts) const
     {
         juce::ignoreUnused(layouts);
         // This is the place where you check if the layout is supported.
@@ -184,7 +184,7 @@ namespace webview_plugin
     }
     #endif
 
-    void ReverbulizerAudioProcessor::updateReverb()
+    void ThreeDVerbAudioProcessor::updateReverb()
     {
         params.roomSize = size->get();
         params.wetLevel = mix->get();
@@ -196,7 +196,7 @@ namespace webview_plugin
         reverb.setParameters(params);
     }
 
-    void ReverbulizerAudioProcessor::setEnvFollowerParams(juce::dsp::BallisticsFilter<float> envFollower)
+    void ThreeDVerbAudioProcessor::setEnvFollowerParams(juce::dsp::BallisticsFilter<float> envFollower)
     {  
         envFollower.setAttackTime(200.f);
         envFollower.setReleaseTime(200.f);
@@ -204,7 +204,7 @@ namespace webview_plugin
             juce::dsp::BallisticsFilter<float>::LevelCalculationType::peak);
     }
 
-    void ReverbulizerAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
+    void ThreeDVerbAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
     {
         juce::ScopedNoDenormals noDenormals;
         // clears empty output channels 
@@ -235,7 +235,7 @@ namespace webview_plugin
         setParamsForFrontend(envOutBlock);
     }
 
-    void ReverbulizerAudioProcessor::sumLeftAndRightChannels(juce::AudioBuffer<float>& buffer)
+    void ThreeDVerbAudioProcessor::sumLeftAndRightChannels(juce::AudioBuffer<float>& buffer)
     {
         bool monoInputChecked = mono.get();
         if (monoInputChecked && getTotalNumInputChannels() >= 2)
@@ -252,7 +252,7 @@ namespace webview_plugin
         }
     }
 
-    void ReverbulizerAudioProcessor::prepareForFFT(juce::dsp::AudioBlock<float> block)
+    void ThreeDVerbAudioProcessor::prepareForFFT(juce::dsp::AudioBlock<float> block)
     {
         for (auto i = 0; i < block.getNumSamples(); ++i)
         {
@@ -266,7 +266,7 @@ namespace webview_plugin
         }
     }
 
-    void ReverbulizerAudioProcessor::setParamsForFrontend(juce::dsp::AudioBlock<float> envOutBlock)
+    void ThreeDVerbAudioProcessor::setParamsForFrontend(juce::dsp::AudioBlock<float> envOutBlock)
     {
         outputLevelLeft = juce::Decibels::gainToDecibels(envOutBlock.getSample(0u, static_cast<int>(envOutBlock.getNumSamples() - 1)));
         isFrozen = params.freezeMode > 0.5f;
@@ -277,18 +277,18 @@ namespace webview_plugin
     }
 
     //==============================================================================
-    bool ReverbulizerAudioProcessor::hasEditor() const
+    bool ThreeDVerbAudioProcessor::hasEditor() const
     {
         return true; // (change this to false if you choose to not supply an editor)
     }
 
-    juce::AudioProcessorEditor* ReverbulizerAudioProcessor::createEditor()
+    juce::AudioProcessorEditor* ThreeDVerbAudioProcessor::createEditor()
     {
-        return new ReverbulizerAudioProcessorEditor(*this, undoManager);
+        return new ThreeDVerbAudioProcessorEditor(*this, undoManager);
     }
 
     //==============================================================================
-    void ReverbulizerAudioProcessor::getStateInformation(juce::MemoryBlock& destData)
+    void ThreeDVerbAudioProcessor::getStateInformation(juce::MemoryBlock& destData)
     {
         // You should use this method to store your parameters in the memory block.
         // You could do that either as raw data, or use the XML or ValueTree classes
@@ -297,7 +297,7 @@ namespace webview_plugin
         apvts.state.writeToStream(mos);
     }
 
-    void ReverbulizerAudioProcessor::setStateInformation(const void* data, int sizeInBytes)
+    void ThreeDVerbAudioProcessor::setStateInformation(const void* data, int sizeInBytes)
     {
         // You should use this method to restore your parameters from this memory block,
         // whose contents will have been created by the getStateInformation() call.
@@ -313,5 +313,5 @@ namespace webview_plugin
     // This creates new instances of the plugin..
     juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
     {
-        return new webview_plugin::ReverbulizerAudioProcessor();
+        return new webview_plugin::ThreeDVerbAudioProcessor();
     }

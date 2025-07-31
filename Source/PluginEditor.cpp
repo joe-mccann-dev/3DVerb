@@ -57,7 +57,7 @@ namespace webview_plugin
 
     }
 
-    ReverbulizerAudioProcessorEditor::ReverbulizerAudioProcessorEditor(ReverbulizerAudioProcessor& p, juce::UndoManager& um)
+    ThreeDVerbAudioProcessorEditor::ThreeDVerbAudioProcessorEditor(ThreeDVerbAudioProcessor& p, juce::UndoManager& um)
         : AudioProcessorEditor(&p), 
         undoManager(um),
         audioProcessor(p),
@@ -76,7 +76,7 @@ namespace webview_plugin
         juce::WebBrowserComponent::Options{}
         .withBackend(juce::WebBrowserComponent::Options::Backend::webview2)
         .withWinWebView2Options(juce::WebBrowserComponent::Options::WinWebView2{}
-        .withDLLLocation(getDLLDirectory())
+        //.withDLLLocation(getDLLDirectory())
         .withUserDataFolder(juce::File::getSpecialLocation(juce::File::tempDirectory)))
         .withResourceProvider([this](const auto& url) {return getResource(url); },
                               juce::URL{LOCAL_VITE_SERVER}.getOrigin())
@@ -127,7 +127,7 @@ namespace webview_plugin
                                  webFreezeRelay,
                                  &undoManager}
     {
-
+        
         addAndMakeVisible(webView);
 
         //webView.goToURL(webView.getResourceProviderRoot());
@@ -139,18 +139,18 @@ namespace webview_plugin
         startTimer(60);
     }
 
-    ReverbulizerAudioProcessorEditor::~ReverbulizerAudioProcessorEditor()
+    ThreeDVerbAudioProcessorEditor::~ThreeDVerbAudioProcessorEditor()
     {
     }
 
     //==============================================================================
-    void ReverbulizerAudioProcessorEditor::resized()
+    void ThreeDVerbAudioProcessorEditor::resized()
     {
         auto bounds = getLocalBounds();
         webView.setBounds(bounds);
     }
 
-    void ReverbulizerAudioProcessorEditor::timerCallback()
+    void ThreeDVerbAudioProcessorEditor::timerCallback()
     {
        webView.emitEventIfBrowserIsVisible("outputLevel", juce::var{});
        webView.emitEventIfBrowserIsVisible("isFrozen", juce::var{});
@@ -163,7 +163,7 @@ namespace webview_plugin
 
     // ctrl + z == undo; ctrl + y == redo
     // for undo/redo in cpp gui side
-    bool ReverbulizerAudioProcessorEditor::keyPressed(const juce::KeyPress& k)
+    bool ThreeDVerbAudioProcessorEditor::keyPressed(const juce::KeyPress& k)
     {
         if (k.getModifiers().isCommandDown())
         {
@@ -176,7 +176,7 @@ namespace webview_plugin
         return false;
     }
 
-    void ReverbulizerAudioProcessorEditor::webUndoRedo(const juce::Array<juce::var>& args,
+    void ThreeDVerbAudioProcessorEditor::webUndoRedo(const juce::Array<juce::var>& args,
         juce::WebBrowserComponent::NativeFunctionCompletion completion)
     {
         char keyVal{ static_cast<char>(args[0].toString()[0]) };
@@ -187,7 +187,7 @@ namespace webview_plugin
         keyPressed(kp);
     }
 
-    std::optional<juce::WebBrowserComponent::Resource> ReverbulizerAudioProcessorEditor::getResource(const juce::String& url)
+    std::optional<juce::WebBrowserComponent::Resource> ThreeDVerbAudioProcessorEditor::getResource(const juce::String& url)
     {
         //static const auto resourceFileRoot = juce::File{ R"(C:\Users\Joe\source\repos\Reverbulizer\Source\ui\public)"};
         static const auto resourceDirectory = getResourceDirectory();
@@ -299,10 +299,12 @@ namespace webview_plugin
         return current.getChildFile("Source/UI/");
     }
 
-    juce::File getDLLDirectory()
-    {
-        return juce::File::getSpecialLocation(juce::File::currentApplicationFile)
-            .getParentDirectory()
-            .getChildFile("WebView2Loader.dll");
-    }
+    //juce::File getDLLDirectory()
+    //{
+    //    return juce::File::getSpecialLocation(juce::File::currentExecutableFile)
+    //        .getParentDirectory()
+    //        // copied WebView2Loader.dll and placed it directly in 
+    //        // \Builds\VisualStudio2022\x64\Debug\VST3\3DVerb.vst3\Contents\x86_64-win
+    //        .getChildFile("WebView2Loader.dll");
+    //}
 }

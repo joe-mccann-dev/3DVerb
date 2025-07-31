@@ -15,12 +15,12 @@
 */
 namespace webview_plugin
 {
-    class ReverbulizerAudioProcessor : public juce::AudioProcessor
+    class ThreeDVerbAudioProcessor : public juce::AudioProcessor
     {
     public:
         //==============================================================================
-        ReverbulizerAudioProcessor();
-        ~ReverbulizerAudioProcessor() override;
+        ThreeDVerbAudioProcessor();
+        ~ThreeDVerbAudioProcessor() override;
 
         //==============================================================================
         void prepareToPlay(double sampleRate, int samplesPerBlock) override;
@@ -150,6 +150,6 @@ namespace webview_plugin
             }
         }
 
-        JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ReverbulizerAudioProcessor)
+        JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ThreeDVerbAudioProcessor)
     };
 }
