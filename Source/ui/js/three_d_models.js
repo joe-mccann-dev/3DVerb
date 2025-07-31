@@ -1,5 +1,4 @@
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
-//import { environmentMap } from './animated.js';
 
 const loader = new GLTFLoader();
 let environmentMap;
