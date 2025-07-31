@@ -63,7 +63,6 @@ const freeze = {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-    Animated.setUserData();
     setupDOMEventListeners();
     initThrottleHandlers();
     setupBackendEventListeners();
@@ -173,7 +172,7 @@ function onOutputChange(output) {
     const currentOutput = Animated.visualParams.currentOutput;
     const avgAmplitude = Animated.particleWave.getAverageAmplitude(currentOutput);
 
-    Animated.nebulaSystem.handleOutputChange(avgAmplitude, currentOutput);
+    Animated.nebulaSystem.handleOutputChange(avgAmplitude, currentOutput, Animated.surroundingCube);
 }
 
 function onRoomSizeChange(roomSizeValue) {

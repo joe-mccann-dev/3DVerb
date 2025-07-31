@@ -37,11 +37,13 @@ function init() {
     initCamera();
     addPointLight();
     addSurroundingCube();
-    initAnimationClasses();
     models.addModelsToScene();
+    initAnimationClasses();
     addSpheres();
     addPlanes();
     addLines()
+    setUserData();
+    scaleSurroundingCube(visualParams.cubeScale);
     requestAnimationFrame(animate);
 }
 
@@ -91,7 +93,7 @@ function initCamera() {
 function initAnimationClasses() {
     visualParams = new VisualParams();
     nebulaParams = new NebulaParams(visualParams);
-    nebulaSystem = new NebulaSystem(nebulaParams, scene, THREE, surroundingCube)
+    nebulaSystem = new NebulaSystem(nebulaParams, scene, THREE)
     particleWave = new ParticleWave(camera, environmentMap, THREE, scene);
 }
 
@@ -234,17 +236,6 @@ function makeSurroundingCube(geometry, position) {
     return cube;
 }
 
-function scaleSurroundingCube(scale) {
-    surroundingCube.scale.copy(surroundingCube.userData.originalScale);
-    surroundingCube.position.copy(surroundingCube.userData.originalPosition);
-
-    surroundingCube.scale.multiplyScalar(scale);
-    surroundingCube.userData.scale = surroundingCube.scale;
-
-    surroundingCube.position.multiplyScalar(scale);
-    surroundingCube.userData.position = surroundingCube.position;
-}
-
 function addPlanes() {
     const planeGeometry = new THREE.PlaneGeometry(500, 400, 4, 4);
     const verticalPlaneGeometry = new THREE.PlaneGeometry(500, 250, 4, 4);
@@ -373,6 +364,18 @@ function rotateSpheres(time) {
         });
     }
 }
+
+function scaleSurroundingCube(scale) {
+    surroundingCube.scale.copy(surroundingCube.userData.originalScale);
+    surroundingCube.position.copy(surroundingCube.userData.originalPosition);
+
+    surroundingCube.scale.multiplyScalar(scale);
+    surroundingCube.userData.scale = surroundingCube.scale;
+
+    surroundingCube.position.multiplyScalar(scale);
+    surroundingCube.userData.position = surroundingCube.position;
+}
+
 
 function setUserData() {
     spheres.forEach((sphere) => {

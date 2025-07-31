@@ -38,9 +38,7 @@ export default class NebulaSystem {
     #emitters;
     #scene;
     #THREE;
-    #surroundingCube;
-
-    constructor(nebulaParams, scene, threeModule, surroundingCube) {
+    constructor(nebulaParams, scene, threeModule) {
         this.#nebulaParams = nebulaParams;
         this.#scene = scene;
         this.#THREE = threeModule;
@@ -52,7 +50,6 @@ export default class NebulaSystem {
             new SpriteRenderer(
                 this.#scene,
                 this.#THREE));
-        this.#surroundingCube = surroundingCube;
     }
 
     // << PUBLIC >>
@@ -77,7 +74,7 @@ export default class NebulaSystem {
         }
     }
 
-    handleOutputChange(amplitude, currentOutput) {
+    handleOutputChange(amplitude, currentOutput, surroundingCube) {
         const outputScaleForLife = Utility.getLogScaledValue(1, amplitude, (1 / -currentOutput), 10)
         //console.log("outputScaleForLife: ", outputScaleForLife);
 
@@ -104,7 +101,7 @@ export default class NebulaSystem {
             );
             emitter.behaviours.push(newForce);
 
-            this.#handleParticlesCollidingWithCube(emitter);
+            this.#handleParticlesCollidingWithCube(emitter, surroundingCube);
         });
     }
 
@@ -211,14 +208,14 @@ export default class NebulaSystem {
         this.#particleSystem.addEmitter(emitter);
     }
 
-    #handleParticlesCollidingWithCube(emitter) {
+    #handleParticlesCollidingWithCube(emitter, surroundingCube) {
         if (emitter) {
-            const cubeGeometryParams = this.#surroundingCube.geometry.parameters;
+            const cubeGeometryParams = surroundingCube.geometry.parameters;
             const cubeHalfDepth = cubeGeometryParams.depth * 0.5;
             const cubeHalfHeight = cubeGeometryParams.height * 0.5;
             const cubeHalfWidth = cubeGeometryParams.width * 0.5;
 
-            const cubeScaleVector3 = this.#surroundingCube.userData.scale;
+            const cubeScaleVector3 = surroundingCube.userData.scale;
             const reflectionBuffer = 80;
             const MAX_VELOCITY = 250;
 
@@ -227,14 +224,14 @@ export default class NebulaSystem {
                 const cubeScaleY = cubeScaleVector3.y;
                 const cubeScaleX = cubeScaleVector3.x;
 
-                const cubeLeftFaceX = (this.#surroundingCube.position.x) - (cubeHalfWidth * cubeScaleX);
-                const cubeRightFaceX = (this.#surroundingCube.position.x) + (cubeHalfWidth * cubeScaleX)
+                const cubeLeftFaceX = (surroundingCube.position.x) - (cubeHalfWidth * cubeScaleX);
+                const cubeRightFaceX = (surroundingCube.position.x) + (cubeHalfWidth * cubeScaleX)
 
-                const cubeTopFaceY = (this.#surroundingCube.position.y + (cubeHalfHeight * cubeScaleY));
-                const cubeBottomFaceY = (this.#surroundingCube.position.y - (cubeHalfHeight * cubeScaleY));
+                const cubeTopFaceY = (surroundingCube.position.y + (cubeHalfHeight * cubeScaleY));
+                const cubeBottomFaceY = (surroundingCube.position.y - (cubeHalfHeight * cubeScaleY));
 
-                const cubeFrontFaceZ = (this.#surroundingCube.position.z + (cubeHalfDepth * cubeScaleZ));
-                const cubeBackFaceZ = (this.#surroundingCube.position.z - (cubeHalfDepth * cubeScaleZ));
+                const cubeFrontFaceZ = (surroundingCube.position.z + (cubeHalfDepth * cubeScaleZ));
+                const cubeBackFaceZ = (surroundingCube.position.z - (cubeHalfDepth * cubeScaleZ));
 
                 emitter.particles.forEach((particle, index) => {
                     const forceBehaviour = particle.behaviours.find((behaviour) => {
