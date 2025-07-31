@@ -1,5 +1,5 @@
 import * as Juce from "./juce/index.js";
-import * as Animated from "./animated.js";
+import AnimationController from "./animated.js";
 import * as COLORS from './colors.js';
 import * as Utility from './utility.js';
 
@@ -8,6 +8,8 @@ const data = window.__JUCE__.initialisationData;
 //document.getElementById("pluginVendor").textContent = "by " + data.pluginVendor;
 ////document.getElementById("pluginName").textContent = data.pluginName;
 //document.getElementById("pluginVersion").textContent = data.pluginVersion;
+
+let animationController;
 
 const undoButton = document.getElementById("undoButton");
 const redoButton = document.getElementById("redoButton");
@@ -66,6 +68,9 @@ document.addEventListener("DOMContentLoaded", () => {
     setupDOMEventListeners();
     initThrottleHandlers();
     setupBackendEventListeners();
+
+    animationController = new AnimationController();
+    requestAnimationFrame(animationController.animate);
 });
 
 function setupBackendEventListeners() {
@@ -84,10 +89,10 @@ function setupBackendEventListeners() {
         fetch(Juce.getBackendResourceAddress("roomSize.json"))
             .then((response) => response.json())
             .then((roomSizeData) => {
-                if (Animated.visualParams.currentSize != roomSizeData.roomSize) {
+                if (animationController.visualParams.currentSize != roomSizeData.roomSize) {
                     roomSizeThrottleHandler(roomSizeData.roomSize);
                 }
-                Animated.visualParams.currentSize = roomSizeData.roomSize;
+                animationController.visualParams.currentSize = roomSizeData.roomSize;
             })
             .catch(console.error);
     });
@@ -97,10 +102,10 @@ function setupBackendEventListeners() {
         fetch(Juce.getBackendResourceAddress("mix.json"))
             .then((response) => response.json())
             .then((mixData) => {
-                if (Animated.visualParams.currentMix != mixData.mix) {
+                if (animationController.visualParams.currentMix != mixData.mix) {
                     mixThrottleHandler(mixData.mix);
                 }
-                Animated.visualParams.currentMix = mixData.mix;
+                animationController.visualParams.currentMix = mixData.mix;
             })
             .catch(console.error);
 
@@ -111,10 +116,10 @@ function setupBackendEventListeners() {
         fetch(Juce.getBackendResourceAddress("width.json"))
             .then((response) => response.json())
             .then((widthData) => {
-                if (Animated.visualParams.currentWidth != widthData.width) {
+                if (animationController.visualParams.currentWidth != widthData.width) {
                     widthThrottleHandler(widthData.width);
                 }
-                Animated.visualParams.currentWidth = widthData.width;
+                animationController.visualParams.currentWidth = widthData.width;
             })
             .catch(console.error);
     });
@@ -124,10 +129,10 @@ function setupBackendEventListeners() {
         fetch(Juce.getBackendResourceAddress("damp.json"))
             .then((response) => response.json())
             .then((dampData) => {
-                if (Animated.visualParams.currentDamp != dampData.damp) {
+                if (animationController.visualParams.currentDamp != dampData.damp) {
                     dampThrottleHandler(dampData.damp);
                 }
-                Animated.visualParams.currentDamp = dampData.damp;
+                animationController.visualParams.currentDamp = dampData.damp;
 
             })
             .catch(console.error);
@@ -163,42 +168,42 @@ function onLevelsChange(levels) {
     const clampedLevel = Math.min(Math.max(maxLevel, 0), 1);
     countForParticleWave += minOscillation + Math.pow(clampedLevel, reductionExp);
 
-    Animated.particleWave.animateParticles(levels, countForParticleWave);
+    animationController.particleWave.animateParticles(levels, countForParticleWave);
 }
 
 function onOutputChange(output) {
-    Animated.visualParams.currentOutput = output;
+    animationController.visualParams.currentOutput = output;
 
-    const currentOutput = Animated.visualParams.currentOutput;
-    const avgAmplitude = Animated.particleWave.getAverageAmplitude(currentOutput);
+    const currentOutput = animationController.visualParams.currentOutput;
+    const avgAmplitude = animationController.particleWave.getAverageAmplitude(currentOutput);
 
-    Animated.nebulaSystem.handleOutputChange(avgAmplitude, currentOutput, Animated.surroundingCube);
+    animationController.nebulaSystem.handleOutputChange(avgAmplitude, currentOutput, animationController.surroundingCube);
 }
 
 function onRoomSizeChange(roomSizeValue) {
-    Animated.visualParams.currentSize = roomSizeValue;
+    animationController.visualParams.currentSize = roomSizeValue;
 
-    Animated.particleWave.scaleParticleSeparation(Animated.visualParams.currentSize);
+    animationController.particleWave.scaleParticleSeparation(animationController.visualParams.currentSize);
 
-    Animated.scaleSurroundingCube(Animated.visualParams.cubeScale);
-    Animated.scaleAnchorSpheresPosition(Animated.visualParams.sphereScale);
+    animationController.scaleSurroundingCube(animationController.visualParams.cubeScale);
+    animationController.scaleAnchorSpheresPosition(animationController.visualParams.sphereScale);
 
-    Animated.nebulaSystem.handleRoomSizeChange();
+    animationController.nebulaSystem.handleRoomSizeChange();
 }
 
 function onMixChange(mixValue) {
-    Animated.visualParams.currentMix = mixValue;
+    animationController.visualParams.currentMix = mixValue;
     const scaleFactor = 10;
-    Animated.scaleAnchorSpheres(mixValue, scaleFactor);
+    animationController.scaleAnchorSpheres(mixValue, scaleFactor);
 }
 
 function onWidthChange(widthValue) {
-    Animated.visualParams.currentWidth = widthValue;
-    Animated.nebulaSystem.handleWidthChange();
+    animationController.visualParams.currentWidth = widthValue;
+    animationController.nebulaSystem.handleWidthChange();
 }
 
 function onDampChange(dampValue) {
-    Animated.visualParams.currentDamp = dampValue;
+    animationController.visualParams.currentDamp = dampValue;
 
     const minScale = 0.5;
     const maxScale = 1;
@@ -212,8 +217,8 @@ function onDampChange(dampValue) {
 
 function onFreezeChange(frozen) {
     frozen
-        ? Animated.freezeAnchorSpheres()
-        : Animated.unFreezeAnchorSpheres();
+        ? animationController.freezeAnchorSpheres()
+        : animationController.unFreezeAnchorSpheres();
 }
 
 function initThrottleHandlers() {
@@ -269,11 +274,11 @@ function setupDOMEventListeners() {
     // BYPASS
     bypassAndMono.bypass.element.oninput = function () {
         bypassAndMono.bypass.state.setValue(this.checked);
-        Animated.pointLight.intensity = Animated.pointLight.userData.originalIntensity;
+        animationController.pointLight.intensity = animationController.pointLight.userData.originalIntensity;
 
         this.checked
-            ? Animated.handleBypassChecked()
-            : Animated.handleBypassNotChecked();
+            ? animationController.handleBypassChecked()
+            : animationController.handleBypassNotChecked();
     }
 
     bypassAndMono.bypass.state.valueChangedEvent.addListener(() => {

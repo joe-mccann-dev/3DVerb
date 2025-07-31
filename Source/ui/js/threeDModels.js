@@ -1,7 +1,8 @@
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
-import { environmentMap, scene } from './animated.js';
+//import { environmentMap } from './animated.js';
 
 const loader = new GLTFLoader();
+let environmentMap;
 const speakersPromise = new Promise((resolve, reject) => {
     loader.load('assets/glb_models/krk_classic_5_studio_monitor_speaker.glb', function (glb) {
         const speakers = [];
@@ -63,7 +64,8 @@ const soundPanelPromise = new Promise((resolve, reject) => {
     }, undefined, reject);
 });
 
-function addModelsToScene() {
+function addModelsToScene(scene, envMap) {
+    environmentMap = envMap;
     speakersPromise.then(speakers => speakers.forEach(speaker => scene.add(speaker)));
     carpetPromise.then(carpet => scene.add(carpet));
     lampPromise.then(lamp => scene.add(lamp));
