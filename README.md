@@ -23,4 +23,4 @@ Note: this README is a live document in progress.
 - Vite
 - three-nebula
 - Juce Projucer
-- A system with WebView2 installed. 
+- A system with WebView2 runtime installed (if using Windows). 
