@@ -5,7 +5,7 @@ import Stats from 'three/addons/libs/stats.module.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import * as Utility from './utility.js';
 import * as COLORS from './colors.js';
-import * as models from './threeDModels.js';
+import * as models from './three_d_models.js';
 import VisualParams from './visual_params.js'
 import NebulaParams from './nebula_params.js'
 import NebulaSystem from './nebula_system.js';
@@ -63,7 +63,6 @@ export default class AnimationController {
 
     animate(time, theta = 0, emitterRadius = 16) {
         time *= 0.001;
-        console.log("this inside animate(): ", this);
         if (!this.#bypassIsChecked()) {
             this.#rotateSpheres(time);
             this.#nebulaSystem.animateEmitterPositions(theta, emitterRadius);

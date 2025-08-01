@@ -1,5 +1,5 @@
 import * as Juce from "./juce/index.js";
-import AnimationController from "./animated.js";
+import AnimationController from "./animation_controller.js";
 import * as COLORS from './colors.js';
 import * as Utility from './utility.js';
 
