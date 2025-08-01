@@ -41,7 +41,24 @@ export default class AnimationController {
     constructor() {
         // maintain binding of "this" to AnimationController instance when called from index.js
         this.animate = this.animate.bind(this);
-        this.#initController(); 
+        this.#initScene();
+
+        this.#prepareDOM();
+        this.#initCamera();
+        this.#particleWave = new ParticleWave(this.#camera, this.#environmentMap, THREE, this.#scene);
+        this.#addPointLight();
+        this.#addSurroundingCube();
+
+        models.addModelsToScene(this.#scene, this.#environmentMap);
+
+        this.#addSpheres();
+        this.#addPlanes();
+        this.#addLines();
+        this.#visualParams = new VisualParams();
+        this.#nebulaParams = new NebulaParams(this.#visualParams);
+        this.#nebulaSystem = new NebulaSystem(this.#nebulaParams, this.#scene, THREE)
+        this.#setUserData();
+        this.scaleSurroundingCube(this.#visualParams.cubeScale); 
     }
 
     animate(time, theta = 0, emitterRadius = 16) {
@@ -156,28 +173,6 @@ export default class AnimationController {
     }
 
     // << PRIVATE >>
-
-    #initController() {
-        this.#initScene();
-       
-        this.#prepareDOM();
-        this.#initCamera();
-        this.#particleWave = new ParticleWave(this.#camera, this.#environmentMap, THREE, this.#scene);
-        this.#addPointLight();
-        this.#addSurroundingCube();
-
-        models.addModelsToScene(this.#scene, this.#environmentMap);
-
-        this.#addSpheres();
-        this.#addPlanes();
-        this.#addLines();
-        this.#visualParams = new VisualParams();
-        this.#nebulaParams = new NebulaParams(this.#visualParams);
-        this.#nebulaSystem = new NebulaSystem(this.#nebulaParams, this.#scene, THREE)
-        this.#setUserData();
-        this.scaleSurroundingCube(this.#visualParams.cubeScale);    
-    }
-
     #initScene() {
         this.#scene = new THREE.Scene();
         const cubeTextureLoader = new THREE.CubeTextureLoader();
