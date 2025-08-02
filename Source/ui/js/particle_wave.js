@@ -115,6 +115,32 @@ export default class ParticleWave {
         }
     }
 
+    getCornerPositionVectors() {
+        const positionArray = this.#waves.top.geometry.attributes.position.array;
+        const positionArrayBottom = this.#waves.bottom.geometry.attributes.position.array
+
+        const leftX = positionArray[0];
+        const rightX = positionArray[positionArray.length - 3];
+
+        const topY = positionArray[1];
+        const bottomY = positionArrayBottom[1];
+
+        const frontZ = positionArray[positionArray.length - 1];
+        const rearZ = positionArray[2];
+
+        return [
+            new this.#THREE.Vector3(leftX, bottomY, frontZ),
+            new this.#THREE.Vector3(leftX, topY, frontZ),
+            new this.#THREE.Vector3(leftX, bottomY, rearZ),
+            new this.#THREE.Vector3(leftX, topY, rearZ),
+
+            new this.#THREE.Vector3(rightX, bottomY, frontZ),
+            new this.#THREE.Vector3(rightX, topY, frontZ),
+            new this.#THREE.Vector3(rightX, bottomY, rearZ),
+            new this.#THREE.Vector3(rightX, topY, rearZ) 
+        ]
+    }
+
     // << PRIVATE >>
     #setupParticles() {
         const shaderMaterial = new this.#THREE.ShaderMaterial({

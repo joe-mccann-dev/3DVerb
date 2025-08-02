@@ -10,6 +10,7 @@ import VisualParams from './visual_params.js'
 import NebulaParams from './nebula_params.js'
 import NebulaSystem from './nebula_system.js';
 import ParticleWave from './particle_wave.js'
+import SphereFactory from './sphere_factory.js';
 
 export default class AnimationController {
     static CUBE_WIDTH = 1500;
@@ -188,7 +189,7 @@ export default class AnimationController {
         this.#scene.environment = this.#environmentMap;
 
         const textureLoader = new THREE.TextureLoader;
-        this.#alphaMap = textureLoader.load('assets/alpha_maps/cloud_grayscale.png');
+        this.#alphaMap = textureLoader.load('assets/alpha_maps/monochrome_sky.png');
     }
 
     #prepareDOM() {
@@ -263,13 +264,17 @@ export default class AnimationController {
     }
 
     #makeSurroundingCube(geometry, position) {
-        const cubeMaterial = new THREE.MeshStandardMaterial({
+        const cubeMaterial = new THREE.MeshPhysicalMaterial({
             envMap: this.#environmentMap,
-            envMapIntensity: 500.0,
+            envMapIntensity: 24.0,
             transparent: true,
             alphaMap: this.#alphaMap,
-            opacity: 0.6,
-            depthWrite: false
+            opacity: 1,
+            transmission: 1,
+            iridescence: 0.4,
+            reflectivity: 1,
+            roughness: 0.4,
+            depthWrite: false,
         });
         const cube = new THREE.Mesh(geometry, cubeMaterial);
         cube.position.set(position.x, position.y, position.z);
@@ -278,70 +283,16 @@ export default class AnimationController {
     }
 
     #addSpheres() {
-        const sphereRadius = 5;
-        const sphereWidthSegments = 12;
-        const sphereHeightSegments = 12;
-        const sphereGeometry = new THREE.SphereGeometry(sphereRadius, sphereWidthSegments, sphereHeightSegments);
-
-        const positionArray = this.#particleWave.waves.top.geometry.attributes.position.array;
-        const positionArrayBottom = this.#particleWave.waves.bottom.geometry.attributes.position.array
-
-        const leftMostParticlePositionX = positionArray[0];
-        const rightMostParticlePositionX = positionArray[positionArray.length - 3];
-
-        const topParticlePositionY = positionArray[1];
-        const bottomParticlePositionY = positionArrayBottom[1];
-
-        const forwardMostParticlePositionZ = positionArray[positionArray.length - 1];
-        const rearMostParticlePositionZ = positionArray[2];
-
-        const sphereLeftX = leftMostParticlePositionX;
-        const sphereRightX = rightMostParticlePositionX;
-
-        const sphereTopY = topParticlePositionY;
-        const sphereBottomY = bottomParticlePositionY;
-
-        const frontZOffset = 300;
-        const backZOffset = 200;
-        const sphereFrontZ = forwardMostParticlePositionZ + frontZOffset;
-        const sphereBackZ = rearMostParticlePositionZ - backZOffset;
-
-        this.#spheres.push(
-            // left
-            this.#makeSphere(sphereGeometry, new THREE.Vector3(sphereLeftX, sphereBottomY, sphereFrontZ)),
-            this.#makeSphere(sphereGeometry, new THREE.Vector3(sphereLeftX, sphereTopY, sphereFrontZ)),
-            this.#makeSphere(sphereGeometry, new THREE.Vector3(sphereLeftX, sphereBottomY, sphereBackZ)),
-            this.#makeSphere(sphereGeometry, new THREE.Vector3(sphereLeftX, sphereTopY, sphereBackZ)),
-
-            //right
-            this.#makeSphere(sphereGeometry, new THREE.Vector3(sphereRightX, sphereBottomY, sphereFrontZ)),
-            this.#makeSphere(sphereGeometry, new THREE.Vector3(sphereRightX, sphereTopY, sphereFrontZ)),
-            this.#makeSphere(sphereGeometry, new THREE.Vector3(sphereRightX, sphereBottomY, sphereBackZ)),
-            this.#makeSphere(sphereGeometry, new THREE.Vector3(sphereRightX, sphereTopY, sphereBackZ))
-        );
-    }
-
-    #makeSphere(geometry, position, color = COLORS.skyBlueColor) {
-        const material = new THREE.MeshStandardMaterial({
-            color: color,
-            envMap: this.#environmentMap,
-            //alphaMap: alphaMap,
-            transparent: true,
-            opacity: 0.9,
-            envMapIntensity: 80.0,
-            depthWrite: false,
-            wireframe: true,
+        const meshOptions = SphereFactory.defaultOptions(this.#environmentMap);
+        const sphereFactory = new SphereFactory(THREE, meshOptions);
+      
+        const cornerPositions = this.#particleWave.getCornerPositionVectors();
+        cornerPositions.forEach(position => {
+            const mesh = sphereFactory.generateMesh(position);
+            this.#spheres.push(mesh);
         });
 
-        const sphere = new THREE.Mesh(geometry, material);
-        sphere.position.set(position.x, position.y, position.z);
-        sphere.castShadow = true;
-        sphere.receiveShadow = true;
-        sphere.metalness = 40;
-
-        this.#scene.add(sphere);
-
-        return sphere;
+        this.#spheres.forEach(sphere => this.#scene.add(sphere));
     }
 
     #rotateSpheres(time) {
@@ -366,8 +317,8 @@ export default class AnimationController {
             this.#makePlane(verticalPlaneGeometry, COLORS.sidePlaneColor, new THREE.Vector3(10, 0, -90), verticalPlaneRotation),
 
             // speaker stands
-            this.#makePlane(speakerStandGeometry, COLORS.speakerStandColor, new THREE.Vector3(-140, -20, -20), horizontalPlaneRotation),
-            this.#makePlane(speakerStandGeometry, COLORS.speakerStandColor, new THREE.Vector3(160, -20, -20), horizontalPlaneRotation),
+            this.#makePlane(speakerStandGeometry, COLORS.skyBlueColor, new THREE.Vector3(-140, -20, -20), horizontalPlaneRotation),
+            this.#makePlane(speakerStandGeometry, COLORS.skyBlueColor, new THREE.Vector3(160, -20, -20), horizontalPlaneRotation),
         );
     }
 
