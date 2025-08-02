@@ -10,7 +10,7 @@ export default class MeshFactory {
     // for documentation purposes.
     // subclasses will implement this method
     // to provide default options for material and geometry initialization
-    static defaultOptions(environmentMap) {
+    static defaultOptions(args) {
         return {};
     }
 

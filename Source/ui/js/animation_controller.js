@@ -11,12 +11,9 @@ import NebulaParams from './nebula_params.js'
 import NebulaSystem from './nebula_system.js';
 import ParticleWave from './particle_wave.js'
 import SphereFactory from './sphere_factory.js';
+import BoxFactory from './box_factory.js'
 
 export default class AnimationController {
-    static CUBE_WIDTH = 1500;
-    static CUBE_HEIGHT = 600;
-    static CUBE_DEPTH = AnimationController.CUBE_HEIGHT * 1.5;
-    static SPHERE_RADIUS = 5;
 
     #scene;
     #renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -248,38 +245,14 @@ export default class AnimationController {
     }
 
     #addSurroundingCube() {
-        const widthSegments = 20;
-        const heightSegments = 20;
-        const cubeGeometry = new THREE.BoxGeometry(
-            AnimationController.CUBE_WIDTH,
-            AnimationController.CUBE_HEIGHT,
-            AnimationController.CUBE_DEPTH,
-            widthSegments,
-            heightSegments
-        );
+        const meshOptions = BoxFactory.defaultOptions(this.#environmentMap, this.#alphaMap);
+        const boxFactory = new BoxFactory(THREE, meshOptions);
 
-        this.#surroundingCube = this.#makeSurroundingCube(cubeGeometry, new THREE.Vector3(50, 50, 50));
+        const cubePosition = new THREE.Vector3(50, 50, 50);
+        const cube = boxFactory.generateMesh(cubePosition);
 
+        this.#surroundingCube = cube;
         this.#scene.add(this.#surroundingCube);
-    }
-
-    #makeSurroundingCube(geometry, position) {
-        const cubeMaterial = new THREE.MeshPhysicalMaterial({
-            envMap: this.#environmentMap,
-            envMapIntensity: 24.0,
-            transparent: true,
-            alphaMap: this.#alphaMap,
-            opacity: 1,
-            transmission: 1,
-            iridescence: 0.4,
-            reflectivity: 1,
-            roughness: 0.4,
-            depthWrite: false,
-        });
-        const cube = new THREE.Mesh(geometry, cubeMaterial);
-        cube.position.set(position.x, position.y, position.z);
-
-        return cube;
     }
 
     #addSpheres() {
