@@ -110,7 +110,7 @@ export default class AnimationController {
 
     scaleAnchorSpheres(mixValue, scaleFactor) {
         this.#spheres.forEach((sphere) => {
-            const sphereSize = AnimationController.SPHERE_RADIUS + (mixValue * scaleFactor);
+            const sphereSize = SphereFactory.DEFAULT_RADIUS + (mixValue * scaleFactor);
             sphere.scale.copy(sphere.userData.originalScale);
             sphere.scale.multiplyScalar(sphereSize);
         });
@@ -258,7 +258,7 @@ export default class AnimationController {
     #addSpheres() {
         const meshOptions = SphereFactory.defaultOptions(this.#environmentMap);
         const sphereFactory = new SphereFactory(THREE, meshOptions);
-      
+
         const cornerPositions = this.#particleWave.getCornerPositionVectors();
         cornerPositions.forEach(position => {
             const mesh = sphereFactory.generateMesh(position);
