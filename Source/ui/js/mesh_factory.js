@@ -29,31 +29,34 @@ export default class MeshFactory {
         this.material = this.getMaterial(mat);
     }
 
+
     // Options passed as object for MeshMaterial from subclassed factory,
     // e.g. SphereFactory, PlaneFactory, BoxFactory, LineFactory, with their class specific defaults.
     // Options passed as array for Geometry from subclassed factory with their class specific defaults.
     // mat and geo are strings representing the desired type of material, and geometry, respectively.
-    // so to create surroundingCube, mat = 'physical',
-    // to create sphere, mat = 'standard',
-    // this allows for other material types to be added later to the materials object below
     getMaterial(mat) {
-        const materials = {
-            // MeshMaterial() constructor takes an object
-            'standard': new this.#THREE.MeshStandardMaterial(this.options['material']),
-            'physical': new this.#THREE.MeshPhysicalMaterial(this.options['material']),
-        };
-        return materials[mat];
+        switch (mat) {
+            case 'standard':
+                return new this.#THREE.MeshStandardMaterial(this.options.material);
+            case 'physical':
+                return new this.#THREE.MeshPhysicalMaterial(this.options.material);
+            default:
+                return new this.#THREE.MeshBasicMaterial({ color: 0xff0000 });
+        }
     }
 
-    getGeometry(geo) {
-        const geometries = {
-            // Geometry() constructor takes argument list, spread args list using `...`
-            'box': new this.#THREE.BoxGeometry(...this.options['geometry']),
-            'sphere': new this.#THREE.SphereGeometry(...this.options['geometry']),
-            'plane': new this.#THREE.PlaneGeometry(...this.options['geometry'])
-        }
 
-        return geometries[geo];
+    getGeometry(geo) {
+        switch (geo) {
+            case 'box':
+                return new this.#THREE.BoxGeometry(...this.options.geometry);
+            case 'sphere':
+                return new this.#THREE.SphereGeometry(...this.options.geometry);
+            case 'plane':
+                return new this.#THREE.PlaneGeometry(...this.options.geometry);
+            default:
+                return new this.#THREE.BoxGeometry(10, 10, 10);
+        }
     }
 
     generateMesh(position) {

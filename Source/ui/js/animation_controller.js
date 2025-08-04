@@ -12,6 +12,7 @@ import NebulaSystem from './nebula_system.js';
 import ParticleWave from './particle_wave.js'
 import SphereFactory from './sphere_factory.js';
 import BoxFactory from './box_factory.js'
+import { defaultParams } from './mesh_options.js';
 
 export default class AnimationController {
 
@@ -110,7 +111,7 @@ export default class AnimationController {
 
     scaleAnchorSpheres(mixValue, scaleFactor) {
         this.#spheres.forEach((sphere) => {
-            const sphereSize = SphereFactory.DEFAULT_RADIUS + (mixValue * scaleFactor);
+            const sphereSize = defaultParams.sphere.radius + (mixValue * scaleFactor);
             sphere.scale.copy(sphere.userData.originalScale);
             sphere.scale.multiplyScalar(sphereSize);
         });
