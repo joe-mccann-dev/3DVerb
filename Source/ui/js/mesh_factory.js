@@ -59,9 +59,11 @@ export default class MeshFactory {
         }
     }
 
-    generateMesh(position) {
+    generateMesh(position, rotation) {
         const mesh = new this.#THREE.Mesh(this.geometry, this.material);
         mesh.position.copy(position);
+        if (rotation) mesh.rotation.copy(rotation);
+
         return mesh;
     }
 }

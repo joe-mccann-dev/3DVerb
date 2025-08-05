@@ -43,7 +43,7 @@ const lampPromise = new Promise((resolve, reject) => {
         lamp.castShadow = false;
         lamp.receiveShadow = false;
         lamp.scale.set(112, 112, 112);
-        lamp.position.set(-30, 10, -10);
+        lamp.position.set(-30, 13, -10);
         lamp.rotateY(Math.PI / 4)
 
         resolve(lamp);
@@ -56,7 +56,7 @@ const soundPanelPromise = new Promise((resolve, reject) => {
 
         panel.envMap = environmentMap;
         panel.scale.set(5, 5, 5);
-        panel.position.set(55, 45, -90);
+        panel.position.set(55, 45, -88);
         panel.rotateX(Math.PI / 2);
 
         resolve(panel);

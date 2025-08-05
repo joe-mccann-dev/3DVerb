@@ -11,7 +11,8 @@ import NebulaParams from './nebula_params.js'
 import NebulaSystem from './nebula_system.js';
 import ParticleWave from './particle_wave.js'
 import SphereFactory from './sphere_factory.js';
-import BoxFactory from './box_factory.js'
+import BoxFactory from './box_factory.js';
+import PlaneFactory from './plane_factory.js';
 import { defaultParams } from './mesh_options.js';
 
 export default class AnimationController {
@@ -280,39 +281,26 @@ export default class AnimationController {
     }
 
     #addPlanes() {
-        const planeGeometry = new THREE.PlaneGeometry(500, 400, 4, 4);
-        const verticalPlaneGeometry = new THREE.PlaneGeometry(500, 250, 4, 4);
-        const speakerStandGeometry = new THREE.PlaneGeometry(120, 100, 4, 4);
-        const horizontalPlaneRotation = new THREE.Vector3(-Math.PI / 2, 0, 0);
-        const verticalPlaneRotation = new THREE.Vector3(-Math.PI, 0, 0);
+        const basePlaneOptions = PlaneFactory.baseOptions(this.#environmentMap);
+        const wallPlaneOptions = PlaneFactory.wallOptions(this.#environmentMap);
+        const speakerStandOptions = PlaneFactory.speakerStandOptions(this.#environmentMap);
+
+        const basePlaneFactory = new PlaneFactory(THREE, basePlaneOptions);
+        const wallPlaneFactory = new PlaneFactory(THREE, wallPlaneOptions);
+        const speakerStandFactory = new PlaneFactory(THREE, speakerStandOptions);
+
+        const basePlaneRotation = new THREE.Euler(-Math.PI / 2, 0, 0);
+        const wallPlaneRotation = new THREE.Euler(-Math.PI, 0, 0);
+        const speakerStandRotation = new THREE.Euler(-Math.PI / 2, 0, 0);
+
         this.#planes.push(
-            this.#makePlane(planeGeometry, COLORS.bottomPlaneColor, new THREE.Vector3(10, -100, 50), horizontalPlaneRotation),
-            //this.#makePlane(planeGeometry, COLORS.sidePlaneColor, new THREE.Vector3(50, 200, 50), horizontalPlaneRotation),
-            this.#makePlane(verticalPlaneGeometry, COLORS.sidePlaneColor, new THREE.Vector3(10, 0, -90), verticalPlaneRotation),
+            basePlaneFactory.generateMesh(new THREE.Vector3(10, -100, 50), basePlaneRotation),
+            wallPlaneFactory.generateMesh(new THREE.Vector3(10, 0, -90), wallPlaneRotation),
+            speakerStandFactory.generateMesh(new THREE.Vector3(-140, -20, -20), speakerStandRotation),
+            speakerStandFactory.generateMesh(new THREE.Vector3(160, -20, -20), speakerStandRotation),
+        )
 
-            // speaker stands
-            this.#makePlane(speakerStandGeometry, COLORS.skyBlueColor, new THREE.Vector3(-140, -20, -20), horizontalPlaneRotation),
-            this.#makePlane(speakerStandGeometry, COLORS.skyBlueColor, new THREE.Vector3(160, -20, -20), horizontalPlaneRotation),
-        );
-    }
-
-    #makePlane(geometry, color, position, rotation) {
-        const material = new THREE.MeshStandardMaterial({
-            color: color,
-            envMap: this.#environmentMap,
-            side: THREE.DoubleSide,
-            transparent: true,
-            opacity: 0.5,
-        });
-
-        const plane = new THREE.Mesh(geometry, material);
-        plane.rotation.set(rotation.x, rotation.y, rotation.z)
-        plane.position.set(position.x, position.y, position.z);
-        plane.castShadow = true;
-
-        this.#scene.add(plane);
-
-        return plane;
+        this.#planes.forEach(plane => this.#scene.add(plane));
     }
 
     #addLines() {
