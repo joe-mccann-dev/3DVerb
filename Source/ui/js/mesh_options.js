@@ -44,6 +44,16 @@ export const defaultParams = {
             transmission: 1,
             roughness: 0.5,
         }
+    },
+
+    line: {
+        geometry: {
+            width: 2,
+            height: 2,
+        },
+        material: {
+            color: COLORS.sphereColor,
+        }
     }
 }
 
@@ -121,6 +131,16 @@ export const DefaultMeshOptions = {
                 ...defaultParams.plane.material,
                 color: COLORS.speakerStandColor,
             }
+        }
+    },
+
+    line: {
+        geometry: [
+            defaultParams.line.geometry.width,
+            defaultParams.line.geometry.height,
+        ],
+        material: {
+            ...defaultParams.line.material,
         }
     }
 }

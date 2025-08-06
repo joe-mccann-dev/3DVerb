@@ -13,6 +13,7 @@ import ParticleWave from './particle_wave.js'
 import SphereFactory from './sphere_factory.js';
 import BoxFactory from './box_factory.js';
 import PlaneFactory from './plane_factory.js';
+import LineFactory from './line_factory.js';
 import { defaultParams } from './mesh_options.js';
 
 export default class AnimationController {
@@ -304,42 +305,34 @@ export default class AnimationController {
     }
 
     #addLines() {
-        this.#lines.push(
-            // speaker stands
-            this.#makeLine(-140, -140, -100, -20, -20, -20, COLORS.speakerStandColor),
-            this.#makeLine(160, 160, -100, -20, -20, -20, COLORS.speakerStandColor),
-        );
-    }
+        const stand_0_srcX = -140;
+        const stand_0_destX = -140;
+        const stand_0_srcY = -100;
+        const stand_0_destY = -20;
+        const stand_0_destZ = -20;
+        const stand_0_srcZ = -20;
 
-    #makeLine(src_x, dest_x, src_y, dest_y, src_z, dest_z, color = COLORS.bottomPlaneColor) {
-        const distance = Math.sqrt(
-            (dest_x - src_x) ** 2 +
-            (dest_y - src_y) ** 2 +
-            (dest_z - src_z) ** 2
-        );
+        const stand_1_srcX = 160;
+        const stand_1_destX = 160;
 
-        // use box geometry as a line so lines react to light
-        const geometry = new THREE.BoxGeometry(2, 2, distance);
+        const lineDepth = LineFactory.calcLineDepth(stand_0_srcX, stand_0_destX, stand_0_srcY, stand_0_destY, stand_0_srcZ, stand_0_destZ);
+        const meshOptions = LineFactory.defaultOptions(this.#environmentMap, lineDepth);
+        const lineMeshFactory = new LineFactory(THREE, meshOptions);
 
-        const material = new THREE.MeshStandardMaterial({
-            color: color,
-            wireframe: true,
-            envMap: this.#environmentMap,
-        });
+        const linePositions = [
+            new THREE.Vector3(...LineFactory.calcLinePosition(stand_0_srcX, stand_0_destX, stand_0_srcY, stand_0_destY, stand_0_srcZ, stand_0_destZ)),
+            new THREE.Vector3(...LineFactory.calcLinePosition(stand_1_srcX, stand_1_destX, stand_0_srcY, stand_0_destY, stand_0_srcZ, stand_0_destZ)),
+        ];
 
-        const line = new THREE.Mesh(geometry, material);
-        line.position.set(
-            (src_x + dest_x) / 2,
-            (src_y + dest_y) / 2,
-            (src_z + dest_z) / 2
-        );
-        line.lookAt(new THREE.Vector3(dest_x, dest_y, dest_z));
-        line.castShadow = true;
-        line.receiveShadow = true;
+        const stand0 = lineMeshFactory.generateMesh(linePositions[0]);
+        stand0.lookAt(stand_0_destX, stand_0_destY, stand_0_destZ);
+        this.#lines.push(stand0);
 
-        this.#scene.add(line);
+        const stand1 = lineMeshFactory.generateMesh(linePositions[1]);
+        stand1.lookAt(stand_1_destX, stand_0_destY, stand_0_destZ);
+        this.#lines.push(stand1);
 
-        return line;
+        this.#lines.forEach(line => this.#scene.add(line));
     }
 
     #setUserData() {
