@@ -3,30 +3,32 @@ import { DefaultMeshOptions } from './mesh_options.js';
 
 export default class LineFactory extends MeshFactory {
 
-    static defaultOptions(envMap, lineDepth) {
-        const options = DefaultMeshOptions.line;
-        options.geometry.push(lineDepth);
-        options.material.envMap = envMap;
-        return options;
+    static optionsFor(stand, envMap) {
+        const baseOptions = structuredClone(DefaultMeshOptions.line[stand]);
+        baseOptions.geometry.push(
+            LineFactory.calcLineLength(baseOptions.points)
+        );
+        baseOptions.material.envMap = envMap;
+        return baseOptions;
     }
 
-    static calcLineDepth(srcX, destX, srcY, destY, srcZ, destZ) {
+    static calcLineLength(points) {
         return Math.sqrt(
-            (destX - srcX) ** 2 +
-            (destY - srcY) ** 2 +
-            (destZ - srcZ) ** 2
+            (points.destX - points.srcX) ** 2 +
+            (points.destY - points.srcY) ** 2 +
+            (points.destZ - points.srcZ) ** 2
         );
     }
 
-    static calcLinePosition(srcX, destX, srcY, destY, srcZ, destZ) {
+    static calcLinePosition(points) {
         return [
-            (srcX + destX) / 2,
-            (srcY + destY) / 2,
-            (srcZ + destZ) / 2
+            (points.srcX + points.destX) / 2,
+            (points.srcY + points.destY) / 2,
+            (points.srcZ + points.destZ) / 2
         ]
     }
 
-    constructor(threeModule, options, geo = 'box', mat = 'standard') {
+    constructor(threeModule, options, geo = 'box', mat = 'physical') {
         super(threeModule, options, geo, mat);
     }
 }

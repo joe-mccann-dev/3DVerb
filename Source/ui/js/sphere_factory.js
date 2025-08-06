@@ -4,7 +4,7 @@ import { DefaultMeshOptions } from './mesh_options.js';
 export default class SphereFactory extends MeshFactory {
 
     static defaultOptions(envMap) {
-        const options = DefaultMeshOptions.sphere;
+        const options = structuredClone(DefaultMeshOptions.sphere);
         options.material.envMap = envMap;
         return options;
     }

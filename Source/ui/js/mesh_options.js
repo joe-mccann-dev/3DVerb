@@ -43,16 +43,18 @@ export const defaultParams = {
             opacity: 1,
             transmission: 1,
             roughness: 0.5,
+            thickness: 1,
         }
     },
 
+    // a mesh made with box geometry but behaving like a line
     line: {
         geometry: {
-            width: 2,
-            height: 2,
+            width: 6,
+            height: 6,
         },
         material: {
-            color: COLORS.sphereColor,
+            color: COLORS.skyBlueColor,
         }
     }
 }
@@ -135,12 +137,43 @@ export const DefaultMeshOptions = {
     },
 
     line: {
-        geometry: [
-            defaultParams.line.geometry.width,
-            defaultParams.line.geometry.height,
-        ],
-        material: {
-            ...defaultParams.line.material,
+        stand0: {
+            points: {
+                srcX: -140,
+                destX: -140,
+                srcY: -100,
+                destY: -20,
+                srcZ: -20,
+                destZ: -20,
+            },
+
+            geometry: [
+                defaultParams.line.geometry.width,
+                defaultParams.line.geometry.height,
+            ],
+            material: {
+                ...defaultParams.line.material,
+            }
+        },
+
+        stand1: {
+            points: {
+                srcX: 160,
+                destX: 160,
+                srcY: -100,
+                destY: -20,
+                srcZ: -20,
+                destZ: -20,
+            },
+
+            geometry: [
+                defaultParams.line.geometry.width,
+                defaultParams.line.geometry.height,
+            ],
+            material: {
+                ...defaultParams.line.material,
+            }
         }
+
     }
 }

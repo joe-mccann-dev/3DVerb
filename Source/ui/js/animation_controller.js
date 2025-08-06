@@ -14,7 +14,7 @@ import SphereFactory from './sphere_factory.js';
 import BoxFactory from './box_factory.js';
 import PlaneFactory from './plane_factory.js';
 import LineFactory from './line_factory.js';
-import { defaultParams } from './mesh_options.js';
+import { defaultParams, DefaultMeshOptions } from './mesh_options.js';
 
 export default class AnimationController {
 
@@ -271,24 +271,10 @@ export default class AnimationController {
         this.#spheres.forEach(sphere => this.#scene.add(sphere));
     }
 
-    #rotateSpheres(time) {
-        if (!this.#freezeIsChecked() && !this.#bypassIsChecked()) {
-            this.#spheres.forEach((sphere, index) => {
-                const speed = 1 + index * 0.1;
-                const rotation = time * speed;
-                sphere.rotation.y = rotation;
-            });
-        }
-    }
-
     #addPlanes() {
-        const basePlaneOptions = PlaneFactory.baseOptions(this.#environmentMap);
-        const wallPlaneOptions = PlaneFactory.wallOptions(this.#environmentMap);
-        const speakerStandOptions = PlaneFactory.speakerStandOptions(this.#environmentMap);
-
-        const basePlaneFactory = new PlaneFactory(THREE, basePlaneOptions);
-        const wallPlaneFactory = new PlaneFactory(THREE, wallPlaneOptions);
-        const speakerStandFactory = new PlaneFactory(THREE, speakerStandOptions);
+        const basePlaneFactory = new PlaneFactory(THREE, PlaneFactory.optionsFor('base', this.#environmentMap));
+        const wallPlaneFactory = new PlaneFactory(THREE, PlaneFactory.optionsFor('wall', this.#environmentMap));
+        const speakerStandFactory = new PlaneFactory(THREE, PlaneFactory.optionsFor('speakerStand', this.#environmentMap));
 
         const basePlaneRotation = new THREE.Euler(-Math.PI / 2, 0, 0);
         const wallPlaneRotation = new THREE.Euler(-Math.PI, 0, 0);
@@ -299,40 +285,41 @@ export default class AnimationController {
             wallPlaneFactory.generateMesh(new THREE.Vector3(10, 0, -90), wallPlaneRotation),
             speakerStandFactory.generateMesh(new THREE.Vector3(-140, -20, -20), speakerStandRotation),
             speakerStandFactory.generateMesh(new THREE.Vector3(160, -20, -20), speakerStandRotation),
-        )
+        );
 
         this.#planes.forEach(plane => this.#scene.add(plane));
     }
 
     #addLines() {
-        const stand_0_srcX = -140;
-        const stand_0_destX = -140;
-        const stand_0_srcY = -100;
-        const stand_0_destY = -20;
-        const stand_0_destZ = -20;
-        const stand_0_srcZ = -20;
+        const stand_0_factory = new LineFactory(THREE, LineFactory.optionsFor('stand0', this.#environmentMap));
+        const stand_1_factory = new LineFactory(THREE, LineFactory.optionsFor('stand1', this.#environmentMap));
 
-        const stand_1_srcX = 160;
-        const stand_1_destX = 160;
+        const stand_0_points = DefaultMeshOptions.line.stand0.points;
+        const stand_1_points = DefaultMeshOptions.line.stand1.points;
 
-        const lineDepth = LineFactory.calcLineDepth(stand_0_srcX, stand_0_destX, stand_0_srcY, stand_0_destY, stand_0_srcZ, stand_0_destZ);
-        const meshOptions = LineFactory.defaultOptions(this.#environmentMap, lineDepth);
-        const lineMeshFactory = new LineFactory(THREE, meshOptions);
+        const stand_0_position = new THREE.Euler(...LineFactory.calcLinePosition(stand_0_points));
+        const stand_1_position = new THREE.Euler(...LineFactory.calcLinePosition(stand_1_points));
 
-        const linePositions = [
-            new THREE.Vector3(...LineFactory.calcLinePosition(stand_0_srcX, stand_0_destX, stand_0_srcY, stand_0_destY, stand_0_srcZ, stand_0_destZ)),
-            new THREE.Vector3(...LineFactory.calcLinePosition(stand_1_srcX, stand_1_destX, stand_0_srcY, stand_0_destY, stand_0_srcZ, stand_0_destZ)),
-        ];
+        const stand0 = stand_0_factory.generateMesh(stand_0_position);
+        const stand1 = stand_1_factory.generateMesh(stand_1_position);
 
-        const stand0 = lineMeshFactory.generateMesh(linePositions[0]);
-        stand0.lookAt(stand_0_destX, stand_0_destY, stand_0_destZ);
+        stand0.lookAt(stand_0_points.destX, stand_0_points.destY, stand_0_points.destZ);
+        stand1.lookAt(stand_1_points.destX, stand_1_points.destY, stand_1_points.destZ);
+
         this.#lines.push(stand0);
-
-        const stand1 = lineMeshFactory.generateMesh(linePositions[1]);
-        stand1.lookAt(stand_1_destX, stand_0_destY, stand_0_destZ);
         this.#lines.push(stand1);
 
         this.#lines.forEach(line => this.#scene.add(line));
+    }
+
+    #rotateSpheres(time) {
+        if (!this.#freezeIsChecked() && !this.#bypassIsChecked()) {
+            this.#spheres.forEach((sphere, index) => {
+                const speed = 1 + index * 0.1;
+                const rotation = time * speed;
+                sphere.rotation.y = rotation;
+            });
+        }
     }
 
     #setUserData() {
