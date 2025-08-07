@@ -15,7 +15,7 @@
 */
 namespace webview_plugin
 {
-    class ThreeDVerbAudioProcessor : public juce::AudioProcessor
+    class ThreeDVerbAudioProcessor : public juce::AudioProcessor, public juce::AudioProcessorValueTreeState::Listener
     {
     public:
         //==============================================================================
@@ -54,6 +54,7 @@ namespace webview_plugin
         //==============================================================================
         void getStateInformation(juce::MemoryBlock& destData) override;
         void setStateInformation(const void* data, int sizeInBytes) override;
+        void parameterChanged(const juce::String& parameterID, float newValue) override;
 
         juce::AudioProcessorValueTreeState apvts;
 
@@ -72,6 +73,7 @@ namespace webview_plugin
     private:
         //==============================================================================
         std::atomic<float>* gain{ nullptr };
+        juce::LinearSmoothedValue<float> smoothedGain;
         juce::AudioParameterBool& bypass;
         juce::AudioParameterBool& mono;
 

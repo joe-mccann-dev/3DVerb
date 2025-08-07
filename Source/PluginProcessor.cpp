@@ -19,8 +19,7 @@ namespace webview_plugin
         {
             juce::AudioProcessorValueTreeState::ParameterLayout layout;
 
-            layout.add(std::make_unique<juce::AudioParameterFloat>(
-                id::GAIN, "gain", juce::NormalisableRange<float>{0.f, 1.0f, 0.01f, 0.9f}, 1.f));
+            juce::NormalisableRange<float> standardLinearRange = { 0.f, 1.0f, 0.01f };
 
             layout.add(std::make_unique<juce::AudioParameterBool>(
                 id::BYPASS, "bypass", false, juce::AudioParameterBoolAttributes{}));
@@ -29,22 +28,25 @@ namespace webview_plugin
                 id::MONO, "mono", true, juce::AudioParameterBoolAttributes{}));
 
             layout.add(std::make_unique<juce::AudioParameterFloat>(
-                id::SIZE, "size", juce::NormalisableRange<float>{0.f, 1.0f, 0.01f, 1.f}, 0.5f));
+                id::GAIN, "gain", standardLinearRange, 1.f));
+
+            layout.add(std::make_unique<juce::AudioParameterFloat>(
+                id::SIZE, "size", standardLinearRange, 0.5f));
 
             layout.add(std::make_unique<juce::AudioParameterFloat>(
                 // range params =  (rangeStart, rangeEnd, intervalValue, skewFactor)
-                id::MIX, "mix", juce::NormalisableRange<float>{0.f, 1.0f, 0.01f, 1.f}, 0.75f));
+                id::MIX, "mix", standardLinearRange, 0.75f));
 
             layout.add(std::make_unique<juce::AudioParameterFloat>(
-                id::WIDTH, "width", juce::NormalisableRange<float>{0.f, 1.0f, 0.01f, 1.f}, 0.75f));
+                id::WIDTH, "width", standardLinearRange, 0.75f));
 
             layout.add(std::make_unique<juce::AudioParameterFloat>(
                 // range params =  (rangeStart, rangeEnd, intervalValue, skewFactor)
-                id::DAMP, "damp", juce::NormalisableRange<float>{0.f, 1.0f, 0.01f, 1.f}, 0.5f));
+                id::DAMP, "damp", standardLinearRange, 0.5f));
 
             layout.add(std::make_unique<juce::AudioParameterFloat>(
                 id::FREEZE, "freeze",
-                juce::NormalisableRange<float>{0.0f, 1.0f, 0.01f}, 0.0f));
+                standardLinearRange, 0.0f));
 
             return layout;
         }
@@ -62,6 +64,7 @@ namespace webview_plugin
 #endif
         apvts{ *this, &undoManager, "APVTS", createParameterLayout() },
         gain{ apvts.getRawParameterValue(id::GAIN.getParamID()) },
+        smoothedGain{ 1.0f },
         // note: can review WebViewPluginDemo to find cleaner way to cast this
         bypass{ *dynamic_cast<juce::AudioParameterBool*>(apvts.getParameter(id::BYPASS.getParamID())) },
         mono {*dynamic_cast<juce::AudioParameterBool*>(apvts.getParameter(id::MONO.getParamID()))},
@@ -73,6 +76,7 @@ namespace webview_plugin
         forwardFFT{fftOrder},
         window{fftSize, juce::dsp::WindowingFunction<float>::hann}
     {
+        apvts.addParameterListener(id::GAIN.getParamID(), this);
     }
 
     ThreeDVerbAudioProcessor::~ThreeDVerbAudioProcessor()
@@ -152,6 +156,8 @@ namespace webview_plugin
         spec.maximumBlockSize = static_cast<juce::uint32>(samplesPerBlock);
         spec.numChannels = static_cast<juce::uint32>(getTotalNumOutputChannels());
 
+        smoothedGain.reset(sampleRate, 0.001);
+       
         envelopeFollower.prepare(spec);
         setEnvFollowerParams(envelopeFollower);
         envelopeFollowerOutputBuffer.setSize(getTotalNumOutputChannels(), samplesPerBlock);
@@ -217,8 +223,11 @@ namespace webview_plugin
         sumLeftAndRightChannels(buffer);
 
         if (bypass.get()) { return; }
-        // TODO: smooth gain to prevent rapid changes in gain
-        buffer.applyGain(*gain);
+
+        /*smoothedGain.setTargetValue(*gain);*/
+        auto nextVal = smoothedGain.getNextValue();
+        DBG(nextVal);
+        buffer.applyGain(nextVal);
 
         juce::dsp::AudioBlock<float> block{ buffer };
         juce::dsp::AudioBlock<float> envOutBlock{ envelopeFollowerOutputBuffer };
@@ -307,6 +316,11 @@ namespace webview_plugin
             apvts.replaceState(tree);
             updateReverb();
         }
+    }
+
+    void ThreeDVerbAudioProcessor::parameterChanged(const juce::String& parameterID, float newValue)
+    {
+        smoothedGain.setTargetValue(newValue);
     }
 }
     //==============================================================================

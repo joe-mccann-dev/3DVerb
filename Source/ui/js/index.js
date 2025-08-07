@@ -322,7 +322,7 @@ function updateSliderDOMObjectAndSliderState(sliderDOMObject, sliderState, stepV
 
     sliderState.valueChangedEvent.addListener(() => {
         sliderDOMObject.value = sliderState.getScaledValue();
-        updateValueElement(sliderDOMObject, sliderDOMObject.value);
+        updateValueElement(sliderDOMObject, sliderDOMObject.value);     
     });
 }
 

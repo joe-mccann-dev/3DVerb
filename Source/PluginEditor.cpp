@@ -141,6 +141,7 @@ namespace webview_plugin
 
     ThreeDVerbAudioProcessorEditor::~ThreeDVerbAudioProcessorEditor()
     {
+        stopTimer();
     }
 
     //==============================================================================
