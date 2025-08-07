@@ -39,7 +39,7 @@ export default class AnimationController {
         '/orchard_sky',
         '/sky',
         '/sunset',
-        
+        '/starry_desert'
     ]
     #surroundingCube;
     #environmentMap;
@@ -227,7 +227,7 @@ export default class AnimationController {
         this.#stats = new Stats();
 
         visualizer.appendChild(this.#canvas);
-        //visualizer.appendChild(this.#stats.dom);
+        visualizer.appendChild(this.#stats.dom);
     }
 
     #initCamera() {
