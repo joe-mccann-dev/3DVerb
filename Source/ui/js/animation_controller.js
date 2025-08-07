@@ -18,6 +18,8 @@ import { defaultParams, DefaultMeshOptions } from './mesh_options.js';
 
 export default class AnimationController {
 
+    static BASE_ENV_MAP_DIRECTORY = '../assets/environment_maps'
+
     #scene;
     #renderer = new THREE.WebGLRenderer({ antialias: true });
     #canvas;
@@ -172,24 +174,31 @@ export default class AnimationController {
         this.#nebulaSystem.resumeEmitting();
     }
 
+    //changeEnvironmentMap() {
+    //    const envMapsFolder = '../assets/environment_maps/';
+    //    const fileNames = ['px', 'nx', 'py', 'ny', 'pz', 'nz'];
+    //    const fileExtension = '.png';
+    //    console.log()
+    //}
+
     // << PRIVATE >>
-    #initScene() {
+    #initScene(envMapDirectory) {
         this.#scene = new THREE.Scene();
         const cubeTextureLoader = new THREE.CubeTextureLoader();
         this.#environmentMap = cubeTextureLoader.load([
-            '../assets/environment_maps/mountain/px.png',
-            '../assets/environment_maps/mountain/nx.png',
-            '../assets/environment_maps/mountain/py.png',
-            '../assets/environment_maps/mountain/ny.png',
-            '../assets/environment_maps/mountain/pz.png',
-            '../assets/environment_maps/mountain/nz.png'
+            AnimationController.BASE_ENV_MAP_DIRECTORY + '/mountain/px.png',
+            AnimationController.BASE_ENV_MAP_DIRECTORY + '/mountain/nx.png',
+            AnimationController.BASE_ENV_MAP_DIRECTORY + '/mountain/py.png',
+            AnimationController.BASE_ENV_MAP_DIRECTORY + '/mountain/ny.png',
+            AnimationController.BASE_ENV_MAP_DIRECTORY + '/mountain/pz.png',
+            AnimationController.BASE_ENV_MAP_DIRECTORY + '/mountain/nz.png'
         ]);
 
         this.#scene.background = this.#environmentMap;
         this.#scene.environment = this.#environmentMap;
 
         const textureLoader = new THREE.TextureLoader;
-        this.#alphaMap = textureLoader.load('assets/alpha_maps/monochrome_sky.png');
+        this.#alphaMap = textureLoader.load('../assets/alpha_maps/monochrome_sky.png');
     }
 
     #prepareDOM() {

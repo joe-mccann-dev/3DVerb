@@ -133,8 +133,7 @@ namespace webview_plugin
         //webView.goToURL(webView.getResourceProviderRoot());
         webView.goToURL(LOCAL_VITE_SERVER);
         
-
-        setResizable(true, true);
+        setResizable(false, false);
         setSize(1366, 768);
         startTimer(60);
     }

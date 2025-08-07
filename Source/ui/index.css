@@ -6,14 +6,18 @@
     --medium-amber: #FBBF24;
     --medium-dark-amber: #B45309;
     --sky-blue: #3f4569;
+    --freeze-color: #60a5fa;
     --dark-blue: #23244b;
     --particle-color: #fafaf0;
     --light-yellow: #e1e0b1;
     --dark-green-black: #2d3022;
+    --neutral-100: #f5f5f5;
+    --neutral-400: #a3a3a3;
+    --neutral-900: #171717;
 }
 
 body {
-    background-image: linear-gradient(to right, var(--light-yellow), var(--dark-gray));
+    background-image: linear-gradient(to right, var(--neutral-100), var(--sky-blue));
     padding: 14px;
     height: 100%;
 }
@@ -63,17 +67,19 @@ main {
 .slider {
     -webkit-appearance: none;
     appearance: none;
-    width: 320px;
-    height: 16px;
+    width: 70%;
+    height: 14px;
     background: var(--sky-blue);
     outline: none;
-    opacity: 0.7; 
+    opacity: 0.6; 
     -webkit-transition: .3s; 
     transition: opacity .3s;
+    border-radius: 10px;
 }
 
 .slider:hover {
     opacity: 1;
+    transition: .4s;
 }
 
 .slider::-webkit-slider-thumb {
@@ -81,7 +87,8 @@ main {
   appearance: none;
   width: 24px;
   height: 24px;
-  background: var(--light-yellow); 
+  background: var(--neutral-100);
+  border-radius: 50%;
   cursor: pointer;
 }
 
@@ -113,10 +120,10 @@ input[type="checkbox"]:focus {
 
 .labelAndParam label {
     font-weight: bold;
+    cursor: pointer;
 }
 
 .freezeLabel {
-    cursor: pointer;
     padding: 2px;
 }
 
@@ -140,6 +147,13 @@ input[type="checkbox"]:focus {
     font-family: Baumans;
     font-size: 12px;
     font-weight: bold;
+    cursor: pointer;
+}
+
+.undoRedo button:hover {
+    background-color: var(--sky-blue);
+    color: var(--neutral-100);
+    transition: .3s;
 }
 
 .visualizer {
