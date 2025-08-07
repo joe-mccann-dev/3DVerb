@@ -18,7 +18,9 @@ import { defaultParams, DefaultMeshOptions } from './mesh_options.js';
 
 export default class AnimationController {
 
-    static BASE_ENV_MAP_DIRECTORY = '../assets/environment_maps'
+    static BASE_ENV_MAP_DIRECTORY = '../assets/environment_maps';
+    static CUBE_ALPHA_MAP_DIRECTORY = '../assets/alpha_maps/monochrome_sky.png';
+    static ENVMAP_FILENAMES = ['/px.png', '/nx.png', '/py.png', '/ny.png', '/pz.png', '/nz.png'];
 
     #scene;
     #renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -31,6 +33,12 @@ export default class AnimationController {
     #spheres = [];
     #planes = [];
     #lines = [];
+    #environmentMapSubDirectories = [
+        '/mountain',
+        '/orchard_sky',
+        '/sky',
+        '/sunset',
+    ]
     #surroundingCube;
     #environmentMap;
     #alphaMap;
@@ -44,7 +52,7 @@ export default class AnimationController {
     constructor() {
         // maintain binding of "this" to AnimationController instance when called from index.js
         this.animate = this.animate.bind(this);
-        this.#initScene();
+        this.#initScene(this.#environmentMapSubDirectories[0]);
 
         this.#prepareDOM();
         this.#initCamera();
@@ -174,31 +182,28 @@ export default class AnimationController {
         this.#nebulaSystem.resumeEmitting();
     }
 
-    //changeEnvironmentMap() {
-    //    const envMapsFolder = '../assets/environment_maps/';
-    //    const fileNames = ['px', 'nx', 'py', 'ny', 'pz', 'nz'];
-    //    const fileExtension = '.png';
-    //    console.log()
-    //}
-
-    // << PRIVATE >>
-    #initScene(envMapDirectory) {
-        this.#scene = new THREE.Scene();
+    changeEnvironmentMap(newMapDirectory) {
         const cubeTextureLoader = new THREE.CubeTextureLoader();
         this.#environmentMap = cubeTextureLoader.load([
-            AnimationController.BASE_ENV_MAP_DIRECTORY + '/mountain/px.png',
-            AnimationController.BASE_ENV_MAP_DIRECTORY + '/mountain/nx.png',
-            AnimationController.BASE_ENV_MAP_DIRECTORY + '/mountain/py.png',
-            AnimationController.BASE_ENV_MAP_DIRECTORY + '/mountain/ny.png',
-            AnimationController.BASE_ENV_MAP_DIRECTORY + '/mountain/pz.png',
-            AnimationController.BASE_ENV_MAP_DIRECTORY + '/mountain/nz.png'
+            AnimationController.BASE_ENV_MAP_DIRECTORY + newMapDirectory + AnimationController.ENVMAP_FILENAMES[0],
+            AnimationController.BASE_ENV_MAP_DIRECTORY + newMapDirectory + AnimationController.ENVMAP_FILENAMES[1],
+            AnimationController.BASE_ENV_MAP_DIRECTORY + newMapDirectory + AnimationController.ENVMAP_FILENAMES[2],
+            AnimationController.BASE_ENV_MAP_DIRECTORY + newMapDirectory + AnimationController.ENVMAP_FILENAMES[3],
+            AnimationController.BASE_ENV_MAP_DIRECTORY + newMapDirectory + AnimationController.ENVMAP_FILENAMES[4],
+            AnimationController.BASE_ENV_MAP_DIRECTORY + newMapDirectory + AnimationController.ENVMAP_FILENAMES[5],
         ]);
 
         this.#scene.background = this.#environmentMap;
         this.#scene.environment = this.#environmentMap;
+    }
+
+    // << PRIVATE >>
+    #initScene(envMapDirectory) {
+        this.#scene = new THREE.Scene();
+        this.changeEnvironmentMap(envMapDirectory);
 
         const textureLoader = new THREE.TextureLoader;
-        this.#alphaMap = textureLoader.load('../assets/alpha_maps/monochrome_sky.png');
+        this.#alphaMap = textureLoader.load(AnimationController.CUBE_ALPHA_MAP_DIRECTORY);
     }
 
     #prepareDOM() {
