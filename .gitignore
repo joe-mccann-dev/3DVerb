@@ -1,10 +1,7 @@
 **/Builds
-
 **/Source/UI/node_modules/
-
 **/JuceLibraryCode/*
 !**/JuceLibraryCode/modules/
 !**/JuceLibraryCode/modules/juce_audio_basics/**
-**/JuceLibraryCode/modules/*/
-
+**/JuceLibraryCode/modules/*
 **/.vs
