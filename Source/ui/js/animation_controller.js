@@ -38,6 +38,7 @@ export default class AnimationController {
         '/orchard_sky',
         '/sky',
         '/sunset',
+        '/mirrored_hall'
     ]
     #surroundingCube;
     #environmentMap;
@@ -81,9 +82,13 @@ export default class AnimationController {
         }
 
         this.#stats.update();
-        this.#orbitControls.update();
+        //this.#orbitControls.update();
         this.#renderer.render(this.#scene, this.#camera);
         requestAnimationFrame((time) => this.animate(time, theta, emitterRadius));
+    }
+
+    get envMapSubDirectories() {
+        return this.#environmentMapSubDirectories;
     }
 
     get visualParams() {

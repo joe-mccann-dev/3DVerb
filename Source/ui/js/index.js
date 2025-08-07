@@ -13,6 +13,7 @@ let animationController;
 
 const undoButton = document.getElementById("undoButton");
 const redoButton = document.getElementById("redoButton");
+const envMapDropDown = document.getElementById("envMaps");
 const undoRedoCtrl = Juce.getNativeFunction("webUndoRedo");
 
 let roomSizeThrottleHandler, mixThrottleHandler, widthThrottleHandler, dampThrottleHandler,
@@ -251,6 +252,15 @@ function initThrottleHandlers() {
 }
 
 function setupDOMEventListeners() {
+    envMapDropDown.addEventListener('change', (event) => {
+        console.log("new item selected");
+        console.log(envMapDropDown.value);
+        const envMapListIndex = envMapDropDown.value;
+        const directories = animationController.envMapSubDirectories;
+        animationController.changeEnvironmentMap(directories[envMapListIndex]);
+    });
+
+
     document.addEventListener('keydown', (event) => {
         // calls PluginEditor::webUndoRedo()
         if (event.ctrlKey && event.key === 'y') {

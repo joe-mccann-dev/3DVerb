@@ -12,6 +12,7 @@
     --light-yellow: #e1e0b1;
     --dark-green-black: #2d3022;
     --neutral-100: #f5f5f5;
+    --neutral-200: #e5e5e5;
     --neutral-400: #a3a3a3;
     --neutral-900: #171717;
 }
@@ -160,6 +161,10 @@ input[type="checkbox"]:focus {
     width: 100%;
     height: 100%;
     padding: 0 20px;
+}
+
+.envMapsDiv label {
+    color: var(--neutral-200);
 }
 
 canvas {
