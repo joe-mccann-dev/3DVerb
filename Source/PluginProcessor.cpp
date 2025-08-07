@@ -226,7 +226,7 @@ namespace webview_plugin
 
         /*smoothedGain.setTargetValue(*gain);*/
         auto nextVal = smoothedGain.getNextValue();
-        DBG(nextVal);
+        //DBG(nextVal);
         buffer.applyGain(nextVal);
 
         juce::dsp::AudioBlock<float> block{ buffer };
