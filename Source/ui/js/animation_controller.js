@@ -34,11 +34,12 @@ export default class AnimationController {
     #planes = [];
     #lines = [];
     #environmentMapSubDirectories = [
+        '/night_clouds',
         '/mountain',
         '/orchard_sky',
         '/sky',
         '/sunset',
-        '/mirrored_hall'
+        
     ]
     #surroundingCube;
     #environmentMap;
@@ -82,7 +83,7 @@ export default class AnimationController {
         }
 
         this.#stats.update();
-        //this.#orbitControls.update();
+        this.#orbitControls.update();
         this.#renderer.render(this.#scene, this.#camera);
         requestAnimationFrame((time) => this.animate(time, theta, emitterRadius));
     }
@@ -226,7 +227,7 @@ export default class AnimationController {
         this.#stats = new Stats();
 
         visualizer.appendChild(this.#canvas);
-        visualizer.appendChild(this.#stats.dom);
+        //visualizer.appendChild(this.#stats.dom);
     }
 
     #initCamera() {

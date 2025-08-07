@@ -76,7 +76,7 @@ export const DefaultMeshOptions = {
             transmission: 1,
             iridescence: 0.4,
             reflectivity: 1,
-            roughness: 0.4,
+            roughness: 0.2,
             depthWrite: false,
         }
     },

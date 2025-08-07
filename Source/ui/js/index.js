@@ -343,7 +343,7 @@ function updateValueElement(sliderDOMObject, value) {
 }
 
 function setFreezeLabelColor(checked, label) {
-    label.style["color"] = checked ? COLORS.roomFrameColorUI : COLORS.skyBlue;
+    label.style["color"] = checked ? COLORS.lightSkyBlue : COLORS.neutralWhiteGray;
 }
 
 export {

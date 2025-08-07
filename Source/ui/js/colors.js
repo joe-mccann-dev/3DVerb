@@ -15,6 +15,8 @@ const indigoColor = 0x4B0082;
 // emitter colors that expect different format
 const darkGreen = '#1f2300';
 const skyBlue = '#3f4569';
+const lightSkyBlue = '#7a81a8';
+const neutralWhiteGray = '#e5e5e5';
 const darkBlue = '#23244b';
 const grayGreen = '#4e5050';
 
@@ -58,6 +60,8 @@ export {
     indigoColor,
     // emitter colors
     darkGreen,
+    lightSkyBlue,
+    neutralWhiteGray,
     skyBlue,
     darkBlue,
     grayGreen,

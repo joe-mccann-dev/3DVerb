@@ -3,30 +3,35 @@
     --medium-light-gray: #9CA3AF;
     --medium-dark-gray: #374151;
     --light-gray: #E5E7EB;
-    --medium-amber: #FBBF24;
-    --medium-dark-amber: #B45309;
+    --light-sky-blue: #7a81a8;
     --sky-blue: #3f4569;
     --freeze-color: #60a5fa;
     --dark-blue: #23244b;
     --particle-color: #fafaf0;
-    --light-yellow: #e1e0b1;
-    --dark-green-black: #2d3022;
+    --pale-orange: #cbc4b4;
+    --bold-orange: #d9904d;
     --neutral-100: #f5f5f5;
     --neutral-200: #e5e5e5;
     --neutral-400: #a3a3a3;
     --neutral-900: #171717;
+    --neutral-950: #0a0a0a;
+    --zinc-600: #52525b;
+    --zinc-700: #3f3f46;
+    --zinc-800: #292524;
+    --zinc-900: #18181b;
+    --zinc-950: #09090b;
 }
 
 body {
-    background-image: linear-gradient(to right, var(--neutral-100), var(--sky-blue));
+    background-image: linear-gradient(to right, var(--zinc-800), var(--zinc-950));
     padding: 14px;
     height: 100%;
 }
 
 main {
-    color: var(--dark-blue);
+    color: var(--neutral-200);
     display: flex;
-    gap: 10px;
+    gap: 16px;
     height: 92vh;
     font-family: Baumans;
     letter-spacing: 3px;
@@ -36,7 +41,7 @@ main {
     display: flex;
     justify-content: space-between;
     flex-wrap: wrap;
-    border-bottom: solid 1px var(--medium-dark-gray);
+    border-bottom: solid 2px var(--pale-orange);
 }
 
 .header .title {
@@ -48,7 +53,7 @@ main {
 }
 
 .productInfo {
-    color: var(--gray);
+    color: var(--neutral-200);
     padding: 2px;
     font-size: 12px;
     height: 24px;
@@ -56,12 +61,12 @@ main {
 }
 
 .bypassAndMono {
-    border-bottom: solid 1px var(--dark-gray);
+    border-bottom: solid 2px var(--pale-orange);
     padding: 20px 0;
 }
 
 .primaryParams {
-    border-bottom: solid 1px var(--dark-gray);
+    border-bottom: solid 2px var(--pale-orange);
     padding: 16px 0;
 }
 
@@ -70,7 +75,7 @@ main {
     appearance: none;
     width: 70%;
     height: 14px;
-    background: var(--sky-blue);
+    background: var(--light-sky-blue);
     outline: none;
     opacity: 0.6; 
     -webkit-transition: .3s; 
@@ -88,21 +93,31 @@ main {
   appearance: none;
   width: 24px;
   height: 24px;
-  background: var(--neutral-100);
+  background-image: linear-gradient(to right, var(--pale-orange), var(--sky-blue));
   border-radius: 50%;
   cursor: pointer;
 }
 
-input.checkbox {
+input[type="checkbox"]:focus {
+    outline: 2px solid var(--light-sky-blue);
+    outline-offset: 2px;
+}
+
+input[type="checkbox"] {
+    appearance: none;
     cursor: pointer;
     width: 20px;
     height: 20px;
+    border: 2px solid gray;
+    border-radius: 50%;
+    background-color: white;
+    cursor: pointer;
 }
 
-input[type="checkbox"]:focus {
-    outline: 2px solid var(--sky-blue);
-    outline-offset: 2px;
-}
+ input[type="checkbox"]:checked {
+        background-color: var(--bold-orange);
+ }
+
 
 .plugin {
     width: 64%;
@@ -134,7 +149,7 @@ input[type="checkbox"]:focus {
 
 .sliderValue {
     font-size: 16px;
-    color: var(--dark-green-black);
+    color: var(--pale-orange);
     margin-left: 2px;
 }
 
@@ -152,7 +167,7 @@ input[type="checkbox"]:focus {
 }
 
 .undoRedo button:hover {
-    background-color: var(--sky-blue);
+    background-color: var(--light-sky-blue);
     color: var(--neutral-100);
     transition: .3s;
 }
@@ -163,8 +178,13 @@ input[type="checkbox"]:focus {
     padding: 0 20px;
 }
 
+
+.envMapsDiv {
+    margin-bottom: 6px;
+}
+
 .envMapsDiv label {
-    color: var(--neutral-200);
+    color: var(--light-gray);
 }
 
 canvas {
