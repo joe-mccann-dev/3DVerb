@@ -2,7 +2,7 @@ import * as Utility from './utility.js'
 import ParticleSystem, { Vector3D } from 'three-nebula';
 export default class NebulaParams {
     static minSpeed = 20;
-    static maxSpeed = 80;
+    static maxSpeed = 60;
 
     static minLife = 4;
     static maxLife = 10;
@@ -15,8 +15,8 @@ export default class NebulaParams {
     static forceFloor = 2;
     static forceCeiling = 12;
 
-    static minRadius = 30;
-    static maxRadius = 80;
+    static minRadius = 40;
+    static maxRadius = 60;
 
     static minDriftX = 30;
     static maxDriftX = 100;
@@ -25,15 +25,15 @@ export default class NebulaParams {
     static minDriftZ = 50;
     static maxDriftZ = 200;
 
-    static minLeftVelocity = 150;
-    static maxLeftVelocity = -600;
-    static minRightVelocity = -150;
-    static maxRightVelocity = 600;
-    static leftYVelocity = -100;
+    static minLeftVelocity = 2000;
+    static maxLeftVelocity = -1000;
+    static minRightVelocity = -2000;
+    static maxRightVelocity = 1000;
+    static leftYVelocity = 100;
     static leftZVelocity = 10;
     static rightYVelocity = 100;
     static rightZVelocity = 10;
-    static velocityTheta = 20;
+    static velocityTheta = 30;
 
     #lifeScale = NebulaParams.DEFAULT_LIFE;
     #speedScale = NebulaParams.DEFAULT_SPEED;
@@ -93,7 +93,7 @@ export default class NebulaParams {
 
     // used in onOutputChange()
     calculateSpeedScale(amplitude) {
-        const logBase = 2;
+        const logBase = 20;
 
         return this.#visualParamsObject.isLowOutput
             ? NebulaParams.DEFAULT_SPEED
@@ -144,7 +144,7 @@ export default class NebulaParams {
     }
 
     #calculateLeftAxisVector() {
-        const logScale = 20;
+        const logScale = 10;
         const scale = Utility.getLogScaledValue(
             NebulaParams.minLeftVelocity,
             NebulaParams.maxLeftVelocity,
@@ -156,7 +156,7 @@ export default class NebulaParams {
     }
 
     #calculateRightAxisVector() {
-        const logScale = 20;
+        const logScale = 10;
         const scale = Utility.getLogScaledValue(
             NebulaParams.minRightVelocity,
             NebulaParams.maxRightVelocity,
@@ -168,26 +168,27 @@ export default class NebulaParams {
     }
 
     get baseForce() {
+        const logBase = 20;
         return Utility.getLogScaledValue(
             NebulaParams.forceFloor,
             NebulaParams.forceCeiling,
             this.speedScale,
-            Math.E
+            logBase,
         );
     }
 
     forceX(index) {
         return index < 2
-            ? -(this.baseForce * 0.5)
-            : this.baseForce * 0.5;
+            ? -(this.baseForce * 0.5 * (0.2 + this.#visualParamsObject.currentWidth))
+            : (this.baseForce * 0.5 * (0.2 + this.#visualParamsObject.currentWidth))
     }
 
     forceY() {
-        return this.baseForce * 0.4;
+        return this.baseForce * 0.4 * (0.4 + this.#visualParamsObject.currentWidth);
     }
 
     forceZ() {
-        return this.baseForce;
+        return this.baseForce * 0.7 * (0.6 + this.#visualParamsObject.currentWidth);
     }
 
     driftX() { 

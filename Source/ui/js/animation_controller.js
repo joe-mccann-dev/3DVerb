@@ -74,7 +74,7 @@ export default class AnimationController {
         this.scaleSurroundingCube(this.#visualParams.cubeScale); 
     }
 
-    animate(time, theta = 0, emitterRadius = 16) {
+    animate(time, theta = 0, emitterRadius = 24) {
         time *= 0.001;
         if (!this.#bypassIsChecked()) {
             this.#rotateSpheres(time);
