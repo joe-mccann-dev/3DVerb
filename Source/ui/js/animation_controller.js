@@ -74,7 +74,7 @@ export default class AnimationController {
         this.scaleSurroundingCube(this.#visualParams.cubeScale); 
     }
 
-    animate(time, theta = 0, emitterRadius = 24) {
+    animate(time, theta = 4, emitterRadius = 16) {
         time *= 0.001;
         if (!this.#bypassIsChecked()) {
             this.#rotateSpheres(time);
@@ -83,7 +83,7 @@ export default class AnimationController {
         }
 
         this.#stats.update();
-        //this.#orbitControls.update();
+        this.#orbitControls.update();
         this.#renderer.render(this.#scene, this.#camera);
         requestAnimationFrame((time) => this.animate(time, theta, emitterRadius));
     }

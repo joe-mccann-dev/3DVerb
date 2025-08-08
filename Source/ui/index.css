@@ -107,8 +107,8 @@ input[type="checkbox"]:focus {
 input[type="checkbox"] {
     appearance: none;
     cursor: pointer;
-    width: 20px;
-    height: 20px;
+    width: 24px;
+    height: 24px;
     border: 2px solid gray;
     border-radius: 50%;
     background-color: white;
@@ -116,7 +116,7 @@ input[type="checkbox"] {
 }
 
  input[type="checkbox"]:checked {
-        background-color: var(--bold-orange);
+    background-color: var(--bold-orange);
  }
 
 
