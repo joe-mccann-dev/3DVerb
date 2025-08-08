@@ -179,8 +179,8 @@ export default class NebulaParams {
 
     forceX(index) {
         return index < 2
-            ? -(this.baseForce * 0.5 * (0.2 + this.#visualParamsObject.currentWidth))
-            : (this.baseForce * 0.5 * (0.2 + this.#visualParamsObject.currentWidth))
+            ? -(this.baseForce * 0.5 * (0.05 + 1.5 * this.#visualParamsObject.currentWidth))
+            : (this.baseForce * 0.5 * (0.05 + 1.5 * this.#visualParamsObject.currentWidth))
     }
 
     forceY() {
