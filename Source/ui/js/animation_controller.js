@@ -83,7 +83,7 @@ export default class AnimationController {
         }
 
         this.#stats.update();
-        this.#orbitControls.update();
+        //this.#orbitControls.update();
         this.#renderer.render(this.#scene, this.#camera);
         requestAnimationFrame((time) => this.animate(time, theta, emitterRadius));
     }
