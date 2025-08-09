@@ -206,6 +206,11 @@ function onWidthChange(widthValue) {
 function onDampChange(dampValue) {
     animationController.visualParams.currentDamp = dampValue;
 
+    console.log(
+        "animationController.visualParams.currentDamp: ",
+        animationController.visualParams.currentDamp,
+    )
+
     const minScale = 0.5;
     const maxScale = 1;
     //higher damping equals smaller scale;
@@ -214,6 +219,8 @@ function onDampChange(dampValue) {
 
     //const scaleA = maxScale * dampingScale;
     //const scaleB = minScale * dampingScale;
+    // animationController.visualParams.currentDamp = 
+    // animatinonController.nebulaSystem.handleDampingChange(inverseDamping)
 }
 
 function onFreezeChange(frozen) {

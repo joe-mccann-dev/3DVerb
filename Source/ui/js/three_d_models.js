@@ -9,7 +9,7 @@ const speakersPromise = new Promise((resolve, reject) => {
         leftSpeaker.envMap = environmentMap;
         leftSpeaker.castShadow = false;
         leftSpeaker.receiveShadow = false;
-        leftSpeaker.scale.set(42, 42, 42);     
+        leftSpeaker.scale.set(44, 44, 44);     
         leftSpeaker.position.set(-140, -20, -20);
         speakers.push(leftSpeaker);
 

@@ -5,7 +5,7 @@ export default class NebulaParams {
     static maxSpeed = 60;
 
     static minLife = 4;
-    static maxLife = 10;
+    static maxLife = 12;
     static dampingPercentage = 0.7;
     static roomSizePercentage = 0.3;
 
@@ -16,7 +16,7 @@ export default class NebulaParams {
     static forceCeiling = 12;
 
     static minRadius = 30;
-    static maxRadius = 60;
+    static maxRadius = 66;
 
     static minDriftX = 30;
     static maxDriftX = 100;
@@ -55,6 +55,10 @@ export default class NebulaParams {
 
     constructor(visualParams) {
         this.#visualParamsObject = visualParams
+    }
+
+    get visualParamsObject() {
+        return this.#visualParamsObject;
     }
 
     // << PUBLIC >>
@@ -188,7 +192,7 @@ export default class NebulaParams {
     }
 
     forceZ() {
-        return this.baseForce * 0.7 * (0.6 + this.#visualParamsObject.currentWidth);
+        return this.baseForce * 0.8 * (0.6 + this.#visualParamsObject.currentWidth);
     }
 
     driftX() { 

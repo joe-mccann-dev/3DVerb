@@ -33,7 +33,8 @@ const blue = "#0000FF";
 const indigo1 = "#4B0082";
 const violet = "#8B00FF";
 
-const spriteColors = [neonGreen, cyan, indigo, mint];
+const spriteColors = [cyan, indigo];
+const dampingColors = [orange];
 const rainbowColors = [red, orange, yellow, green, blue, indigo1, violet];
 
 
@@ -72,6 +73,7 @@ export {
     roomFrameColorUI,
     spriteColors,
     rainbowColors,
+    dampingColors,
     violet,
     orange,
 }
