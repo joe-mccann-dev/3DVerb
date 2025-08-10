@@ -6,8 +6,8 @@ export default class NebulaParams {
 
     static minLife = 4;
     static maxLife = 12;
-    static dampingPercentage = 0.7;
-    static roomSizePercentage = 0.3;
+    static dampingPercentage = 0.6;
+    static roomSizePercentage = 0.4;
 
     static DEFAULT_LIFE = 0.2;
     static DEFAULT_SPEED = 0.2;
@@ -15,8 +15,8 @@ export default class NebulaParams {
     static forceFloor = 2;
     static forceCeiling = 12;
 
-    static minRadius = 30;
-    static maxRadius = 66;
+    static minRadius = 24;
+    static maxRadius = 64;
 
     static minDriftX = 30;
     static maxDriftX = 100;
@@ -33,7 +33,7 @@ export default class NebulaParams {
     static leftZVelocity = 100;
     static rightYVelocity = 100;
     static rightZVelocity = 100;
-    static velocityTheta = 16;
+    static velocityTheta = 90;
 
     #lifeScale = NebulaParams.DEFAULT_LIFE;
     #speedScale = NebulaParams.DEFAULT_SPEED;

@@ -197,7 +197,7 @@ export default class NebulaSystem {
 
     #createEmitter(options = {}) {
         const emitter = new Emitter()
-            .setRate(new Rate(2, 0.2))
+            .setRate(new Rate(2, 0.46))
             .setInitializers(this.#getStandardInitializers(options))
             .setBehaviours(this.#getStandardBehaviours(options));
 
