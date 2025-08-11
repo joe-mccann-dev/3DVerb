@@ -68,7 +68,7 @@ namespace webview_plugin
         juce::Array<juce::var> levels;
 
         static constexpr size_t getScopeSize() { return scopeSize; };
-        juce::CriticalSection levelsLock;
+        juce::SpinLock levelsLock;
         
     private:
         //==============================================================================
@@ -110,6 +110,9 @@ namespace webview_plugin
       
         juce::UndoManager undoManager;
 
+        // processBlock() -> prepareForFFT() -> pushNextSampleIntoFifo()
+        // PluginEditor.cpp in getResource() -> const juce::SpinLock::ScopedLockType lock(audioProcessor.levelsLock)
+        // occasionally front end will hold  the lock first since JSON serialization can take microseconds or more
         void pushNextSampleIntoFifo(float sample) noexcept
         {
             if (fifoIndex == fftSize)
@@ -121,11 +124,23 @@ namespace webview_plugin
                 window.multiplyWithWindowingTable(fftData.data(), fftSize);
                 // perform FFT on fftData; only keep frequency information; only calculate non-negative frequencies;
                 forwardFFT.performFrequencyOnlyForwardTransform(fftData.data(), true);                
-                // for thread-safety. ScopedLock automatically unlocks at end of block using RAII
-                juce::ScopedLock lock(levelsLock);
-                levels.clearQuick();
+                // for thread-safety. ScopedTryLockType automatically unlocks at end of block using RAII
+                // ScopedTryLockType "tries" to lock. If lock acquired, safe to access shared data
+                // if UI thread is busy (i.e. holding the lock) ScopedTryLockType fails to get lock; isLocked() returns false
+                // audio thread continues
+                // otherwise ScopedTryLockType gets the lock right away and isLocked() returns true =>
+                // code in if block below executes
+                // end result: achieve thread safety and don't risk audio dropping out
+                // try-lock pattern =>
+                // make sure audio thread doesn't have to wait: either succeed or fail and move on
+                juce::SpinLock::ScopedTryLockType tryLock(levelsLock);
+                if (tryLock.isLocked())
+                {
+                    levels.clearQuick();
+                    applyLogarithmicFreqMapping();
+                }
+                // else: Lock is busy, skip frame.
 
-                applyLogarithmicFreqMapping();
                 fifoIndex = 0;
             }
             fifo[(size_t)fifoIndex++] = sample;

@@ -261,7 +261,7 @@ namespace webview_plugin
         {
             juce::Array<juce::var> threadSafeLevels;
             {
-                const juce::ScopedLock lock(audioProcessor.levelsLock);
+                const juce::SpinLock::ScopedLockType lock(audioProcessor.levelsLock);
                 if (audioProcessor.levels.size() != audioProcessor.getScopeSize())
                     return {};
                 threadSafeLevels = audioProcessor.levels;

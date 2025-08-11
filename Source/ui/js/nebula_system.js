@@ -57,6 +57,7 @@ export default class NebulaSystem {
         return this.#particleSystem;
     }
 
+    // https://github.com/creativelifeform/three-nebula/blob/master/website/components/Examples/EightDiagrams/init.js
     animateEmitterPositions(theta, emitterRadius) {
         for (let i = 0; i < NebulaSystem.NUM_EMITTERS; i++) {
             const currentEmitter = this.#emitters[i];
