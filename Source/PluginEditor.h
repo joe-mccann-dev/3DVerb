@@ -34,7 +34,7 @@ namespace webview_plugin
 
 	private:
 		std::optional<juce::WebBrowserComponent::Resource> getResource(const juce::String& url);
-
+		
 		void webUndoRedo(const juce::Array<juce::var>& args,
 			juce::WebBrowserComponent::NativeFunctionCompletion completion);
 		// This reference is provided as a quick way for your editor to

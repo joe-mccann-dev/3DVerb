@@ -53,6 +53,20 @@ namespace webview_plugin
             return "";
         }
 
+        // takes property string and the value to send to the frontend and returns a juce::WebBrowserComponent::Resource
+        juce::WebBrowserComponent::Resource getPreparedResource(const juce::Identifier property, juce::var valueToSet)
+        {
+            juce::DynamicObject::Ptr data{ new juce::DynamicObject };
+            data->setProperty(property, valueToSet);
+            const auto string = juce::JSON::toString(data.get());
+            juce::MemoryInputStream stream{
+                string.getCharPointer(),
+                string.getNumBytesAsUTF8(),
+                false
+            };
+            return juce::WebBrowserComponent::Resource{ streamToVector(stream), juce::String("application/json") };
+        }
+
         constexpr auto LOCAL_VITE_SERVER = "http://localhost:5173";
 
     }
@@ -195,66 +209,33 @@ namespace webview_plugin
 
         if (resourceToRetrieve == "outputLevel.json")
         {
-            juce::DynamicObject::Ptr data{ new juce::DynamicObject };
-            data->setProperty("left", audioProcessor.outputLevelLeft.load());
-            const auto string = juce::JSON::toString(data.get());
-            juce::MemoryInputStream stream{ string.getCharPointer(),
-                string.getNumBytesAsUTF8(), false };
-            return juce::WebBrowserComponent::Resource{ streamToVector(stream), juce::String{"application/json"} };
+            return getPreparedResource("left", audioProcessor.outputLevelLeft.load());
         }
 
         if (resourceToRetrieve == "freeze.json")
         {
-            juce::DynamicObject::Ptr data{ new juce::DynamicObject };
-            data->setProperty("freeze", audioProcessor.isFrozen);
-            const auto string = juce::JSON::toString(data.get());
-            juce::MemoryInputStream stream{ string.getCharPointer(),
-                string.getNumBytesAsUTF8(), false };
-            return juce::WebBrowserComponent::Resource{ streamToVector(stream), juce::String{"application/json"} };
+            return getPreparedResource("freeze", audioProcessor.isFrozen);
         }
+
 
         if (resourceToRetrieve == "mix.json")
         {
-            juce::DynamicObject::Ptr data{ new juce::DynamicObject };
-            data->setProperty("mix", audioProcessor.mixValue);
-            const auto string = juce::JSON::toString(data.get());
-            juce::MemoryInputStream stream{ string.getCharPointer(),
-                string.getNumBytesAsUTF8(), false };
-
-            return juce::WebBrowserComponent::Resource{ streamToVector(stream), juce::String{"application/json"} };
+            return getPreparedResource("mix", audioProcessor.mixValue);
         }
 
         if (resourceToRetrieve == "roomSize.json")
         {
-            juce::DynamicObject::Ptr data{ new juce::DynamicObject };
-            data->setProperty("roomSize", audioProcessor.roomSizeValue);
-            const auto string = juce::JSON::toString(data.get());
-            juce::MemoryInputStream stream{ string.getCharPointer(),
-                string.getNumBytesAsUTF8(), false };
-
-            return juce::WebBrowserComponent::Resource{ streamToVector(stream), juce::String("application/json") };
+            return getPreparedResource("roomSize", audioProcessor.roomSizeValue);
         }
 
         if (resourceToRetrieve == "width.json")
         {
-            juce::DynamicObject::Ptr  data{ new juce::DynamicObject };
-            data->setProperty("width", audioProcessor.widthValue);
-            const auto string = juce::JSON::toString(data.get());
-            juce::MemoryInputStream stream{ string.getCharPointer(),
-                string.getNumBytesAsUTF8(), false };
-
-            return juce::WebBrowserComponent::Resource{ streamToVector(stream), juce::String{"application/json"} };
+            return getPreparedResource("width", audioProcessor.widthValue);
         }
 
         if (resourceToRetrieve == "damp.json")
         {
-            juce::DynamicObject::Ptr  data{ new juce::DynamicObject };
-            data->setProperty("damp", audioProcessor.dampValue);
-            const auto string = juce::JSON::toString(data.get());
-            juce::MemoryInputStream stream{ string.getCharPointer(),
-                string.getNumBytesAsUTF8(), false };
-
-            return juce::WebBrowserComponent::Resource{ streamToVector(stream), juce::String{"application/json"} };
+            return getPreparedResource("damp", audioProcessor.mixValue);
         }
 
         if (resourceToRetrieve == "levels.json")
@@ -266,13 +247,8 @@ namespace webview_plugin
                     return {};
                 threadSafeLevels = audioProcessor.levels;
             }
-            juce::DynamicObject::Ptr data{ new juce::DynamicObject };
-            data->setProperty("levels", threadSafeLevels);
-            const auto string = juce::JSON::toString(data.get());
-            juce::MemoryInputStream stream{ string.getCharPointer(),
-                string.getNumBytesAsUTF8(), false };
 
-            return juce::WebBrowserComponent::Resource{ streamToVector(stream), juce::String{"application/json"} };
+            return getPreparedResource("levels", threadSafeLevels);
         }
 
         const auto resource = resourceDirectory.getChildFile(resourceToRetrieve).createInputStream();
