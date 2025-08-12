@@ -235,7 +235,7 @@ namespace webview_plugin
 
         if (resourceToRetrieve == "damp.json")
         {
-            return getPreparedResource("damp", audioProcessor.mixValue);
+            return getPreparedResource("damp", audioProcessor.dampValue);
         }
 
         if (resourceToRetrieve == "levels.json")
