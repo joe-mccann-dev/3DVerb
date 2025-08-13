@@ -15,6 +15,23 @@
 */
 namespace webview_plugin
 {
+
+    struct Fifo
+    { 
+        static constexpr auto fftOrder{ 11 };
+        static constexpr auto fftSize{ 1 << fftOrder };
+        static constexpr auto fftDataSize{ fftSize * 2 };
+        static constexpr auto scopeSize{ fftSize / 4 };
+
+        // https://juce.com/tutorials/tutorial_simple_fft/
+        juce::dsp::FFT forwardFFT{ fftOrder };
+        juce::dsp::WindowingFunction<float> window{ fftSize, juce::dsp::WindowingFunction<float>::hann };
+        std::array<float, fftSize> samples;
+        std::array<float, fftSize * 2> fftSampleData; // for holding FFT processed sample data; FFT algorithm requires double space
+        int index{ 0 };
+
+    };
+
     class ThreeDVerbAudioProcessor : public juce::AudioProcessor, public juce::AudioProcessorValueTreeState::Listener
     {
     public:
@@ -67,7 +84,7 @@ namespace webview_plugin
         // store normalized levels derived from fftData below
         juce::Array<juce::var> levels;
 
-        static constexpr size_t getScopeSize() { return scopeSize; };
+        size_t getScopeSize() { return fifo.scopeSize; };
         juce::SpinLock levelsLock;
         
     private:
@@ -96,17 +113,7 @@ namespace webview_plugin
         void prepareForFFT(juce::dsp::AudioBlock<float> block);
         void sumLeftAndRightChannels(juce::AudioBuffer<float>& buffer);
 
-        static constexpr auto fftOrder{ 11 };
-        static constexpr auto fftSize{ 1 << fftOrder };
-        static constexpr auto fftDataSize{ fftSize * 2 };
-        static constexpr auto scopeSize{ fftSize / 4 };
-
-        // https://juce.com/tutorials/tutorial_simple_fft/
-        juce::dsp::FFT forwardFFT;
-        juce::dsp::WindowingFunction<float> window;
-        std::array<float, fftSize> fifo; // for holding samples
-        std::array<float, fftSize * 2> fftData; // for holding FFT processed sample data
-        int fifoIndex{ 0 };
+        Fifo fifo{};
       
         juce::UndoManager undoManager;
 
@@ -115,15 +122,15 @@ namespace webview_plugin
         // occasionally front end will hold  the lock first since JSON serialization can take microseconds or more
         void pushNextSampleIntoFifo(float sample) noexcept
         {
-            if (fifoIndex == fftSize)
+            if (fifo.index == fifo.fftSize)
             {
                 // copy fifo sample data into beginning of fftData
                 // for intermediate calcs, fftData can hold twice as much data as fifo
-                std::copy(fifo.begin(), fifo.end(), fftData.begin());
+                std::copy(fifo.samples.begin(), fifo.samples.end(), fifo.fftSampleData.begin());
                 // reduce spectral leakage by applying windowing function to data; make more perceptually accurate
-                window.multiplyWithWindowingTable(fftData.data(), fftSize);
+                fifo.window.multiplyWithWindowingTable(fifo.fftSampleData.data(), fifo.fftSize);
                 // perform FFT on fftData; only keep frequency information; only calculate non-negative frequencies;
-                forwardFFT.performFrequencyOnlyForwardTransform(fftData.data(), true);                
+                fifo.forwardFFT.performFrequencyOnlyForwardTransform(fifo.fftSampleData.data(), true);                
                 // for thread-safety. ScopedTryLockType automatically unlocks at end of block using RAII
                 // ScopedTryLockType "tries" to lock. If lock acquired, safe to access shared data
                 // if UI thread is busy (i.e. holding the lock) ScopedTryLockType fails to get lock; isLocked() returns false
@@ -141,20 +148,20 @@ namespace webview_plugin
                 }
                 // else: Lock is busy, skip frame.
 
-                fifoIndex = 0;
+                fifo.index = 0;
             }
-            fifo[(size_t)fifoIndex++] = sample;
+            fifo.samples[(size_t)fifo.index++] = sample;
         }
 
         void applyLogarithmicFreqMapping() {
             auto mindB = -100.0f;
             auto maxdB = 0.0f;
-            for (int i = 0; i < scopeSize; ++i)
+            for (int i = 0; i < fifo.scopeSize; ++i)
             {
-                auto skewedProportionX = 1.0f - std::exp(std::log(1.0f - (float)i / (float)scopeSize) * 0.2f);
-                auto fftDataIndex = juce::jlimit(0, fftSize / 2, (int)(skewedProportionX * (float)fftSize * 0.5f));
-                auto decibelsAtIndex = juce::Decibels::gainToDecibels(fftData.at(fftDataIndex));
-                auto sourceValue = juce::jlimit(mindB, maxdB, decibelsAtIndex) - juce::Decibels::gainToDecibels((float)fftSize);
+                auto skewedProportionX = 1.0f - std::exp(std::log(1.0f - (float)i / (float)fifo.scopeSize) * 0.2f);
+                auto fftDataIndex = juce::jlimit(0, fifo.fftSize / 2, (int)(skewedProportionX * (float)fifo.fftSize * 0.5f));
+                auto decibelsAtIndex = juce::Decibels::gainToDecibels(fifo.fftSampleData.at(fftDataIndex));
+                auto sourceValue = juce::jlimit(mindB, maxdB, decibelsAtIndex) - juce::Decibels::gainToDecibels((float)fifo.fftSize);
                 auto level = juce::jmap(
                     sourceValue, // sourceValue
                     mindB, // sourceRangeMin

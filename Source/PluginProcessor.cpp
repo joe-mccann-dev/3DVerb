@@ -72,9 +72,9 @@ namespace webview_plugin
         mix{ dynamic_cast<juce::AudioParameterFloat*>(apvts.getParameter(id::MIX.getParamID())) },
         width{ dynamic_cast<juce::AudioParameterFloat*>(apvts.getParameter(id::WIDTH.getParamID())) },
         damp{dynamic_cast<juce::AudioParameterFloat*>(apvts.getParameter(id::DAMP.getParamID()))},
-        freeze{ dynamic_cast<juce::AudioParameterFloat*>(apvts.getParameter(id::FREEZE.getParamID())) },
-        forwardFFT{fftOrder},
-        window{fftSize, juce::dsp::WindowingFunction<float>::hann}
+        freeze{ dynamic_cast<juce::AudioParameterFloat*>(apvts.getParameter(id::FREEZE.getParamID())) }
+        //forwardFFT{fifo->fftOrder},
+        //window{fftSize, juce::dsp::WindowingFunction<float>::hann}
     {
         apvts.addParameterListener(id::GAIN.getParamID(), this);
     }
