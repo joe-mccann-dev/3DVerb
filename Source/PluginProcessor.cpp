@@ -73,8 +73,6 @@ namespace webview_plugin
         width{ dynamic_cast<juce::AudioParameterFloat*>(apvts.getParameter(id::WIDTH.getParamID())) },
         damp{dynamic_cast<juce::AudioParameterFloat*>(apvts.getParameter(id::DAMP.getParamID()))},
         freeze{ dynamic_cast<juce::AudioParameterFloat*>(apvts.getParameter(id::FREEZE.getParamID())) }
-        //forwardFFT{fifo->fftOrder},
-        //window{fftSize, juce::dsp::WindowingFunction<float>::hann}
     {
         apvts.addParameterListener(id::GAIN.getParamID(), this);
     }
@@ -271,7 +269,7 @@ namespace webview_plugin
             // can be processed by FFT algorithm. FFT transforms time domain to frequency domain.
             // Frequency data are gathered in "freq bins" that represent magnitudes
             // of a given freq. over the duration of the block
-            pushNextSampleIntoFifo(monoSample);
+            fifo.push(monoSample);
         }
     }
 

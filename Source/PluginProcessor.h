@@ -27,11 +27,70 @@ namespace webview_plugin
         juce::dsp::FFT forwardFFT{ fftOrder };
         juce::dsp::WindowingFunction<float> window{ fftSize, juce::dsp::WindowingFunction<float>::hann };
         std::array<float, fftSize> samples;
-        std::array<float, fftSize * 2> fftSampleData; // for holding FFT processed sample data; FFT algorithm requires double space
+        // for holding FFT processed sample data; FFT algorithm requires double space
+        std::array<float, fftSize * 2> fftSampleData; 
         int index{ 0 };
 
-        // store normalized levels derived from fftData below
+        // store normalized levels derived from fftData using applyLogarithmicFreqMapping() below
         juce::Array<juce::var> levels;
+        juce::SpinLock levelsLock;
+
+        // processBlock() -> prepareForFFT() -> pushNextSampleIntoFifo()
+        // PluginEditor.cpp in getResource() -> const juce::SpinLock::ScopedLockType lock(audioProcessor.levelsLock)
+        // occasionally front end will hold  the lock first since JSON serialization can take microseconds or more
+        void push(float sample) noexcept
+        {
+            if (index == fftSize)
+            {
+                // copy fifo sample data into beginning of fftSampleData
+                // for intermediate calcs, fftSampleData can hold twice as much data as fifo
+                std::copy(samples.begin(), samples.end(), fftSampleData.begin());
+                // reduce spectral leakage by applying windowing function to data; make more perceptually accurate
+                window.multiplyWithWindowingTable(fftSampleData.data(), fftSize);
+                // perform FFT on fftData; only keep frequency information; only calculate non-negative frequencies;
+                forwardFFT.performFrequencyOnlyForwardTransform(fftSampleData.data(), true);
+                // for thread-safety. ScopedTryLockType automatically unlocks at end of block using RAII
+                // ScopedTryLockType "tries" to lock. If lock acquired, safe to access shared data
+                // if UI thread is busy (i.e. holding the lock) ScopedTryLockType fails to get lock; isLocked() returns false
+                // audio thread continues
+                // otherwise ScopedTryLockType gets the lock right away and isLocked() returns true =>
+                // code in if block below executes
+                // end result: achieve thread safety and don't risk audio dropping out
+                // try-lock pattern =>
+                // make sure audio thread doesn't have to wait: either succeed or fail and move on
+                juce::SpinLock::ScopedTryLockType tryLock(levelsLock);
+                if (tryLock.isLocked())
+                {
+                    levels.clearQuick();
+                    applyLogarithmicFreqMapping();
+                }
+                // else: Lock is busy, skip frame.
+
+                index = 0;
+            }
+            samples[(size_t)index++] = sample;
+        }
+
+        void applyLogarithmicFreqMapping() {
+            auto mindB = -100.0f;
+            auto maxdB = 0.0f;
+            for (int i = 0; i < scopeSize; ++i)
+            {
+                auto skewedProportionX = 1.0f - std::exp(std::log(1.0f - (float)i / (float)scopeSize) * 0.2f);
+                auto fftDataIndex = juce::jlimit(0, fftSize / 2, (int)(skewedProportionX * (float)fftSize * 0.5f));
+                auto decibelsAtIndex = juce::Decibels::gainToDecibels(fftSampleData.at(fftDataIndex));
+                auto sourceValue = juce::jlimit(mindB, maxdB, decibelsAtIndex) - juce::Decibels::gainToDecibels((float)fftSize);
+                auto level = juce::jmap(
+                    sourceValue, // sourceValue
+                    mindB, // sourceRangeMin
+                    maxdB, // sourceRangeMax
+                    0.0f,  // targetRangeMin
+                    1.0f); // targetRangeMax
+                // guarantee level between 0 and 1;
+                level = juce::jlimit(0.0f, 1.0f, level);
+                levels.add(level);
+            }
+        }
 
     };
 
@@ -85,11 +144,8 @@ namespace webview_plugin
         juce::var roomSizeValue;
         juce::var widthValue;
         juce::var dampValue;
-        //// store normalized levels derived from fftData below
-        //juce::Array<juce::var> levels;
 
         size_t getScopeSize() { return fifo.scopeSize; };
-        juce::SpinLock levelsLock;
         
     private:
         //==============================================================================
@@ -118,63 +174,6 @@ namespace webview_plugin
         void sumLeftAndRightChannels(juce::AudioBuffer<float>& buffer);
 
         juce::UndoManager undoManager;
-
-        // processBlock() -> prepareForFFT() -> pushNextSampleIntoFifo()
-        // PluginEditor.cpp in getResource() -> const juce::SpinLock::ScopedLockType lock(audioProcessor.levelsLock)
-        // occasionally front end will hold  the lock first since JSON serialization can take microseconds or more
-        void pushNextSampleIntoFifo(float sample) noexcept
-        {
-            if (fifo.index == fifo.fftSize)
-            {
-                // copy fifo sample data into beginning of fftData
-                // for intermediate calcs, fftData can hold twice as much data as fifo
-                std::copy(fifo.samples.begin(), fifo.samples.end(), fifo.fftSampleData.begin());
-                // reduce spectral leakage by applying windowing function to data; make more perceptually accurate
-                fifo.window.multiplyWithWindowingTable(fifo.fftSampleData.data(), fifo.fftSize);
-                // perform FFT on fftData; only keep frequency information; only calculate non-negative frequencies;
-                fifo.forwardFFT.performFrequencyOnlyForwardTransform(fifo.fftSampleData.data(), true);                
-                // for thread-safety. ScopedTryLockType automatically unlocks at end of block using RAII
-                // ScopedTryLockType "tries" to lock. If lock acquired, safe to access shared data
-                // if UI thread is busy (i.e. holding the lock) ScopedTryLockType fails to get lock; isLocked() returns false
-                // audio thread continues
-                // otherwise ScopedTryLockType gets the lock right away and isLocked() returns true =>
-                // code in if block below executes
-                // end result: achieve thread safety and don't risk audio dropping out
-                // try-lock pattern =>
-                // make sure audio thread doesn't have to wait: either succeed or fail and move on
-                juce::SpinLock::ScopedTryLockType tryLock(levelsLock);
-                if (tryLock.isLocked())
-                {
-                    fifo.levels.clearQuick();
-                    applyLogarithmicFreqMapping();
-                }
-                // else: Lock is busy, skip frame.
-
-                fifo.index = 0;
-            }
-            fifo.samples[(size_t)fifo.index++] = sample;
-        }
-
-        void applyLogarithmicFreqMapping() {
-            auto mindB = -100.0f;
-            auto maxdB = 0.0f;
-            for (int i = 0; i < fifo.scopeSize; ++i)
-            {
-                auto skewedProportionX = 1.0f - std::exp(std::log(1.0f - (float)i / (float)fifo.scopeSize) * 0.2f);
-                auto fftDataIndex = juce::jlimit(0, fifo.fftSize / 2, (int)(skewedProportionX * (float)fifo.fftSize * 0.5f));
-                auto decibelsAtIndex = juce::Decibels::gainToDecibels(fifo.fftSampleData.at(fftDataIndex));
-                auto sourceValue = juce::jlimit(mindB, maxdB, decibelsAtIndex) - juce::Decibels::gainToDecibels((float)fifo.fftSize);
-                auto level = juce::jmap(
-                    sourceValue, // sourceValue
-                    mindB, // sourceRangeMin
-                    maxdB, // sourceRangeMax
-                    0.0f,  // targetRangeMin
-                    1.0f); // targetRangeMax
-                // guarantee level between 0 and 1;
-                level = juce::jlimit(0.0f, 1.0f, level);
-                fifo.levels.add(level);
-            }
-        }
 
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ThreeDVerbAudioProcessor)
     };
