@@ -30,6 +30,9 @@ namespace webview_plugin
         std::array<float, fftSize * 2> fftSampleData; // for holding FFT processed sample data; FFT algorithm requires double space
         int index{ 0 };
 
+        // store normalized levels derived from fftData below
+        juce::Array<juce::var> levels;
+
     };
 
     class ThreeDVerbAudioProcessor : public juce::AudioProcessor, public juce::AudioProcessorValueTreeState::Listener
@@ -74,6 +77,7 @@ namespace webview_plugin
         void parameterChanged(const juce::String& parameterID, float newValue) override;
 
         juce::AudioProcessorValueTreeState apvts;
+        Fifo fifo{};
 
         std::atomic<float> outputLevelLeft;
         bool isFrozen;
@@ -81,8 +85,8 @@ namespace webview_plugin
         juce::var roomSizeValue;
         juce::var widthValue;
         juce::var dampValue;
-        // store normalized levels derived from fftData below
-        juce::Array<juce::var> levels;
+        //// store normalized levels derived from fftData below
+        //juce::Array<juce::var> levels;
 
         size_t getScopeSize() { return fifo.scopeSize; };
         juce::SpinLock levelsLock;
@@ -113,8 +117,6 @@ namespace webview_plugin
         void prepareForFFT(juce::dsp::AudioBlock<float> block);
         void sumLeftAndRightChannels(juce::AudioBuffer<float>& buffer);
 
-        Fifo fifo{};
-      
         juce::UndoManager undoManager;
 
         // processBlock() -> prepareForFFT() -> pushNextSampleIntoFifo()
@@ -143,7 +145,7 @@ namespace webview_plugin
                 juce::SpinLock::ScopedTryLockType tryLock(levelsLock);
                 if (tryLock.isLocked())
                 {
-                    levels.clearQuick();
+                    fifo.levels.clearQuick();
                     applyLogarithmicFreqMapping();
                 }
                 // else: Lock is busy, skip frame.
@@ -170,7 +172,7 @@ namespace webview_plugin
                     1.0f); // targetRangeMax
                 // guarantee level between 0 and 1;
                 level = juce::jlimit(0.0f, 1.0f, level);
-                levels.add(level);
+                fifo.levels.add(level);
             }
         }
 
