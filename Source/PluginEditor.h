@@ -48,7 +48,7 @@ namespace webview_plugin
 		juce::WebToggleButtonRelay webBypassRelay;
 		juce::WebToggleButtonRelay webMonoRelay;
 
-		juce::WebSliderRelay webReverbSizeRelay;
+		juce::WebSliderRelay webRoomSizeRelay;
 		juce::WebSliderRelay webMixRelay; 
 		juce::WebSliderRelay webWidthRelay;
 		juce::WebSliderRelay webDampRelay;
@@ -56,16 +56,18 @@ namespace webview_plugin
 
 
 		juce::WebBrowserComponent webView;
+		juce::WebBrowserComponent::Options getWebViewOptions();
 
 		juce::WebSliderParameterAttachment webGainSliderAttachment;
 		juce::WebToggleButtonParameterAttachment webBypassToggleAttachment;
 		juce::WebToggleButtonParameterAttachment webMonoToggleAttachment;
 
-		juce::WebSliderParameterAttachment webReverbSizeSliderAttachment;
+		juce::WebSliderParameterAttachment webRoomSizeSliderAttachment;
 		juce::WebSliderParameterAttachment webMixSliderAttachment;
 		juce::WebSliderParameterAttachment webWidthSliderAttachment;
 		juce::WebSliderParameterAttachment webDampSliderAttachment;
 		juce::WebSliderParameterAttachment webFreezeSliderAttachment;
+		
 		// END WEBVIEW
 
 		JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ThreeDVerbAudioProcessorEditor)

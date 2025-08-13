@@ -76,70 +76,55 @@ namespace webview_plugin
         undoManager(um),
         audioProcessor(p),
 
+        // GAIN
         webGainRelay{id::GAIN.getParamID()},
-        webBypassRelay{ id::BYPASS.getParamID() },
-        webMonoRelay{id::MONO.getParamID() },
-        webReverbSizeRelay{id::SIZE.getParamID()},
-        webMixRelay{id::MIX.getParamID()},
-        webWidthRelay{id::WIDTH.getParamID()},
-        webDampRelay{id::DAMP.getParamID()},
-        webFreezeRelay{id::FREEZE.getParamID()},
-
-        webView
-        { 
-        juce::WebBrowserComponent::Options{}
-        .withBackend(juce::WebBrowserComponent::Options::Backend::webview2)
-        .withWinWebView2Options(juce::WebBrowserComponent::Options::WinWebView2{}
-        //.withDLLLocation(getDLLDirectory())
-        .withUserDataFolder(juce::File::getSpecialLocation(juce::File::tempDirectory)))
-        .withResourceProvider([this](const auto& url) {return getResource(url); },
-                              juce::URL{LOCAL_VITE_SERVER}.getOrigin())
-        .withNativeIntegrationEnabled()
-        //.withUserScript(R"(console.log("C++ backend here: This is run before any other loading happens.");)")
-        .withInitialisationData("pluginVendor", ProjectInfo::companyName)
-        .withInitialisationData("pluginName", ProjectInfo::projectName)
-        .withInitialisationData("pluginVersion", ProjectInfo::versionString)
-        .withNativeFunction(
-            juce::Identifier{"webUndoRedo"},
-            [this](const juce::Array<juce::var>& args,
-                juce::WebBrowserComponent::NativeFunctionCompletion completion) {
-                    webUndoRedo(args, std::move(completion));
-            }
-        )
-        .withEventListener("undoRequest", [this](juce::var undoButton) { undoManager.undo(); })
-        .withEventListener("redoRequest", [this](juce::var redoButton) { undoManager.redo(); })
-        .withOptionsFrom(webGainRelay)
-        .withOptionsFrom(webBypassRelay)
-        .withOptionsFrom(webMonoRelay)
-        .withOptionsFrom(webReverbSizeRelay)
-        .withOptionsFrom(webMixRelay)
-        .withOptionsFrom(webWidthRelay)
-        .withOptionsFrom(webDampRelay)
-        .withOptionsFrom(webFreezeRelay)},
         webGainSliderAttachment{ *audioProcessor.apvts.getParameter(id::GAIN.getParamID()),
-                                webGainRelay,
-                                &undoManager },
+                         webGainRelay,
+                         &undoManager },
+
+        // BYPASS
+        webBypassRelay{ id::BYPASS.getParamID() },
         webBypassToggleAttachment{ *audioProcessor.apvts.getParameter(id::BYPASS.getParamID()),
-                                   webBypassRelay,
-                                   &undoManager},
-        webMonoToggleAttachment{*audioProcessor.apvts.getParameter(id::MONO.getParamID()),
-                                 webMonoRelay,
-                                 &undoManager},
-        webReverbSizeSliderAttachment{ *audioProcessor.apvts.getParameter(id::SIZE.getParamID()),
-                                   webReverbSizeRelay,
-                                   &undoManager},
+                           webBypassRelay,
+                           &undoManager },
+        
+        // MONO
+        webMonoRelay{id::MONO.getParamID() },
+        webMonoToggleAttachment{ *audioProcessor.apvts.getParameter(id::MONO.getParamID()),
+                         webMonoRelay,
+                         &undoManager },
+
+        // ROOM SIZE
+        webRoomSizeRelay{id::SIZE.getParamID()},
+        webRoomSizeSliderAttachment{ *audioProcessor.apvts.getParameter(id::SIZE.getParamID()),
+                               webRoomSizeRelay,
+                               &undoManager },
+
+        // MIX
+        webMixRelay{id::MIX.getParamID()},
         webMixSliderAttachment{ *audioProcessor.apvts.getParameter(id::MIX.getParamID()),
-                                 webMixRelay,
-                                 &undoManager},
+                                webMixRelay,
+                                &undoManager },
+
+        // WIDTH
+        webWidthRelay{id::WIDTH.getParamID()},
         webWidthSliderAttachment{ *audioProcessor.apvts.getParameter(id::WIDTH.getParamID()),
-                                 webWidthRelay,
-                                 &undoManager},
+                          webWidthRelay,
+                          &undoManager },
+
+        // DAMP
+        webDampRelay{id::DAMP.getParamID()},
         webDampSliderAttachment{ *audioProcessor.apvts.getParameter(id::DAMP.getParamID()),
-                                 webDampRelay,
-                                 &undoManager},
+                         webDampRelay,
+                         &undoManager },
+
+        // FREEZE
+        webFreezeRelay{id::FREEZE.getParamID()},
         webFreezeSliderAttachment{ *audioProcessor.apvts.getParameter(id::FREEZE.getParamID()),
-                                 webFreezeRelay,
-                                 &undoManager}
+                                   webFreezeRelay,
+                                   &undoManager },
+
+        webView{ getWebViewOptions() }
     {
         
         addAndMakeVisible(webView);
@@ -155,6 +140,39 @@ namespace webview_plugin
     ThreeDVerbAudioProcessorEditor::~ThreeDVerbAudioProcessorEditor()
     {
         stopTimer();
+    }
+
+    juce::WebBrowserComponent::Options ThreeDVerbAudioProcessorEditor::getWebViewOptions()
+    {
+        juce::WebBrowserComponent::Options options = {};
+        return options.withBackend(juce::WebBrowserComponent::Options::Backend::webview2)
+            .withWinWebView2Options(juce::WebBrowserComponent::Options::WinWebView2{}
+                //.withDLLLocation(getDLLDirectory())
+                .withUserDataFolder(juce::File::getSpecialLocation(juce::File::tempDirectory)))
+            .withResourceProvider([this](const auto& url) {return getResource(url); },
+                juce::URL{ LOCAL_VITE_SERVER }.getOrigin())
+            .withNativeIntegrationEnabled()
+            //.withUserScript(R"(console.log("C++ backend here: This is run before any other loading happens.");)")
+            .withInitialisationData("pluginVendor", ProjectInfo::companyName)
+            .withInitialisationData("pluginName", ProjectInfo::projectName)
+            .withInitialisationData("pluginVersion", ProjectInfo::versionString)
+            .withNativeFunction(
+                juce::Identifier{ "webUndoRedo" },
+                [this](const juce::Array<juce::var>& args,
+                    juce::WebBrowserComponent::NativeFunctionCompletion completion) {
+                        webUndoRedo(args, std::move(completion));
+                }
+            )
+            .withEventListener("undoRequest", [this](juce::var undoButton) { undoManager.undo(); })
+            .withEventListener("redoRequest", [this](juce::var redoButton) { undoManager.redo(); })
+            .withOptionsFrom(webGainRelay)
+            .withOptionsFrom(webBypassRelay)
+            .withOptionsFrom(webMonoRelay)
+            .withOptionsFrom(webRoomSizeRelay)
+            .withOptionsFrom(webMixRelay)
+            .withOptionsFrom(webWidthRelay)
+            .withOptionsFrom(webDampRelay)
+            .withOptionsFrom(webFreezeRelay);
     }
 
     //==============================================================================
