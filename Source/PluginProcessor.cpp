@@ -212,20 +212,22 @@ namespace webview_plugin
     {
         juce::ScopedNoDenormals noDenormals;
         // clears empty output channels 
-        for (auto i = getTotalNumInputChannels(); i < getTotalNumOutputChannels(); ++i)
+        auto totalInputChannels = getTotalNumInputChannels();
+        for (auto i = totalInputChannels; i < getTotalNumOutputChannels(); ++i)
         {
             buffer.clear(i, 0, buffer.getNumSamples());
         }
 
-        // TODO: Only perform this check in Standalone Mode 
-        sumLeftAndRightChannels(buffer);
-
         if (bypass.get()) { return; }
 
-        /*smoothedGain.setTargetValue(*gain);*/
-        auto nextVal = smoothedGain.getNextValue();
-        //DBG(nextVal);
-        buffer.applyGain(nextVal);
+        bool monoInputChecked = mono.get();
+        if (monoInputChecked && totalInputChannels >= 2)
+        {
+            sumLeftAndRightChannels(buffer);
+        }
+        
+        auto nextGainVal = smoothedGain.getNextValue();
+        buffer.applyGain(nextGainVal);
 
         juce::dsp::AudioBlock<float> block{ buffer };
         juce::dsp::AudioBlock<float> envOutBlock{ envelopeFollowerOutputBuffer };
@@ -244,19 +246,15 @@ namespace webview_plugin
 
     void ThreeDVerbAudioProcessor::sumLeftAndRightChannels(juce::AudioBuffer<float>& buffer)
     {
-        bool monoInputChecked = mono.get();
-        if (monoInputChecked && getTotalNumInputChannels() >= 2)
-        {
-            auto* monoInput = buffer.getReadPointer(0);
-            auto* leftOut = buffer.getWritePointer(0);
-            auto* rightOut = buffer.getWritePointer(1);
+        auto* monoInput = buffer.getReadPointer(0);
+        auto* leftOut = buffer.getWritePointer(0);
+        auto* rightOut = buffer.getWritePointer(1);
 
-            for (int i = 0; i < buffer.getNumSamples(); ++i)
-            {
-                leftOut[i] = monoInput[i];
-                rightOut[i] = monoInput[i];
-            }
-        }
+        for (int i = 0; i < buffer.getNumSamples(); ++i)
+        {
+            leftOut[i] = monoInput[i];
+            rightOut[i] = monoInput[i];
+        }    
     }
 
     void ThreeDVerbAudioProcessor::prepareForFFT(juce::dsp::AudioBlock<float> block)
