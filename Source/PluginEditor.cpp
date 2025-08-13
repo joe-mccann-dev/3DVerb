@@ -144,27 +144,42 @@ namespace webview_plugin
 
     juce::WebBrowserComponent::Options ThreeDVerbAudioProcessorEditor::getWebViewOptions()
     {
-        juce::WebBrowserComponent::Options options = {};
-        return options.withBackend(juce::WebBrowserComponent::Options::Backend::webview2)
-            .withWinWebView2Options(juce::WebBrowserComponent::Options::WinWebView2{}
-                //.withDLLLocation(getDLLDirectory())
-                .withUserDataFolder(juce::File::getSpecialLocation(juce::File::tempDirectory)))
-            .withResourceProvider([this](const auto& url) {return getResource(url); },
-                juce::URL{ LOCAL_VITE_SERVER }.getOrigin())
+        juce::WebBrowserComponent::Options options;
+
+        juce::WebBrowserComponent::Options::WinWebView2 winOptions;
+        winOptions = winOptions.withUserDataFolder(juce::File::getSpecialLocation(juce::File::tempDirectory));
+
+        auto resourceProvider = [this](const auto& url)
+        {
+            return getResource(url);
+        };
+
+        return options
+            .withBackend(juce::WebBrowserComponent::Options::Backend::webview2)
+            .withWinWebView2Options(winOptions)
+            .withResourceProvider(
+                resourceProvider,
+                juce::URL{ LOCAL_VITE_SERVER }.getOrigin()
+            )
             .withNativeIntegrationEnabled()
-            //.withUserScript(R"(console.log("C++ backend here: This is run before any other loading happens.");)")
+
             .withInitialisationData("pluginVendor", ProjectInfo::companyName)
             .withInitialisationData("pluginName", ProjectInfo::projectName)
             .withInitialisationData("pluginVersion", ProjectInfo::versionString)
+
             .withNativeFunction(
                 juce::Identifier{ "webUndoRedo" },
-                [this](const juce::Array<juce::var>& args,
-                    juce::WebBrowserComponent::NativeFunctionCompletion completion) {
-                        webUndoRedo(args, std::move(completion));
+                [this](
+                    const juce::Array<juce::var>& args,
+                    juce::WebBrowserComponent::NativeFunctionCompletion completion
+                    )
+                {
+                    webUndoRedo(args, std::move(completion));
                 }
             )
             .withEventListener("undoRequest", [this](juce::var undoButton) { undoManager.undo(); })
             .withEventListener("redoRequest", [this](juce::var redoButton) { undoManager.redo(); })
+
             .withOptionsFrom(webGainRelay)
             .withOptionsFrom(webBypassRelay)
             .withOptionsFrom(webMonoRelay)
@@ -173,6 +188,7 @@ namespace webview_plugin
             .withOptionsFrom(webWidthRelay)
             .withOptionsFrom(webDampRelay)
             .withOptionsFrom(webFreezeRelay);
+
     }
 
     //==============================================================================
