@@ -220,8 +220,7 @@ namespace webview_plugin
 
         if (bypass.get()) { return; }
 
-        bool monoInputChecked = mono.get();
-        if (monoInputChecked && totalInputChannels >= 2)
+        if (mono.get() && totalInputChannels >= 2)
         {
             sumLeftAndRightChannels(buffer);
         }
