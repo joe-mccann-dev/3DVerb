@@ -214,25 +214,25 @@ function onFreezeChange(frozen) {
 }
 
 function initThrottleHandlers() {
-    roomSizeThrottleHandler = Utility.debounce((roomSizeValue) => {
+    roomSizeThrottleHandler = Utility.throttle((roomSizeValue) => {
         onRoomSizeChange(roomSizeValue);
-    }, Utility.DEBOUNCE_TIME);
+    }, Utility.THROTTLE_TIME);
 
     mixThrottleHandler = Utility.throttle((mixValue) => {
         onMixChange(mixValue);
-    }, Utility.SLOW_THROTTLE_TIME);
+    }, Utility.THROTTLE_TIME);
 
     widthThrottleHandler = Utility.throttle((widthValue) => {
         onWidthChange(widthValue);
-    }, Utility.SLOW_THROTTLE_TIME);
+    }, Utility.THROTTLE_TIME);
 
     dampThrottleHandler = Utility.throttle((dampValue) => {
         onDampChange(dampValue);
-    }, Utility.SLOW_THROTTLE_TIME)
+    }, Utility.THROTTLE_TIME)
 
     freezeThrottleHandler = Utility.throttle((frozen) => {
         onFreezeChange(frozen);
-    }, Utility.SLOW_THROTTLE_TIME);
+    }, Utility.THROTTLE_TIME);
 
     levelsThrottleHandler = Utility.throttle((levels) => {
         onLevelsChange(levels);

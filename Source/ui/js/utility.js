@@ -1,7 +1,5 @@
-// aiming for ~60 FPS. 1000 ms / 60 fps = 16.67
+// aiming for ~60 FPS. 1000 ms / 60 fps = 16.67 ms
 export const THROTTLE_TIME = 16.67;
-export const SLOW_THROTTLE_TIME = THROTTLE_TIME * 2;
-export const DEBOUNCE_TIME = SLOW_THROTTLE_TIME;
 export const DEFAULT_STEP_VALUE = 0.01;
 
 export function getLinearScaledValue(minValue, maxValue, paramValue) {
@@ -24,12 +22,4 @@ export function throttle(func, delay) {
             }, delay);
         }
     }
-}
-
-export function debounce(func, timeout = THROTTLE_TIME) {
-    let timer;
-    return (...args) => {
-        clearTimeout(timer);
-        timer = setTimeout(() => { func.apply(this, args); }, timeout);
-    };
 }
