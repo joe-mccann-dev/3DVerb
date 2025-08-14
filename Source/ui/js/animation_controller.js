@@ -238,7 +238,7 @@ export default class AnimationController {
         this.#camera.lookAt(new THREE.Vector3(172, 80, -20));
 
         this.#orbitControls = new OrbitControls(this.#camera, this.#canvas);
-        this.#orbitControls.autoRotateSpeed = 0.1;
+        this.#orbitControls.autoRotateSpeed = 0.01;
         this.#orbitControls.autoRotate = true;
         //controls.addEventListener('change', () => {
         //    console.log('position:', camera.position);
