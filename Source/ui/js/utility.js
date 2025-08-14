@@ -1,6 +1,7 @@
-// aiming for ~30 FPS. 1000 ms / 30 fps = 33.3333
-export const THROTTLE_TIME = 33;
-export const SLOW_THROTTLE_TIME = THROTTLE_TIME * 3;
+// aiming for ~60 FPS. 1000 ms / 60 fps = 16.67
+export const THROTTLE_TIME = 16.67;
+export const SLOW_THROTTLE_TIME = THROTTLE_TIME * 2;
+export const DEBOUNCE_TIME = SLOW_THROTTLE_TIME;
 export const DEFAULT_STEP_VALUE = 0.01;
 
 export function getLinearScaledValue(minValue, maxValue, paramValue) {

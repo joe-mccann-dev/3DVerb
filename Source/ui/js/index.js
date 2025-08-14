@@ -205,22 +205,6 @@ function onWidthChange(widthValue) {
 
 function onDampChange(dampValue) {
     animationController.visualParams.currentDamp = dampValue;
-
-    console.log(
-        "animationController.visualParams.currentDamp: ",
-        animationController.visualParams.currentDamp,
-    )
-
-    const minScale = 0.5;
-    const maxScale = 1;
-    //higher damping equals smaller scale;
-    const inverseDamping = 1 - dampValue;
-    //const dampingScale = getLinearScaledValue(minScale, maxScale, inverseDamping);
-
-    //const scaleA = maxScale * dampingScale;
-    //const scaleB = minScale * dampingScale;
-    // animationController.visualParams.currentDamp = 
-    // animatinonController.nebulaSystem.handleDampingChange(inverseDamping)
 }
 
 function onFreezeChange(frozen) {
@@ -232,7 +216,7 @@ function onFreezeChange(frozen) {
 function initThrottleHandlers() {
     roomSizeThrottleHandler = Utility.debounce((roomSizeValue) => {
         onRoomSizeChange(roomSizeValue);
-    }, 10);
+    }, Utility.DEBOUNCE_TIME);
 
     mixThrottleHandler = Utility.throttle((mixValue) => {
         onMixChange(mixValue);
