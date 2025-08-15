@@ -28,7 +28,7 @@ namespace webview_plugin
         juce::dsp::WindowingFunction<float> window{ fftSize, juce::dsp::WindowingFunction<float>::hann };
         std::array<float, fftSize> samples;
         // for holding FFT processed sample data; FFT algorithm requires double space
-        std::array<float, fftSize * 2> fftSampleData; 
+        std::array<float, fftDataSize> fftSampleData; 
         int index{ 0 };
 
         // store normalized levels derived from fftData using applyLogarithmicFreqMapping() below
