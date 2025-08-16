@@ -77,12 +77,9 @@ export default class NebulaSystem {
 
     handleOutputChange(amplitude, currentOutput, surroundingCube) {
         const outputScaleForLife = Utility.getLogScaledValue(1, amplitude, (1 / -currentOutput), 10)
-        //console.log("outputScaleForLife: ", outputScaleForLife);
 
         this.#nebulaParams.lifeScale = this.#nebulaParams.calculateLifeScale(outputScaleForLife);
         this.#nebulaParams.speedScale = this.#nebulaParams.calculateSpeedScale(amplitude);
-
-        //console.log("this.#nebulaParams.lifeScale: ", this.#nebulaParams.lifeScale);
 
         this.#emitters.forEach((emitter, emitterIndex) => {
             emitter.initializers = emitter.initializers.filter((i) => i.type !== 'Life');
@@ -222,10 +219,10 @@ export default class NebulaSystem {
             const MAX_VELOCITY = 220;
 
             if (cubeScaleVector3) {
-                const cubeScaleZ = cubeScaleVector3.z;
-                const cubeScaleY = cubeScaleVector3.y;
                 const cubeScaleX = cubeScaleVector3.x;
-
+                const cubeScaleY = cubeScaleVector3.y;
+                const cubeScaleZ = cubeScaleVector3.z;
+                
                 const cubeLeftFaceX = (surroundingCube.position.x) - (cubeHalfWidth * cubeScaleX);
                 const cubeRightFaceX = (surroundingCube.position.x) + (cubeHalfWidth * cubeScaleX)
 
@@ -240,30 +237,29 @@ export default class NebulaSystem {
                         return behaviour.type === "Force";
                     });
 
-
                     if (particle.position.z >= cubeFrontFaceZ - reflectionBuffer) {
                         particle.velocity.z *= this.#reverseVelocityFactor(index);
                         forceBehaviour.force.z *= this.#reverseForceFactor(index);
 
-
                         if (this.#nebulaParams.visualParamsObject.currentDamp > 0.45) {
                             particle.addBehaviour(
-                                new Color(new ColorSpan(COLORS.spriteColors), new ColorSpan(COLORS.dampingColors), 1 / (this.#nebulaParams.lifeScale), ease.easeOutSine)
+                                new Color(new ColorSpan(COLORS.spriteColors),
+                                    new ColorSpan(COLORS.dampingColors),
+                                    1 / (this.#nebulaParams.lifeScale),
+                                    ease.easeOutSine)
                             );
 
                             // fade out particle to slightly less than its alpha at emission time
                             particle.addBehaviour(
                                 new Alpha(1, 0.72)
-                            )
+                            );
 
                             // scale particle back down to slightly smaller than its size at emission time
                             particle.addBehaviour(
                                 new Scale(1, 0.94)
-                            )
+                            );
                         }
-                        
                     }
-
 
                     if (particle.position.z <= cubeBackFaceZ + reflectionBuffer) {
                         particle.velocity.z *= this.#reverseVelocityFactor(index);

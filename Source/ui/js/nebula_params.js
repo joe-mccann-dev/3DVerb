@@ -64,7 +64,7 @@ export default class NebulaParams {
     // << PUBLIC >>
 
     // used in nebulaSystem.handleOutputChange();
-    // in onOutputChange(), pass an output scale to make output connected to life
+    // in handleOutputChange(), pass an output scale to make output connected to life
     calculateLifeScale(outputScale = 1) {
         const roomSize = this.#visualParamsObject.currentSize;
         const damping = this.#visualParamsObject.currentDamp;
@@ -81,8 +81,7 @@ export default class NebulaParams {
                 NebulaParams.maxLife,
                 combined
             );
-        
-        //console.log("newLifeScale modified by outputScale: ", newLifeScale);
+    
 
         return newLifeScale;
     }
@@ -95,7 +94,7 @@ export default class NebulaParams {
         return this.#lifeScale;
     }
 
-    // used in onOutputChange()
+    // used in handleOutputChange()
     calculateSpeedScale(amplitude) {
         const logBase = 20;
 

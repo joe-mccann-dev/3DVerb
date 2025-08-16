@@ -23,7 +23,6 @@ namespace webview_plugin
         static constexpr auto fftDataSize{ fftSize * 2 };
         static constexpr auto scopeSize{ fftSize / 4 };
 
-        // https://juce.com/tutorials/tutorial_simple_fft/
         juce::dsp::FFT forwardFFT{ fftOrder };
         juce::dsp::WindowingFunction<float> window{ fftSize, juce::dsp::WindowingFunction<float>::hann };
         std::array<float, fftSize> samples;
@@ -35,7 +34,7 @@ namespace webview_plugin
         juce::Array<juce::var> levels;
         juce::SpinLock levelsLock;
 
-        // processBlock() -> prepareForFFT() -> pushNextSampleIntoFifo()
+        // processBlock() -> prepareForFFT() -> push()
         // PluginEditor.cpp in getResource() -> const juce::SpinLock::ScopedLockType lock(audioProcessor.levelsLock)
         // occasionally front end will hold  the lock first since JSON serialization can take microseconds or more
         void push(float sample) noexcept

@@ -283,7 +283,7 @@ namespace webview_plugin
             }
 
             return getPreparedResource("levels", threadSafeLevels);
-        }
+        } 
 
         const auto resource = resourceDirectory.getChildFile(resourceToRetrieve).createInputStream();
 
