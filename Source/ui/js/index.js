@@ -244,8 +244,7 @@ function initThrottleHandlers() {
 
 function setupDOMEventListeners() {
     envMapDropDown.addEventListener('change', (event) => {
-        console.log("new item selected");
-        console.log(envMapDropDown.value);
+        event.preventDefault();
         const envMapListIndex = envMapDropDown.value;
         const directories = animationController.envMapSubDirectories;
         animationController.changeEnvironmentMap(directories[envMapListIndex]);

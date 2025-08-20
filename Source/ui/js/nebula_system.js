@@ -115,8 +115,6 @@ export default class NebulaSystem {
             const newRadiusInitializer = new Radius(this.#nebulaParams.radiusScale);
             const newLifeInitializer = new Life(this.#nebulaParams.lifeScale);
 
-            console.log("newLifeScale in roomSizeChange: ", this.#nebulaParams.lifeScale);
-
             emitter.initializers.push(newRadiusInitializer);
             emitter.initializers.push(newLifeInitializer);
 
@@ -143,7 +141,7 @@ export default class NebulaSystem {
             emitter.initializers = emitter.initializers.filter(initializer => initializer.type !== 'RadialVelocity');
             const axis = this.#nebulaParams.calculateLeftOrRightAxisVector(emitterIndex);
             const newRadialVelocity = new RadialVelocity(this.#nebulaParams.speedScale, axis, NebulaParams.velocityTheta);
-            //console.log(newRadialVelocity.dir);
+
             emitter.initializers.push(newRadialVelocity);
         });
     }
