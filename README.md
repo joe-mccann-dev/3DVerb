@@ -175,5 +175,5 @@ Environment Maps:
     HDRI Skies: https://hdri-skies.com/free-hdris/
 
 ## License
-This project is licensed under GPL v3 - see the [LICENSE](LICENSE.MD) file for details.
+This project is licensed under GPL v3 - see the [LICENSE](LICENSE.md) file for details.
 
