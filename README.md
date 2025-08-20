@@ -78,6 +78,9 @@ JUCE Framework v8.0.8
 - Create a production branch.
 - Prepare for release by determining WebView requirements and/or updating relevant code to check for environment.
 
+#### Current Issues
+
+- Occasional cache-load error when changing environment map from select dropdown.
 
 ## Features
 - Three-dimensional visualization of JUCE reference reverb algorithm [Freeverb implementation](https://www.dsprelated.com/freebooks/pasp/Freeverb.html)
@@ -128,17 +131,20 @@ JUCE Framework v8.0.8
 
 - [Link to YouTube demo](https://youtu.be/eGZhZD_gz-U?si=G89zYqrec95ox9tF)
 
-## Screenshots
+## Screenshots of varying parameters
 
 As this is a dynamic visualization, screenshots are only half the story, but these will give an idea as to how the visualization
 responds to parameter changes at a high level.
 
-- damp: 0; room size: 0 ![damp: 0; room size: 0](screenshots/damp0roomSize0.png "damp: 0; room size: 0")
-- damp: 0; room size: 1 ![damp: 0; room size: 1](screenshots/damp0roomSize1.png "damp: 0; room size: 1")
-- damp: 1; room size: 1 ![damp: 1; room size: 1](screenshots/damp1roomSize1.png "damp: 1; room size: 1")
-- damp: 0.5; width: 0 ![damp: 0.5; width: 0](screenshots/width0damp0.5.png "damp 0.5; width: 0")
-- width: 1; damp: 0.5 ![width: 1; damp: 0.5](screenshots/width1damp0.5.png "width: 1; damp: 0.5")
-- damp: 0.4; room size: 0.75; room size: 0.75; mix: 0.61 ![damp: 0.4; room size: 0.75; mix: 0.61; width: 0.25](screenshots/damp04roomSize075mix061width025.png "damp: 0.4; room size: 0.75; mix: 0.61; width: 0.25") 
+| Params of Interest | Screenshot |
+|---------------|------------|
+| damp: 0; room size: 0 | ![damp: 0; room size: 0](screenshots/damp0roomSize0.png) |
+| damp: 0; room size: 1 | ![damp: 0; room size: 1](screenshots/damp0roomSize1.png) |
+| damp: 1; room size: 1 | ![damp: 1; room size: 1](screenshots/damp1roomSize1.png) |
+| damp: 0.5; width: 0 | ![damp: 0.5; width: 0](screenshots/width0damp0.5.png) |
+| width: 1; damp: 0.5 | ![width: 1; damp: 0.5](screenshots/width1damp0.5.png) |
+| damp: 0.4; room size: 0.75; mix: 0.61; width: 0.25 | ![Complex parameter mix](screenshots/damp04roomSize075mix061width025.png) |
+
 
 ## Future expansions
 
