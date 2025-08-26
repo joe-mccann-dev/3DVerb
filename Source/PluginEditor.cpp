@@ -132,7 +132,7 @@ namespace webview_plugin
         //webView.goToURL(webView.getResourceProviderRoot());
         webView.goToURL(LOCAL_VITE_SERVER);
         
-        setResizable(false, false);
+        setResizable(true, false);
         setSize(1366, 768);
         startTimer(60);
     }
@@ -200,13 +200,35 @@ namespace webview_plugin
 
     void ThreeDVerbAudioProcessorEditor::timerCallback()
     {
-       webView.emitEventIfBrowserIsVisible("outputLevel", juce::var{});
-       webView.emitEventIfBrowserIsVisible("isFrozen", juce::var{});
-       webView.emitEventIfBrowserIsVisible("mixValue", juce::var{});
-       webView.emitEventIfBrowserIsVisible("roomSizeValue", juce::var{});
-       webView.emitEventIfBrowserIsVisible("widthValue", juce::var{});
-       webView.emitEventIfBrowserIsVisible("dampValue", juce::var{});
-       webView.emitEventIfBrowserIsVisible("levels", juce::var{});
+        auto currentOutputLevelLeft = audioProcessor.outputLevelLeft.load();
+        auto currentIsFrozen = audioProcessor.isFrozen.load();
+        auto currentMix = audioProcessor.mixValue.load();
+        auto currentRoomSize = audioProcessor.roomSizeValue.load();
+        auto currentWidth = audioProcessor.widthValue.load();
+        auto currentDamp = audioProcessor.dampValue.load();
+        juce::Array<juce::var> threadSafeLevels;
+        {
+            const juce::SpinLock::ScopedLockType lock(audioProcessor.fifo.levelsLock);
+            threadSafeLevels = audioProcessor.fifo.levels;
+        }
+        juce::MessageManager::callAsync([this, 
+            currentOutputLevelLeft,
+            currentIsFrozen,
+            currentMix,
+            currentRoomSize,
+            currentWidth,
+            currentDamp,
+            threadSafeLevels
+        ]
+            {
+                webView.emitEventIfBrowserIsVisible("outputLevel", currentOutputLevelLeft);
+                webView.emitEventIfBrowserIsVisible("isFrozen", currentIsFrozen);
+                webView.emitEventIfBrowserIsVisible("mixValue", currentMix);
+                webView.emitEventIfBrowserIsVisible("roomSizeValue", currentRoomSize);
+                webView.emitEventIfBrowserIsVisible("widthValue", currentWidth);
+                webView.emitEventIfBrowserIsVisible("dampValue", currentDamp);
+                webView.emitEventIfBrowserIsVisible("levels", threadSafeLevels);
+            });
     }
 
     // ctrl + z == undo; ctrl + y == redo
@@ -248,28 +270,28 @@ namespace webview_plugin
 
         if (resourceToRetrieve == "freeze.json")
         {
-            return getPreparedResource("freeze", audioProcessor.isFrozen);
+            return getPreparedResource("freeze", audioProcessor.isFrozen.load());
         }
 
 
         if (resourceToRetrieve == "mix.json")
         {
-            return getPreparedResource("mix", audioProcessor.mixValue);
+            return getPreparedResource("mix", audioProcessor.mixValue.load());
         }
 
         if (resourceToRetrieve == "roomSize.json")
         {
-            return getPreparedResource("roomSize", audioProcessor.roomSizeValue);
+            return getPreparedResource("roomSize", audioProcessor.roomSizeValue.load());
         }
 
         if (resourceToRetrieve == "width.json")
         {
-            return getPreparedResource("width", audioProcessor.widthValue);
+            return getPreparedResource("width", audioProcessor.widthValue.load());
         }
 
         if (resourceToRetrieve == "damp.json")
         {
-            return getPreparedResource("damp", audioProcessor.dampValue);
+            return getPreparedResource("damp", audioProcessor.dampValue.load());
         }
 
         if (resourceToRetrieve == "levels.json")
@@ -282,7 +304,7 @@ namespace webview_plugin
                 threadSafeLevels = audioProcessor.fifo.levels;
             }
 
-            return getPreparedResource("levels", threadSafeLevels);
+            return getPreparedResource("levels", threadSafeLevels);   
         } 
 
         const auto resource = resourceDirectory.getChildFile(resourceToRetrieve).createInputStream();

@@ -188,18 +188,6 @@ namespace webview_plugin
     }
     #endif
 
-    void ThreeDVerbAudioProcessor::updateReverb()
-    {
-        params.roomSize = size->get();
-        params.wetLevel = mix->get();
-        params.dryLevel = 1.0f - mix->get();
-        params.width = width->get();
-        params.damping = damp->get();
-        params.freezeMode = freeze->get();
-
-        reverb.setParameters(params);
-    }
-
     void ThreeDVerbAudioProcessor::setEnvFollowerParams(juce::dsp::BallisticsFilter<float> envFollower)
     {  
         envFollower.setAttackTime(200.f);
@@ -240,7 +228,7 @@ namespace webview_plugin
 
         prepareForFFT(block);
         
-        setParamsForFrontend(envOutBlock);
+        updateParams(envOutBlock);
     }
 
     void ThreeDVerbAudioProcessor::sumLeftAndRightChannels(juce::AudioBuffer<float>& buffer)
@@ -254,6 +242,18 @@ namespace webview_plugin
             leftOut[i] = monoInput[i];
             rightOut[i] = monoInput[i];
         }    
+    }
+
+    void ThreeDVerbAudioProcessor::updateReverb()
+    {
+        params.roomSize = size->get();
+        params.wetLevel = mix->get();
+        params.dryLevel = 1.0f - mix->get();
+        params.width = width->get();
+        params.damping = damp->get();
+        params.freezeMode = freeze->get();
+
+        reverb.setParameters(params);
     }
 
     void ThreeDVerbAudioProcessor::prepareForFFT(juce::dsp::AudioBlock<float> block)
@@ -270,14 +270,16 @@ namespace webview_plugin
         }
     }
 
-    void ThreeDVerbAudioProcessor::setParamsForFrontend(juce::dsp::AudioBlock<float> envOutBlock)
+    void ThreeDVerbAudioProcessor::updateParams(juce::dsp::AudioBlock<float> envOutBlock)
     {
-        outputLevelLeft = juce::Decibels::gainToDecibels(envOutBlock.getSample(0u, static_cast<int>(envOutBlock.getNumSamples() - 1)));
-        isFrozen = params.freezeMode > 0.5f;
-        mixValue = params.wetLevel;
-        roomSizeValue = params.roomSize;
-        widthValue = params.width;
-        dampValue = params.damping;
+        outputLevelLeft.store(
+            juce::Decibels::gainToDecibels(envOutBlock.getSample(0u, static_cast<int>(envOutBlock.getNumSamples() - 1)))
+        );
+        isFrozen.store(params.freezeMode > 0.5f);
+        mixValue.store(params.wetLevel);
+        roomSizeValue.store(params.roomSize);
+        widthValue.store(params.width);
+        dampValue.store(params.damping);
     }
 
     //==============================================================================

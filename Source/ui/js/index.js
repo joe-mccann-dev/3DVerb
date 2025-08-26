@@ -65,14 +65,17 @@ const freeze = {
     state: Juce.getSliderState("FREEZE")
 }
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
+    await initializeAnimationController();
+    requestAnimationFrame(animationController.animate);
+});
+
+async function initializeAnimationController() {
+    animationController = new AnimationController();
     setupDOMEventListeners();
     initThrottleHandlers();
     setupBackendEventListeners();
-
-    animationController = new AnimationController();
-    requestAnimationFrame(animationController.animate);
-});
+}
 
 function setupBackendEventListeners() {
     // OUTPUT LEVEL EVENT

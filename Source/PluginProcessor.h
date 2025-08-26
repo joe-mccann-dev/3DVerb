@@ -138,11 +138,11 @@ namespace webview_plugin
         Fifo fifo{};
 
         std::atomic<float> outputLevelLeft;
-        bool isFrozen;
-        juce::var mixValue;
-        juce::var roomSizeValue;
-        juce::var widthValue;
-        juce::var dampValue;
+        std::atomic<bool> isFrozen{ false };
+        std::atomic<float> mixValue{ 0.0f };
+        std::atomic<float> roomSizeValue{ 0.0f };
+        std::atomic<float> widthValue{ 0.0f };
+        std::atomic<float> dampValue{ 0.0f };
 
         size_t getScopeSize() { return fifo.scopeSize; };
         
@@ -168,7 +168,7 @@ namespace webview_plugin
 
         void updateReverb();
         void setEnvFollowerParams(juce::dsp::BallisticsFilter<float> envFollower);
-        void setParamsForFrontend(juce::dsp::AudioBlock<float> envOutBlock);
+        void updateParams(juce::dsp::AudioBlock<float> envOutBlock);
         void prepareForFFT(juce::dsp::AudioBlock<float> block);
         void sumLeftAndRightChannels(juce::AudioBuffer<float>& buffer);
 
