@@ -85,34 +85,34 @@ async function initializeAnimationController() {
 
         // ROOM SIZE
         window.__JUCE__.backend.addEventListener("roomSizeValue", (backendRoomSizeValue) => {
-            if (animationController.visualParams.currentSize != backendRoomSizeValue) {
-                animationController.visualParams.currentSize = backendRoomSizeValue;
-                roomSizeThrottleHandler(backendRoomSizeValue);
-            }
+            if (animationController.visualParams.currentSize == backendRoomSizeValue)
+                return;
+
+            roomSizeThrottleHandler(backendRoomSizeValue);
         });
 
         // MIX EVENT
         window.__JUCE__.backend.addEventListener("mixValue", (backendMixValue) => {
-            if (animationController.visualParams.currentMix != backendMixValue) {
-                animationController.visualParams.currentMix = backendMixValue;
-                mixThrottleHandler(backendMixValue);   
-            }
+            if (animationController.visualParams.currentMix == backendMixValue)
+                return;
+
+            mixThrottleHandler(backendMixValue); 
         });
 
         // WIDTH EVENT
         window.__JUCE__.backend.addEventListener("widthValue", (backendWidthValue) => {
-            if (animationController.visualParams.currentWidth != backendWidthValue) {
-                animationController.visualParams.currentWidth = backendWidthValue;
-                widthThrottleHandler(backendWidthValue);
-            }
+            if (animationController.visualParams.currentWidth == backendWidthValue)
+                return;
+
+            widthThrottleHandler(backendWidthValue);            
         });
 
         // DAMP EVENT
         window.__JUCE__.backend.addEventListener("dampValue", (backendDampValue) => {
-            if (animationController.visualParams.currentDamp != backendDampValue) {
-                animationController.visualParams.currentDamp = backendDampValue;
-                dampThrottleHandler(backendDampValue);
-            }
+            if (animationController.visualParams.currentDamp == backendDampValue)
+                return;
+
+            dampThrottleHandler(backendDampValue);
         });
 
         // FREEZE EVENT
@@ -126,8 +126,9 @@ async function initializeAnimationController() {
         })
     }
 
+// send backend updated magnitudes to particle animation function
 function onLevelsChange(levels) {
-    // send updated magnitudes to particle animation function
+    
     if (bypassAndMono.bypass.element.checked) { return; }
 
     const maxLevel = Math.max(0, ...levels)

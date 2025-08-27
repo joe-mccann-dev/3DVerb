@@ -72,6 +72,7 @@ export default class AnimationController {
         this.#nebulaSystem = new NebulaSystem(this.#nebulaParams, this.#scene, THREE)
         this.#setUserData();
         this.scaleSurroundingCube(this.#visualParams.cubeScale); 
+        this.freeze = false;
     }
 
     animate(time, theta = 4, emitterRadius = 16) {

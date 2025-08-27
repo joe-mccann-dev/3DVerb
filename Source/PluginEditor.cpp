@@ -212,6 +212,7 @@ namespace webview_plugin
             threadSafeLevels = audioProcessor.fifo.levels;
         }
 
+        // batch message emits into one async call
         juce::MessageManager::callAsync([this, 
             currentOutputLevelLeft,
             currentIsFrozen,
