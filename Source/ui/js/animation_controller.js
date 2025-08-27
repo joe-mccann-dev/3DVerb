@@ -83,7 +83,7 @@ export default class AnimationController {
             this.#nebulaSystem.particleSystem.update();
         }
 
-        this.#stats.update();
+        //this.#stats.update();
         this.#orbitControls.update();
         this.#renderer.render(this.#scene, this.#camera);
         requestAnimationFrame((time) => this.animate(time, theta, emitterRadius));
@@ -228,7 +228,7 @@ export default class AnimationController {
         this.#stats = new Stats();
 
         visualizer.appendChild(this.#canvas);
-        visualizer.appendChild(this.#stats.dom);
+        //visualizer.appendChild(this.#stats.dom);
     }
 
     #initCamera() {
