@@ -77,90 +77,54 @@ async function initializeAnimationController() {
     setupBackendEventListeners();
 }
 
-function setupBackendEventListeners() {
-    // OUTPUT LEVEL EVENT
-    window.__JUCE__.backend.addEventListener("outputLevel", () => {
-        fetch(Juce.getBackendResourceAddress("outputLevel.json"))
-            .then((response) => response.json())
-            .then((outputLevelData) => {
-                outputThrottleHandler(outputLevelData.left);
-            })
-            .catch(console.error);
-    });
+    function setupBackendEventListeners() {
+        // OUTPUT LEVEL EVENT
+        window.__JUCE__.backend.addEventListener("outputLevel", (backendOutputLevel) => {
+            outputThrottleHandler(backendOutputLevel);
+        });
 
-    // ROOM SIZE
-    window.__JUCE__.backend.addEventListener("roomSizeValue", () => {
-        fetch(Juce.getBackendResourceAddress("roomSize.json"))
-            .then((response) => response.json())
-            .then((roomSizeData) => {
-                if (animationController.visualParams.currentSize != roomSizeData.roomSize) {
-                    roomSizeThrottleHandler(roomSizeData.roomSize);
-                }
-                animationController.visualParams.currentSize = roomSizeData.roomSize;
-            })
-            .catch(console.error);
-    });
+        // ROOM SIZE
+        window.__JUCE__.backend.addEventListener("roomSizeValue", (backendRoomSizeValue) => {
+            if (animationController.visualParams.currentSize != backendRoomSizeValue) {
+                animationController.visualParams.currentSize = backendRoomSizeValue;
+                roomSizeThrottleHandler(backendRoomSizeValue);
+            }
+        });
 
-    // MIX EVENT
-    window.__JUCE__.backend.addEventListener("mixValue", () => {
-        fetch(Juce.getBackendResourceAddress("mix.json"))
-            .then((response) => response.json())
-            .then((mixData) => {
-                if (animationController.visualParams.currentMix != mixData.mix) {
-                    mixThrottleHandler(mixData.mix);
-                }
-                animationController.visualParams.currentMix = mixData.mix;
-            })
-            .catch(console.error);
+        // MIX EVENT
+        window.__JUCE__.backend.addEventListener("mixValue", (backendMixValue) => {
+            if (animationController.visualParams.currentMix != backendMixValue) {
+                animationController.visualParams.currentMix = backendMixValue;
+                mixThrottleHandler(backendMixValue);   
+            }
+        });
 
-    });
+        // WIDTH EVENT
+        window.__JUCE__.backend.addEventListener("widthValue", (backendWidthValue) => {
+            if (animationController.visualParams.currentWidth != backendWidthValue) {
+                animationController.visualParams.currentWidth = backendWidthValue;
+                widthThrottleHandler(backendWidthValue);
+            }
+        });
 
-    // WIDTH EVENT
-    window.__JUCE__.backend.addEventListener("widthValue", () => {
-        fetch(Juce.getBackendResourceAddress("width.json"))
-            .then((response) => response.json())
-            .then((widthData) => {
-                if (animationController.visualParams.currentWidth != widthData.width) {
-                    widthThrottleHandler(widthData.width);
-                }
-                animationController.visualParams.currentWidth = widthData.width;
-            })
-            .catch(console.error);
-    });
+        // DAMP EVENT
+        window.__JUCE__.backend.addEventListener("dampValue", (backendDampValue) => {
+            if (animationController.visualParams.currentDamp != backendDampValue) {
+                animationController.visualParams.currentDamp = backendDampValue;
+                dampThrottleHandler(backendDampValue);
+            }
+        });
 
-    // DAMP EVENT
-    window.__JUCE__.backend.addEventListener("dampValue", () => {
-        fetch(Juce.getBackendResourceAddress("damp.json"))
-            .then((response) => response.json())
-            .then((dampData) => {
-                if (animationController.visualParams.currentDamp != dampData.damp) {
-                    dampThrottleHandler(dampData.damp);
-                }
-                animationController.visualParams.currentDamp = dampData.damp;
+        // FREEZE EVENT
+        window.__JUCE__.backend.addEventListener("isFrozen", (backendFrozenBool) => {
+            freezeThrottleHandler(backendFrozenBool);
+        });
 
-            })
-            .catch(console.error);
-    });
-
-    // FREEZE EVENT
-    window.__JUCE__.backend.addEventListener("isFrozen", () => {
-        fetch(Juce.getBackendResourceAddress("freeze.json"))
-            .then((response) => response.json())
-            .then((freezeData) => {
-                freezeThrottleHandler(freezeData.freeze);
-            })
-            .catch(console.error);
-    });
-
-     // LEVELS EVENT (frequency data mapped to level for visualization)
-    window.__JUCE__.backend.addEventListener("levels", () => {
-        fetch(Juce.getBackendResourceAddress("levels.json"))
-            .then((response) => response.json())
-            .then((levelsData) => {
-                levelsThrottleHandler(levelsData.levels);
-            });
-    })
-}
+         // LEVELS EVENT (frequency data mapped to level for visualization)
+        window.__JUCE__.backend.addEventListener("levels", (backendLevelsArray) => {
+            levelsThrottleHandler(backendLevelsArray);
+        })
+    }
 
 function onLevelsChange(levels) {
     // send updated magnitudes to particle animation function

@@ -107,7 +107,7 @@ JUCE Framework v8.0.8
 | Parameter | Type | Range | Default | Step | Description |
 |-----------|------|-------|---------|------|-------------|
 | Bypass | Bool | 0/1 | false | - | Bypasses the reverb effect |
-| Mono | Bool | 0/1 | true | - | Forces mono output processing |
+| Mono | Bool | 0/1 | false | - | Forces mono output processing |
 | Gain | Float | 0.0 - 1.0 | 1.0 | 0.01 | Output gain control |
 | Size | Float | 0.0 - 1.0 | 0.5 | 0.01 | Room size/reverb decay time |
 | Mix | Float | 0.0 - 1.0 | 0.75 | 0.01 | Wet/dry signal balance |

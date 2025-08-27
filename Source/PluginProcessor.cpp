@@ -25,7 +25,7 @@ namespace webview_plugin
                 id::BYPASS, "bypass", false, juce::AudioParameterBoolAttributes{}));
 
             layout.add(std::make_unique<juce::AudioParameterBool>(
-                id::MONO, "mono", true, juce::AudioParameterBoolAttributes{}));
+                id::MONO, "mono", false, juce::AudioParameterBoolAttributes{}));
 
             layout.add(std::make_unique<juce::AudioParameterFloat>(
                 id::GAIN, "gain", standardLinearRange, 1.f));

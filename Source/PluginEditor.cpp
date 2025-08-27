@@ -54,18 +54,18 @@ namespace webview_plugin
         }
 
         // takes property string and the value to send to the frontend and returns a juce::WebBrowserComponent::Resource
-        juce::WebBrowserComponent::Resource getPreparedResource(const juce::Identifier property, juce::var valueToSet)
-        {
-            juce::DynamicObject::Ptr data{ new juce::DynamicObject };
-            data->setProperty(property, valueToSet);
-            const auto string = juce::JSON::toString(data.get());
-            juce::MemoryInputStream stream{
-                string.getCharPointer(),
-                string.getNumBytesAsUTF8(),
-                false
-            };
-            return juce::WebBrowserComponent::Resource{ streamToVector(stream), juce::String("application/json") };
-        }
+        //juce::WebBrowserComponent::Resource getPreparedResource(const juce::Identifier property, juce::var valueToSet)
+        //{
+        //    juce::DynamicObject::Ptr data{ new juce::DynamicObject };
+        //    data->setProperty(property, valueToSet);
+        //    const auto string = juce::JSON::toString(data.get());
+        //    juce::MemoryInputStream stream{
+        //        string.getCharPointer(),
+        //        string.getNumBytesAsUTF8(),
+        //        false
+        //    };
+        //    return juce::WebBrowserComponent::Resource{ streamToVector(stream), juce::String("application/json") };
+        //}
 
         constexpr auto LOCAL_VITE_SERVER = "http://localhost:5173";
 
@@ -211,6 +211,7 @@ namespace webview_plugin
             const juce::SpinLock::ScopedLockType lock(audioProcessor.fifo.levelsLock);
             threadSafeLevels = audioProcessor.fifo.levels;
         }
+
         juce::MessageManager::callAsync([this, 
             currentOutputLevelLeft,
             currentIsFrozen,
@@ -218,8 +219,7 @@ namespace webview_plugin
             currentRoomSize,
             currentWidth,
             currentDamp,
-            threadSafeLevels
-        ]
+            threadSafeLevels]
             {
                 webView.emitEventIfBrowserIsVisible("outputLevel", currentOutputLevelLeft);
                 webView.emitEventIfBrowserIsVisible("isFrozen", currentIsFrozen);
@@ -261,51 +261,7 @@ namespace webview_plugin
     {
         //static const auto resourceFileRoot = juce::File{ R"(C:\Users\Joe\source\repos\Reverbulizer\Source\ui\public)"};
         static const auto resourceDirectory = getResourceDirectory();
-        const auto resourceToRetrieve = url == "/" ? "index.html" : url.fromFirstOccurrenceOf("/", false, false);
-
-        if (resourceToRetrieve == "outputLevel.json")
-        {
-            return getPreparedResource("left", audioProcessor.outputLevelLeft.load());
-        }
-
-        if (resourceToRetrieve == "freeze.json")
-        {
-            return getPreparedResource("freeze", audioProcessor.isFrozen.load());
-        }
-
-
-        if (resourceToRetrieve == "mix.json")
-        {
-            return getPreparedResource("mix", audioProcessor.mixValue.load());
-        }
-
-        if (resourceToRetrieve == "roomSize.json")
-        {
-            return getPreparedResource("roomSize", audioProcessor.roomSizeValue.load());
-        }
-
-        if (resourceToRetrieve == "width.json")
-        {
-            return getPreparedResource("width", audioProcessor.widthValue.load());
-        }
-
-        if (resourceToRetrieve == "damp.json")
-        {
-            return getPreparedResource("damp", audioProcessor.dampValue.load());
-        }
-
-        if (resourceToRetrieve == "levels.json")
-        {
-            juce::Array<juce::var> threadSafeLevels;
-            {
-                const juce::SpinLock::ScopedLockType lock(audioProcessor.fifo.levelsLock);
-                if (audioProcessor.fifo.levels.size() != audioProcessor.getScopeSize())
-                    return {};
-                threadSafeLevels = audioProcessor.fifo.levels;
-            }
-
-            return getPreparedResource("levels", threadSafeLevels);   
-        } 
+        const auto& resourceToRetrieve = url == "/" ? "index.html" : url.fromFirstOccurrenceOf("/", false, false);
 
         const auto resource = resourceDirectory.getChildFile(resourceToRetrieve).createInputStream();
 
