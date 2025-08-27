@@ -72,8 +72,14 @@ JUCE Framework v8.0.8
 
 ### Development Notes
 
-#### TODO
+#### Updates
 
+- **25-08-2025**: plugin no longer crashes DAW. 
+Frequent polling via fetch calls from frontend were overwhelming DAW UI thread causing program crashes. 
+Now atomic and thread safe values are directly emitted from `timerCallback()` for frontend consumption.
+
+#### TODO
+- Bundle frontend assets for release (remove need for web server)
 - Installation instructions for CMAKE and macOS users needed.
 - Create a production branch.
 - Prepare for release by determining WebView requirements and/or updating relevant code to check for environment.
