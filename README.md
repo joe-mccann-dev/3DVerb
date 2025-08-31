@@ -1,5 +1,29 @@
 # 3DVerb
 
+## Contents
+
+1. [About 3DVerb](#about)
+2. [Project Goals](#goals) 
+3. [Demo](#demo)
+4. [Screenshots](#screenshots-of-varying-parameters) 
+5. [Requirements](#requirements)
+6. [Languages](#languages)
+7. [Installation](#installation)
+    a. [environment](#environment)
+    b. [prerequisites](#prerequisites)
+    c. [instructions](#instructions)
+8. [Development Notes](#development-notes)
+    a. [Updates](#updates)
+    b. [TODO](#todo)
+    c. [Known Issues](#known-issues)
+9. [Features](#features)
+10. [Parameter Mapping](#parameter-mapping)
+11. [Future Expansions](#future-expansions)
+12. [Academic Report](#academic-report)
+13. [Acknowledgments](#acknowledgments)
+14. [Credits](#credits)
+15. [License](#license)
+
 ## About
 - 3DVerb is a VST3 reverb audio plugin made with the JUCE framework.
 - 3DVerb utilizes the `juce_audio_basics` module `Reverb` class (`juce_Reverb.h`) as a reference plugin.
@@ -16,6 +40,24 @@ and the Three Nebula library [independent library for ThreeJS](https://github.co
     - View how reverb parameters affect frequency distribution in real-time--useful for mixing as reverb can saturate low or high frequencies depending on parameter settings.
     - Visual supplement to music performance.
     - Education: view how reverb algorithm affects frequency data. Visualize how parameter changes affect high frequency attenuation.
+
+## Demo
+
+- [Link to YouTube demo](https://youtu.be/eGZhZD_gz-U?si=G89zYqrec95ox9tF)
+
+## Screenshots of varying parameters
+
+As this is a dynamic visualization, screenshots are only half the story, but these will give an idea as to how the visualization
+responds to parameter changes at a high level.
+
+| Params of Interest | Screenshot |
+|---------------|------------|
+| damp: 0; room size: 0 | ![damp: 0; room size: 0](screenshots/damp0roomSize0.png) |
+| damp: 0; room size: 1 | ![damp: 0; room size: 1](screenshots/damp0roomSize1.png) |
+| damp: 1; room size: 1 | ![damp: 1; room size: 1](screenshots/damp1roomSize1.png) |
+| damp: 0.5; width: 0 | ![damp: 0.5; width: 0](screenshots/width0damp0.5.png) |
+| width: 1; damp: 0.5 | ![width: 1; damp: 0.5](screenshots/width1damp0.5.png) |
+| damp: 0.4; room size: 0.75; mix: 0.61; width: 0.25 | ![Complex parameter mix](screenshots/damp04roomSize075mix061width025.png) |
 
 ## Requirements
 - JUCE v8.0.8
@@ -70,21 +112,21 @@ JUCE Framework v8.0.8
    - Navigate to your build directory: `3DVerb\Builds\VisualStudio2022\x64\Debug\VST3`
    - Select the 3DVerb.vst3 file and add it to the filter graph
 
-### Development Notes
+## Development Notes
 
-#### Updates
+### Updates
 
 - **25-08-2025**: plugin no longer crashes DAW. 
 Frequent polling via fetch calls from frontend were overwhelming DAW UI thread causing program crashes. 
 Now atomic and thread safe values are directly emitted from `timerCallback()` for frontend consumption.
 
-#### TODO
+### TODO
 - Bundle frontend assets for release (remove need for web server)
 - Installation instructions for CMAKE and macOS users needed.
 - Create a production branch.
 - Prepare for release by determining WebView requirements and/or updating relevant code to check for environment.
 
-#### Current Issues
+### Known Issues
 
 - Occasional cache-load error when changing environment map from select dropdown.
 
@@ -132,25 +174,6 @@ Now atomic and thread safe values are directly emitted from `timerCallback()` fo
 | Frequency Data | Particle Wave Region Height | FFT freq. bins mapped to Y-axis particle positions in a sine wave animation |
 | Frequency Data | Particle Wave Scale | FFT freq. bin level controls individual particle scale |
 | Freeze Mode | Animation Speed | Freezes particle motion when enabled |
-
-## Demo
-
-- [Link to YouTube demo](https://youtu.be/eGZhZD_gz-U?si=G89zYqrec95ox9tF)
-
-## Screenshots of varying parameters
-
-As this is a dynamic visualization, screenshots are only half the story, but these will give an idea as to how the visualization
-responds to parameter changes at a high level.
-
-| Params of Interest | Screenshot |
-|---------------|------------|
-| damp: 0; room size: 0 | ![damp: 0; room size: 0](screenshots/damp0roomSize0.png) |
-| damp: 0; room size: 1 | ![damp: 0; room size: 1](screenshots/damp0roomSize1.png) |
-| damp: 1; room size: 1 | ![damp: 1; room size: 1](screenshots/damp1roomSize1.png) |
-| damp: 0.5; width: 0 | ![damp: 0.5; width: 0](screenshots/width0damp0.5.png) |
-| width: 1; damp: 0.5 | ![width: 1; damp: 0.5](screenshots/width1damp0.5.png) |
-| damp: 0.4; room size: 0.75; mix: 0.61; width: 0.25 | ![Complex parameter mix](screenshots/damp04roomSize075mix061width025.png) |
-
 
 ## Future expansions
 
