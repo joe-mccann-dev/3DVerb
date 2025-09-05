@@ -191,15 +191,15 @@ export default class AnimationController {
 
     changeEnvironmentMap(newMapDirectory) {
         const cubeTextureLoader = new THREE.CubeTextureLoader();
-        this.#environmentMap = cubeTextureLoader.load([
-            AnimationController.BASE_ENV_MAP_DIRECTORY + newMapDirectory + AnimationController.ENVMAP_FILENAMES[0],
-            AnimationController.BASE_ENV_MAP_DIRECTORY + newMapDirectory + AnimationController.ENVMAP_FILENAMES[1],
-            AnimationController.BASE_ENV_MAP_DIRECTORY + newMapDirectory + AnimationController.ENVMAP_FILENAMES[2],
-            AnimationController.BASE_ENV_MAP_DIRECTORY + newMapDirectory + AnimationController.ENVMAP_FILENAMES[3],
-            AnimationController.BASE_ENV_MAP_DIRECTORY + newMapDirectory + AnimationController.ENVMAP_FILENAMES[4],
-            AnimationController.BASE_ENV_MAP_DIRECTORY + newMapDirectory + AnimationController.ENVMAP_FILENAMES[5],
-        ]);
-
+        const envMapFiles = [];
+        for (let i = 0; i < AnimationController.ENVMAP_FILENAMES.length; i++) {
+            envMapFiles.push(
+                AnimationController.BASE_ENV_MAP_DIRECTORY +
+                newMapDirectory +
+                AnimationController.ENVMAP_FILENAMES[i]
+            );
+        }
+        this.#environmentMap = cubeTextureLoader.load(envMapFiles);
         this.#scene.background = this.#environmentMap;
         this.#scene.environment = this.#environmentMap;
     }
