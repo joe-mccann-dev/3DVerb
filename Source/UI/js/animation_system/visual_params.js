@@ -1,5 +1,5 @@
-import * as Utility from './utility.js';
-import { freeze } from './index.js'
+import * as Utility from '../utility.js';
+import { freeze } from '../index.js'
 
 export default class VisualParams {
     static minCubeScale = 0.5;

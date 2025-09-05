@@ -22,7 +22,7 @@ import ParticleSystem, {
 
 import * as COLORS from './colors.js';
 import NebulaParams from './nebula_params.js';
-import * as Utility from './utility.js';
+import * as Utility from '../utility.js';
 
 export default class NebulaSystem {
 

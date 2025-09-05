@@ -1,23 +1,22 @@
 
 import * as THREE from 'three';
-import * as UI from './index.js';
+import * as UI from '../index.js';
 import Stats from 'three/addons/libs/stats.module.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import * as Utility from './utility.js';
+import * as Utility from '../utility.js';
 import * as COLORS from './colors.js';
 import * as models from './three_d_models.js';
 import VisualParams from './visual_params.js'
 import NebulaParams from './nebula_params.js'
 import NebulaSystem from './nebula_system.js';
 import ParticleWave from './particle_wave.js'
-import SphereFactory from './sphere_factory.js';
-import BoxFactory from './box_factory.js';
-import PlaneFactory from './plane_factory.js';
-import LineFactory from './line_factory.js';
-import { defaultParams, DefaultMeshOptions } from './mesh_options.js';
+import SphereFactory from './mesh/sphere_factory.js';
+import BoxFactory from './mesh/box_factory.js';
+import PlaneFactory from './mesh/plane_factory.js';
+import LineFactory from './mesh/line_factory.js';
+import { defaultParams, DefaultMeshOptions } from './mesh/mesh_options.js';
 
 export default class AnimationController {
-
     static BASE_ENV_MAP_DIRECTORY = '../assets/environment_maps';
     static CUBE_ALPHA_MAP_DIRECTORY = '../assets/alpha_maps/monochrome_sky.png';
     static ENVMAP_FILENAMES = ['/px.png', '/nx.png', '/py.png', '/ny.png', '/pz.png', '/nz.png'];

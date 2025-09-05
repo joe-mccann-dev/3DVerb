@@ -1,4 +1,4 @@
-import * as Utility from './utility.js'
+import * as Utility from '../utility.js'
 import ParticleSystem, { Vector3D } from 'three-nebula';
 export default class NebulaParams {
     static minSpeed = 20;

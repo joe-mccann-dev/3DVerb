@@ -1,5 +1,5 @@
 import * as COLORS from './colors.js';
-import * as Utility from './utility.js';
+import * as Utility from '../utility.js';
 
 export default class ParticleWave {
     static SEPARATION = 50;

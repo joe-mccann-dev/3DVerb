@@ -1,6 +1,6 @@
-import * as Juce from "./juce/index.js";
-import AnimationController from "./animation_controller.js";
-import * as COLORS from './colors.js';
+import * as Juce from './juce/index.js';
+import AnimationController from './animation_system/animation_controller.js';
+import * as COLORS from './animation_system/colors.js';
 import * as Utility from './utility.js';
 
 const data = window.__JUCE__.initialisationData;
