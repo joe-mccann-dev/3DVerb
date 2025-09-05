@@ -24,7 +24,7 @@ export default class AnimationController {
     #scene;
     #renderer = new THREE.WebGLRenderer({ antialias: true });
     #canvas;
-    #stats;
+    //#stats;
     #camera;
     #orbitControls;
     #pointLight;
